@@ -31,6 +31,7 @@ class sqlEngine(object):
         self.engine = sa.create_engine(db)
         self.session = self.create_session()
         self._sync_util = SyncUtil()
+        self._internal = InternalCode()
 
     def __del__(self):
         if self.session:
@@ -80,6 +81,15 @@ class sqlEngine(object):
             df = self.deal_fundamentals(dates, result_list)
         return df
 
+    def fetch_fundamentals_extend_company_id(self, db_name: declarative_base(),
+                                             db_entities: List = None,
+                                             db_filters: List = None,
+                                             dates: Iterable[str] = None):
+        db_entities.append(db_name.COMPCODE)
+        df = self.fetch_fundamentals(db_name, db_entities, db_filters, dates)
+        df = self._internal.join_internal_code(df, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
+        return df
+
 
 if __name__ == '__main__':
     internal = InternalCode()
@@ -93,4 +103,12 @@ if __name__ == '__main__':
                                   dates=['20190822', '20190818'])
     # 内码转换
     df = internal.join_internal_code(a, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
+    print(df)
+    df = engine.fetch_fundamentals_extend_company_id(IndicatorReport, [IndicatorReport.COMPCODE,
+                                                                       IndicatorReport.PUBLISHDATE,
+                                                                       IndicatorReport.DIVCOVER,
+                                                                       IndicatorReport.ROE,
+                                                                       IndicatorReport.ENDDATE],
+                                                     # [IndicatorReport.PUBLISHDATE <= '20190801'],
+                                                     dates=['20190822', '20190818'])
     print(df)
