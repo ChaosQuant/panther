@@ -33,4 +33,4 @@ if __name__ == "__main__":
     end_date = '2018-12-28'
     alpha191_dispatch(str('15609986886946081'), '191', end_date,
                   source_db='postgresql+psycopg2://alpha:alpha@180.166.26.82:8889/alpha', 
-                  dest_db='mysql+mysqlconnector://quanto_edit:quanto_edit_2019@db1.irongliang.com/quanto')
+                  dest_db='mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/quanto')
