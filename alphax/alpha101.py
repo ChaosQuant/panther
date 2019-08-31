@@ -9,7 +9,7 @@ import inspect
 import datetime
 from sklearn import preprocessing
 from numpy import log
-from alphax.singleton import Singleton
+from singleton import Singleton
 
 # rolling corr of two pandas dataframes
 def rolling_corr(x, y, win):
