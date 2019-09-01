@@ -9,7 +9,7 @@ import inspect
 import datetime
 from sklearn import preprocessing
 from numpy import log
-from alphax.singleton import Singleton
+from utilities.singleton import Singleton
 
 # rolling cov of two pandas dataframes
 def rolling_cov(x, y, win):
