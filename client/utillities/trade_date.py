@@ -8,7 +8,7 @@ from collections import OrderedDict
 import collections
 
 sys.path.append("../../")
-from factor import factor_config
+# from factor import factor_config
 
 
 class TradeDate(object):

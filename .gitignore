@@ -104,3 +104,11 @@ venv.bak/
 # mypy
 .mypy_cache/
 .idea/
+/vision/
+vision/README.md
+vision/config.py
+vision/requirements.txt
+vision/setup.py
+vision/show.ipynb
+vision/vision/
+"vision/\345\244\232\345\233\240\345\255\220\350\257\264\346\230\216.md"
