@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 #针对191，101 量价进行通用计算
 import pandas as pd
-import pdb,importlib,inspect
+import pdb,importlib,inspect,time,datetime,json
 from PyFin.api import advanceDateByCalendar
-from polymerize import DBPolymerize
+from data.polymerize import DBPolymerize
+from ultron.cluster.invoke.cache_data import cache_data
+from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, methods=[{'packet':'alpha191','class':'Alpha191'},
-                                    {'packet':'alpha101','class':'Alpha101'}]):
+    def __init__(self, name, methods=[{'packet':'alphax.alpha191','class':'Alpha191'},
+                                    {'packet':'alphax.alpha101','class':'Alpha101'}]):
         self._name= name
         self._methods = methods
         self._INDU_STYLES = ['Bank','RealEstate','Health','Transportation','Mining','NonFerMetal',
@@ -106,16 +108,26 @@ class CalcEngine(object):
                 result = result.merge(res,on=['code'])
         return result
     
-        
     def local_run(self, trade_date):
-        pdb.set_trace()
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
-        self.calc_factor('alpha191','Alpha191',mkt_df,trade_date)
+        self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
         
-     
-    
-if  __name__=="__main__":
-    calc_engine = CalcEngine('dx')
-    print(calc_engine.local_run('2018-12-28'))
+    def remote_run(self, trade_date):
+        pdb.set_trace()
+        total_data = self.loadon_data(trade_date)
+        #存储数据
+        session = str(int(time.time() * 1000000 + datetime.datetime.now().microsecond))
+        cache_data.set_cache(session, 'alphax', total_data.to_json(orient='records'))
+        distributed_factor.delay(session, json.dumps(self._methods), self._name)
         
+    def distributed_factor(self, total_data):
+        mkt_df = self.calc_factor_by_date(total_data,trade_date)
+        self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
+        
+@app.task    
+def distributed_factor(session, trade_date, packet_sets, name):
+    calc_engine = CalcEngine(name, packet_sets)
+    content = cache_data.get_cache(session, factor_name)
+    total_data = json_normalize(json.loads(content))
+    calc_engine.distributed_factor(total_data)
