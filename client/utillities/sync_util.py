@@ -92,6 +92,21 @@ class SyncUtil(object):
         report_date_list.sort()
         return report_date_list
 
+    # 从当前日期前推n个报告期，返回报告期日期
+    def get_before_report_date(self, trade_date, num):
+        current_year = int(trade_date[:4])
+        all_report_date = []
+        for year in [current_year, current_year - 1]:
+            all_report_date.append(year * 10000 + 331)
+            all_report_date.append(year * 10000 + 630)
+            all_report_date.append(year * 10000 + 930)
+            all_report_date.append(year * 10000 + 1231)
+        all_report_date.sort(reverse=True)
+        for report_date in all_report_date:
+            if report_date < int(trade_date):
+                num -= 1
+                if num == 0:
+                    return report_date
     # 获取区间
     def every_report_range(self, trade_date, report_date_list):
         report_date_list.sort(reverse=True)
