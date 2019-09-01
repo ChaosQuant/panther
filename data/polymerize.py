@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pdb
-from fech_data import MarketFactory, ExposureFactory, FetchEngine
+from .fech_data import MarketFactory, ExposureFactory, FetchEngine
 #提取对应数据，并且进行预处理
 
 #适配

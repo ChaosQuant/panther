@@ -3,8 +3,7 @@ import pdb,six,importlib
 import pandas as pd
 from PyFin.api import makeSchedule,BizDayConventions
 from sqlalchemy import create_engine, select, and_, or_
-from  singleton import Singleton
-#from  model import *
+from utilities.singleton import Singleton
 
 #连接句柄
 @six.add_metaclass(Singleton)
@@ -40,26 +39,26 @@ class FetchEngine(object):
         
 class FetchRLEngine(FetchEngine):
     def __init__(self):
-        super(FetchRLEngine, self).__init__('rl','mysql+mysqlconnector://1234t:1234@127.0.0.1/vision')
+        super(FetchRLEngine, self).__init__('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision')
     
     def market(self, begin_date, end_date, freq = None):
-        table = importlib.import_module('rl_model').Market
+        table = importlib.import_module('data.rl_model').Market
         return self.base(table, begin_date, end_date, freq)
     
     def exposure(self, begin_date, end_date, freq = None):
-        table = importlib.import_module('rl_model').Exposure
+        table = importlib.import_module('data.rl_model').Exposure
         return self.base(table, begin_date, end_date, freq)
     
 class FetchDXEngine(FetchEngine):
     def __init__(self):
-        super(FetchDXEngine, self).__init__('dx','postgresql+psycopg2://1234t:1234@127.0.0.1:8889/alpha')
+        super(FetchDXEngine, self).__init__('dx','postgresql+psycopg2://alpha:alpha@180.166.26.82:8889/alpha')
      
     def market(self, begin_date, end_date, freq = None):
-        table = importlib.import_module('dx_model').Market
+        table = importlib.import_module('data.dx_model').Market
         return self.base(table, begin_date, end_date, freq)
     
     def exposure(self, begin_date, end_date, freq = None):
-        table = importlib.import_module('dx_model').Exposure
+        table = importlib.import_module('data.dx_model').Exposure
         return self.base(table, begin_date, end_date, freq)
 
 
