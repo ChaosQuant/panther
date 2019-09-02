@@ -2,30 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="38d58cb9-27c5-49be-bec3-f39448a255b9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/factor/factor_capital_structure.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_operation_capacity.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_revenue_quality.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_solvency.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/panther.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/cash_flow.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/dbmodel/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/client/dbmodel/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/engines/sqlengine.py" beforeDir="false" afterPath="$PROJECT_DIR$/client/engines/sqlengine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/utillities/signletion_engine.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/utillities/trade_date.py" beforeDir="false" afterPath="$PROJECT_DIR$/client/utillities/trade_date.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/factor_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/factor/factor_base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/factor_constrain.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/factor_earning.py" beforeDir="false" afterPath="$PROJECT_DIR$/factor/factor_earning.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/factor_growth.py" beforeDir="false" afterPath="$PROJECT_DIR$/factor/factor_historical_growth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/factor_historical_value.py" beforeDir="false" afterPath="$PROJECT_DIR$/factor/factor_valuation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/factor_management.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/factor_per_share_indicators.py" beforeDir="false" afterPath="$PROJECT_DIR$/factor/factor_per_share_indicators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/factor/utillities/trade_date.py" beforeDir="false" afterPath="$PROJECT_DIR$/factor/utillities/trade_date.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vision" beforeDir="false" afterPath="$PROJECT_DIR$/vision" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vision/vision/file_unit/factor_growth.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision/vision/file_unit/factor_growth.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vision/vision/file_unit/factor_historical_value.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision/vision/file_unit/factor_historical_value.py" afterDir="false" />
@@ -39,51 +15,62 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/engines/sqlengine.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="444">
-              <caret line="118" column="56" selection-start-line="118" selection-start-column="16" selection-end-line="118" selection-end-column="56" />
-              <folding>
-                <element signature="e#126#155#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/client/dbmodel/model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="436" lean-forward="true" selection-start-line="436" selection-end-line="436" />
-              <folding>
-                <element signature="e#121#150#0" expanded="true" />
-                <element signature="e#1876#3259#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/vision/vision/db/signletion_engine.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="819">
-              <caret line="70" column="59" selection-start-line="70" selection-start-column="59" selection-end-line="70" selection-end-column="59" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/config.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="29" column="19" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/client/dbmodel/model.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="279">
+                  <caret line="437" column="22" selection-start-line="437" selection-start-column="22" selection-end-line="437" selection-end-column="22" />
+                  <folding>
+                    <element signature="e#121#150#0" expanded="true" />
+                    <element signature="e#1876#3259#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/.gitignore">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="528">
+                  <caret line="123" column="19" lean-forward="true" selection-start-line="123" selection-start-column="19" selection-end-line="123" selection-end-column="19" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/factor/factor_cash_flow.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="253">
+                  <caret line="157" column="34" lean-forward="true" selection-start-line="157" selection-start-column="34" selection-end-line="157" selection-end-column="34" />
+                  <folding>
+                    <element signature="e#39#50#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/factor/factor_cash_flow.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="2085">
+                  <caret line="157" column="34" selection-start-line="157" selection-start-column="34" selection-end-line="157" selection-end-column="34" />
+                  <folding>
+                    <element signature="e#39#50#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -122,22 +109,11 @@
         <option value="$PROJECT_DIR$/factor/factor_volatility_value_task.py" />
         <option value="$PROJECT_DIR$/client.py" />
         <option value="$PROJECT_DIR$/client/signletion_engine.py" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/client/dbmodel/model.py" />
         <option value="$PROJECT_DIR$/client/engines/sqlengine.py" />
         <option value="$PROJECT_DIR$/client/cash_flow.py" />
         <option value="$PROJECT_DIR$/factor/factor_cash_flow.py" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectConfigurationFiles">
-    <option name="files">
-      <list>
-        <option value="$PROJECT_DIR$/.idea/panther.iml" />
-        <option value="$PROJECT_DIR$/.idea/misc.xml" />
-        <option value="$PROJECT_DIR$/.idea/modules.xml" />
-        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
-        <option value="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -168,18 +144,7 @@
             <path>
               <item name="panther" type="b2602c69:ProjectViewProjectNode" />
               <item name="panther" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-              <item name="engines" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="panther" type="b2602c69:ProjectViewProjectNode" />
-              <item name="panther" type="462c0819:PsiDirectoryNode" />
               <item name="factor" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="panther" type="b2602c69:ProjectViewProjectNode" />
-              <item name="panther" type="462c0819:PsiDirectoryNode" />
-              <item name="technical" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -285,17 +250,17 @@
       <updated>1566521770336</updated>
       <workItem from="1566521771831" duration="2486000" />
       <workItem from="1566890374756" duration="35858000" />
-      <workItem from="1567319859515" duration="4195000" />
+      <workItem from="1567319859515" duration="5043000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="42539000" />
+    <option name="totallyTimeSpent" value="43387000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1680" y="-178" width="2560" height="1080" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13423352" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13423352" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -309,7 +274,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.26732674" />
+      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.120792076" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -465,41 +430,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="106" column="5" lean-forward="true" selection-start-line="106" selection-start-column="5" selection-end-line="106" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="29" column="19" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vision/vision/db/signletion_engine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="819">
-          <caret line="70" column="59" selection-start-line="70" selection-start-column="59" selection-end-line="70" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/technical/sentiment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="427">
           <caret line="49" column="62" lean-forward="true" selection-start-line="49" selection-start-column="62" selection-end-line="49" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/engines/sqlengine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="444">
-          <caret line="118" column="56" selection-start-line="118" selection-start-column="16" selection-end-line="118" selection-end-column="56" />
-          <folding>
-            <element signature="e#126#155#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -517,6 +451,32 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/vision/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1435" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="528">
+          <caret line="123" column="19" lean-forward="true" selection-start-line="123" selection-start-column="19" selection-end-line="123" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" column="19" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vision/vision/db/signletion_engine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="819">
+          <caret line="70" column="59" selection-start-line="70" selection-start-column="59" selection-end-line="70" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/factor/factor_cash_flow.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="253">
@@ -527,10 +487,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/client/engines/sqlengine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="473">
+          <caret line="108" column="81" lean-forward="true" selection-start-line="108" selection-start-column="81" selection-end-line="108" selection-end-column="81" />
+          <folding>
+            <element signature="e#126#155#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client/dbmodel/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="436" lean-forward="true" selection-start-line="436" selection-end-line="436" />
+        <state relative-caret-position="279">
+          <caret line="437" column="22" selection-start-line="437" selection-start-column="22" selection-end-line="437" selection-end-column="22" />
           <folding>
             <element signature="e#121#150#0" expanded="true" />
             <element signature="e#1876#3259#0" />
