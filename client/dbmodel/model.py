@@ -242,7 +242,6 @@ class IncomeTTM(Base):
     FINEXPE = Column(Float(53))
     BIZINCO = Column(Float(53))
     TMSTAMP = Column(Integer)
-    BIZINCO = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
 
@@ -275,7 +274,6 @@ class IncomeMRQ(Base):
     FINEXPE = Column(Float(53))
     BIZINCO = Column(Float(53))
     TMSTAMP = Column(Integer)
-    BIZINCO = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
 
@@ -308,7 +306,6 @@ class IncomeReport(Base):
     FINEXPE = Column(Float(53))
     BIZINCO = Column(Float(53))
     TMSTAMP = Column(Integer)
-    BIZINCO = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
 

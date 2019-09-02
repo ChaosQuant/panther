@@ -11,7 +11,7 @@ from factor.factor_base import FactorBase
 from factor.utillities.calc_tools import CalcTools
 
 # from factor import app
-# from ultron.cluster.invoke.cache_data import cache_data
+from ultron.ultron.cluster.invoke.cache_data import cache_data
 
 
 class FactorCashFlow(FactorBase):
@@ -26,7 +26,7 @@ class FactorCashFlow(FactorBase):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
                     `id` varchar(32) NOT NULL,
-                    `symbol` varchar(24) NOT NULL,
+                    `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,               
                     `OptOnReToAssetTTM` decimal(19,4),                    
                     `CashOfSales` decimal(19,4),
@@ -37,38 +37,53 @@ class FactorCashFlow(FactorBase):
                     `SalesServCashToOR` decimal(19,4),
                     `SaleServCashToOptReTTM` decimal(19,4),
                     `NOCFToOpt` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`symbol`)
+                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(FactorCashFlow, self)._create_tables(create_sql, drop_sql)
 
-    # （经营活动产生的金流量净额（TTM） - 净利润（TTM）） /总资产（TTM）
     @staticmethod
     def acca_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'net_profit', 'total_assets']):
-
+        """
+        # （经营活动产生的金流量净额（TTM） - 净利润（TTM）） /总资产（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptOnReToAssetTTM'] = np.where(CalcTools.is_zero(cash_flow.total_assets.values), 0,
-                                         (cash_flow.net_operate_cash_flow.values - cash_flow.net_profit.values) / (
-                                             cash_flow.total_assets.values))
+                                                  (cash_flow.net_operate_cash_flow.values - cash_flow.net_profit.values) / (
+                                                      cash_flow.total_assets.values))
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
-    # 经验活动产生的现金流量净额 / 营业收入
     @staticmethod
     def cash_rate_of_sales_latest(tp_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'operating_revenue']):
-
+        """
+        # 经验活动产生的现金流量净额 / 营业收入
+        :param tp_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = tp_cash_flow.loc[:, dependencies]
         cash_flow['CashOfSales'] = np.where(CalcTools.is_zero(cash_flow.operating_revenue.values),
-                                                          0,
-                                                          cash_flow.net_operate_cash_flow.values / cash_flow.operating_revenue.values)
+                                            0,
+                                            cash_flow.net_operate_cash_flow.values / cash_flow.operating_revenue.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
-    # 经营活动产生的现金流量净额（TTM）/归属于母公司所有者的净利润（TTM）
     @staticmethod
     def net_profit_cash_cover_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'np_parent_company_owners']):
-
+        """
+        # 经营活动产生的现金流量净额（TTM）/归属于母公司所有者的净利润（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['NetProCashCoverTTM'] = np.where(
             CalcTools.is_zero(cash_flow.np_parent_company_owners.values), 0,
@@ -77,10 +92,15 @@ class FactorCashFlow(FactorBase):
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 
-    # 经营活动产生的现金流量净额（TTM）/（长期借款（TTM）+ 短期借款（TTM）+ 总市值 - 期末现金及现金等价物（TTM）
     @staticmethod
     def cfo_to_ev_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'longterm_loan', 'shortterm_loan', 'market_cap', 'cash_and_equivalents_at_end']):
-
+        """
+        # 经营活动产生的现金流量净额（TTM）/（长期借款（TTM）+ 短期借款（TTM）+ 总市值 - 期末现金及现金等价物（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptToEnterpriseTTM'] = np.where(CalcTools.is_zero(
             cash_flow.longterm_loan.values + cash_flow.shortterm_loan.values + \
@@ -91,23 +111,32 @@ class FactorCashFlow(FactorBase):
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 
-    # 经营活动产生的现金流量净额（TTM）/营业收入（TTM）
     @staticmethod
-    def cash_rate_of_sales_ttm(ttm_cash_flow, factor_cash_flow):
-        columns_list = ['net_operate_cash_flow', 'operating_revenue']
-        cash_flow = ttm_cash_flow.loc[:, columns_list]
+    def cash_rate_of_sales_ttm(ttm_cash_flow, factor_cash_flow, dependencies = ['net_operate_cash_flow', 'operating_revenue']):
+        """
+        # 经营活动产生的现金流量净额（TTM）/营业收入（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
+        cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToRevTTM'] = np.where(
             CalcTools.is_zero(cash_flow.operating_revenue.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.operating_revenue.values)
-        cash_flow = cash_flow.drop(columns_list, axis=1)
+        cash_flow = cash_flow.drop(dependencies, axis=1)
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 
-
-    # 经营活动产生的现金流量净额（Latest）/(营业总收入（Latest）-营业总成本（Latest）)
     @staticmethod
     def nocf_to_operating_ni_latest(tp_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_operating_revenue', 'total_operating_cost']):
-
+        """
+        经营活动产生的现金流量净额（Latest）/(营业总收入（Latest）-营业总成本（Latest）)
+        :param tp_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = tp_cash_flow.loc[:, dependencies]
         cash_flow['NOCFToOpt'] = np.where(
             CalcTools.is_zero((cash_flow.total_operating_revenue.values - cash_flow.total_operating_cost.values)), 0,
@@ -117,9 +146,15 @@ class FactorCashFlow(FactorBase):
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 
-    # 经营活动产生的现金流量净额（TTM）/总资产（TTM）
     @staticmethod
     def oper_cash_in_to_asset_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_assets']):
+        """
+        # 经营活动产生的现金流量净额（TTM）/总资产（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptToAssertTTM'] = np.where(CalcTools.is_zero(cash_flow.total_assets.values),
                                                0,
@@ -128,10 +163,15 @@ class FactorCashFlow(FactorBase):
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 
-    # 销售商品和提供劳务收到的现金（Latest）/营业收入（Latest）
     @staticmethod
     def sales_service_cash_to_or_latest(tp_cash_flow, factor_cash_flow, dependencies=['goods_sale_and_service_render_cash', 'operating_revenue']):
-
+        """
+        # 销售商品和提供劳务收到的现金（Latest）/营业收入（Latest）
+        :param tp_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = tp_cash_flow.loc[:, dependencies]
         cash_flow['SalesServCashToOR'] = np.where(CalcTools.is_zero(cash_flow.operating_revenue.values),
                                                   0,
@@ -140,10 +180,15 @@ class FactorCashFlow(FactorBase):
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 
-    # 销售商品和提供劳务收到的现金（TTM）/营业收入（TTM）
     @staticmethod
     def sale_service_cash_to_or_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['goods_sale_and_service_render_cash', 'operating_revenue']):
-
+        """
+        # 销售商品和提供劳务收到的现金（TTM）/营业收入（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['SaleServCashToOptReTTM'] = np.where(
             CalcTools.is_zero(cash_flow.operating_revenue.values), 0,
@@ -152,13 +197,11 @@ class FactorCashFlow(FactorBase):
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 
-
-
 '''
-                    `OptCFToNITTM`
-                    `NOCFTOOPftTTM`
-                    `CashDivCovMulti`
-                    `CashToMrkRatio`
+`OptCFToNITTM`
+`NOCFTOOPftTTM`
+`CashDivCovMulti`
+`CashToMrkRatio`
 '''
 
 
@@ -169,29 +212,24 @@ def calculate(trade_date, cash_flow_dic, cash_flow):  # 计算对应因子
     ttm_factor_sets = cash_flow_dic['ttm_factor_sets']
 
     factor_cash_flow = pd.DataFrame()
-    factor_cash_flow['symbol'] = tp_cash_flow.index
+    factor_cash_flow['security_code'] = tp_cash_flow.index
 
     # 非TTM计算
-    factor_cash_flow = cash_flow.nocf_to_operating_ni_latest(tp_cash_flow, factor_cash_flow)
     factor_cash_flow = cash_flow.cash_rate_of_sales_latest(tp_cash_flow, factor_cash_flow)
+    factor_cash_flow = cash_flow.nocf_to_operating_ni_latest(tp_cash_flow, factor_cash_flow)
     factor_cash_flow = cash_flow.sales_service_cash_to_or_latest(tp_cash_flow, factor_cash_flow)
 
     # TTM计算
-    factor_cash_flow = cash_flow.nocf_to_t_liability_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.nocf_to_interest_bear_debt_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.nocf_to_net_debt_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.sale_service_cash_to_or_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.cash_rate_of_sales_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.nocf_to_operating_ni_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.oper_cash_in_to_current_liability_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.cash_to_current_liability_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.cfo_to_ev_ttm(ttm_factor_sets, factor_cash_flow)
     factor_cash_flow = cash_flow.acca_ttm(ttm_factor_sets, factor_cash_flow)
     factor_cash_flow = cash_flow.net_profit_cash_cover_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_cash_flow = cash_flow.cfo_to_ev_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_cash_flow = cash_flow.cash_rate_of_sales_ttm(ttm_factor_sets, factor_cash_flow)
     factor_cash_flow = cash_flow.oper_cash_in_to_asset_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow['id'] = factor_cash_flow['symbol'] + str(trade_date)
+    factor_cash_flow = cash_flow.sale_service_cash_to_or_ttm(ttm_factor_sets, factor_cash_flow)
+
+    factor_cash_flow['id'] = factor_cash_flow['security_code'] + str(trade_date)
     factor_cash_flow['trade_date'] = str(trade_date)
-    cash_flow._storage_data(factor_cash_flow, trade_date)
+    # cash_flow._storage_data(factor_cash_flow, trade_date)
 
 
 # @app.task()
@@ -204,8 +242,8 @@ def factor_calculate(**kwargs):
     content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
     tp_cash_flow = json_normalize(json.loads(str(content1, encoding='utf8')))
     ttm_factor_sets = json_normalize(json.loads(str(content2, encoding='utf8')))
-    tp_cash_flow.set_index('symbol', inplace=True)
-    ttm_factor_sets.set_index('symbol', inplace=True)
+    tp_cash_flow.set_index('security_code', inplace=True)
+    ttm_factor_sets.set_index('security_code', inplace=True)
     print("len_tp_cash_flow_data {}".format(len(tp_cash_flow)))
     print("len_ttm_cash_flow_data {}".format(len(ttm_factor_sets)))
     total_cash_flow_data = {'tp_cash_flow': tp_cash_flow, 'ttm_factor_sets': ttm_factor_sets}

@@ -111,7 +111,6 @@ class Growth(FactorBase):
         factor_earning = pd.merge(factor_earning, earning, on="symbol")
         return factor_earning
 
-
     @staticmethod
     def historical_total_profit_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['total_profit', 'total_profit_pre_year']):
         """
@@ -131,7 +130,6 @@ class Growth(FactorBase):
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
         factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
         return factor_historical_growth
-
 
     @staticmethod
     def historical_invest_cash_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['net_invest_cash_flow', 'net_invest_cash_flow_pre_year']):
