@@ -63,13 +63,13 @@ def get_basic_cash_flow(trade_date):
     engine = sqlEngine()
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id']
     # report data
-    cash_flow_sets = engine.fetch_fundamentals_extend_company_id(CashFlowReport,
+    cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
                                                                  [CashFlowReport.MANANETR,  # 经营活动现金流量净额
                                                                   CashFlowReport.LABORGETCASH,  # 销售商品、提供劳务收到的现金
                                                                   ],
                                                                  dates=[trade_date]).drop(columns, axis=1)
 
-    income_sets = engine.fetch_fundamentals_extend_company_id(IncomeReport,
+    income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                               [IncomeReport.BIZINCO,  # 营业收入
                                                                IncomeReport.BIZTOTCOST,  # 营业总成本
                                                                IncomeReport.BIZTOTINCO,  # 营业总收入
@@ -82,7 +82,8 @@ def get_basic_cash_flow(trade_date):
     print(tp_cash_flow.head())
 
     # ttm data
-    balance_ttm_sets = engine.fetch_fundamentals_extend_company_id(BalanceTTM,
+    # 缺净负债， 带息负债
+    balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                    [BalanceTTM.TOTLIAB,  # 负债合计
                                                                     BalanceTTM.SHORTTERMBORR,  # 短期借款
                                                                     BalanceTTM.LONGBORR,  # 长期借款
@@ -92,14 +93,16 @@ def get_basic_cash_flow(trade_date):
                                                                     ],
                                                                    dates=[trade_date])
 
-    cash_flow_ttm_sets = engine.fetch_fundamentals_extend_company_id(CashFlowTTM,
+    #
+    cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                      [CashFlowTTM.MANANETR,  # 经营活动现金流量净额
                                                                       CashFlowTTM.FINALCASHBALA,  # 期末现金及现金等价物余额
                                                                       ],
                                                                      dates=[trade_date])
 
-    income_ttm_sets = engine.fetch_fundamentals_extend_company_id(IncomeTTM,
+    income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                   [IncomeTTM.BIZTOTCOST,  # 营业总成本
+                                                                   IncomeTTM.BIZINCO,  # 营业收入
                                                                    IncomeTTM.BIZTOTINCO,  # 营业总收入
                                                                    IncomeTTM.NETPROFIT,  # 净利润
                                                                    IncomeTTM.PARENETP,  # 归属于母公司所有者的净利润
@@ -107,10 +110,10 @@ def get_basic_cash_flow(trade_date):
                                                                   dates=[trade_date])
 
 
-    valuation_sets = get_fundamentals(add_filter_trade(query(Valuation.__name__,
-                                                             [Valuation.symbol,
-                                                              Valuation.market_cap,  # 总市值
-                                                              Valuation.circulating_market_cap]), [trade_date])) # 流通市值
+    # valuation_sets = get_fundamentals(add_filter_trade(query(Valuation.__name__,
+    #                                                          [Valuation.symbol,
+    #                                                           Valuation.market_cap,  # 总市值
+    #                                                           Valuation.circulating_market_cap]), [trade_date])) # 流通市值
 
     # 合并
     # tp_cash_flow = pd.merge(cash_flow_sets, income_sets, on="symbol")

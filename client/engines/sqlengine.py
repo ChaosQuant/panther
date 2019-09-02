@@ -16,9 +16,9 @@ import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base
 
 import config
-from dbmodel.model import BalanceMRQ, BalanceTTM, IndicatorReport
-from utillities.internal_code import InternalCode
-from utillities.sync_util import SyncUtil
+from client.dbmodel.model import BalanceMRQ, BalanceTTM, IndicatorReport
+from client.utillities.internal_code import InternalCode
+from client.utillities.sync_util import SyncUtil
 
 
 class sqlEngine(object):
