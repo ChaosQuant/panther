@@ -2,36 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="38d58cb9-27c5-49be-bec3-f39448a255b9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/client/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/cash_flow.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/dbmodel/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/dbmodel/model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/engines/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/engines/sqlengine.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/utillities/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/utillities/signletion_engine.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/utillities/sync_util.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/utillities/trade_date.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_cash_flow.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_constrain.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_earning.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_growth.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_historical_value.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_management.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_per_share_indicators.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_scale_value_task.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/factor_volatility_value_task.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/calc_tools.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/calculation/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/calculation/neutralize.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/daily_price.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/mlog.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/sync_util.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/time_common.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/factor/utillities/trade_date.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/cash_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/client/cash_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/factor/factor_cash_flow.py" beforeDir="false" afterPath="$PROJECT_DIR$/factor/factor_cash_flow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vision" beforeDir="false" afterPath="$PROJECT_DIR$/vision" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vision/vision/file_unit/factor_growth.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision/vision/file_unit/factor_growth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vision/vision/file_unit/factor_historical_value.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision/vision/file_unit/factor_historical_value.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vision/vision/table/factor_growth.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision/vision/table/factor_growth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vision/vision/table/factor_historical_value.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision/vision/table/factor_historical_value.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -40,50 +20,64 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/engines/sqlengine.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="506">
-              <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
-              <folding>
-                <element signature="e#126#153#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/client/cash_flow.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="520">
-              <caret line="129" lean-forward="true" selection-start-line="129" selection-end-line="129" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/factor/factor_constrain.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="80">
-              <caret line="55" column="11" selection-start-line="55" selection-start-column="6" selection-end-line="55" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/factor/factor_cash_flow.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="156">
-              <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
-              <folding>
-                <element signature="e#39#50#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/client/engines/sqlengine.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="538">
+                  <caret line="98" column="77" lean-forward="true" selection-start-line="98" selection-start-column="77" selection-end-line="98" selection-end-column="77" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/client/cash_flow.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="258">
+                  <caret line="98" column="71" lean-forward="true" selection-start-line="98" selection-start-column="71" selection-end-line="98" selection-end-column="71" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/vision/vision/db/signletion_engine.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="819">
+                  <caret line="70" column="59" lean-forward="true" selection-start-line="70" selection-start-column="59" selection-end-line="70" selection-end-column="59" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/config.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="435">
+                  <caret line="29" column="19" lean-forward="true" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/factor/factor_cash_flow.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="374">
+                  <caret line="62" column="29" selection-start-line="62" selection-start-column="29" selection-end-line="62" selection-end-column="29" />
+                  <folding>
+                    <element signature="e#39#50#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -120,10 +114,11 @@
         <option value="$PROJECT_DIR$/factor/factor_per_share_indicators.py" />
         <option value="$PROJECT_DIR$/factor/factor_volatility_value_task.py" />
         <option value="$PROJECT_DIR$/client.py" />
-        <option value="$PROJECT_DIR$/factor/factor_cash_flow.py" />
         <option value="$PROJECT_DIR$/client/signletion_engine.py" />
         <option value="$PROJECT_DIR$/client/dbmodel/model.py" />
         <option value="$PROJECT_DIR$/client/engines/sqlengine.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/factor/factor_cash_flow.py" />
         <option value="$PROJECT_DIR$/client/cash_flow.py" />
       </list>
     </option>
@@ -140,11 +135,12 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="2278" />
-    <option name="y" value="-153" />
-    <option name="width" value="1680" />
-    <option name="height" value="1050" />
+    <option name="x" value="2702" />
+    <option name="y" value="-178" />
+    <option name="width" value="1538" />
+    <option name="height" value="1080" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -165,7 +161,31 @@
             <path>
               <item name="panther" type="b2602c69:ProjectViewProjectNode" />
               <item name="panther" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
+              <item name="engines" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="panther" type="b2602c69:ProjectViewProjectNode" />
+              <item name="panther" type="462c0819:PsiDirectoryNode" />
               <item name="factor" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="panther" type="b2602c69:ProjectViewProjectNode" />
+              <item name="panther" type="462c0819:PsiDirectoryNode" />
+              <item name="vision" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="panther" type="b2602c69:ProjectViewProjectNode" />
+              <item name="panther" type="462c0819:PsiDirectoryNode" />
+              <item name="vision" type="462c0819:PsiDirectoryNode" />
+              <item name="vision" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="panther" type="b2602c69:ProjectViewProjectNode" />
+              <item name="panther" type="462c0819:PsiDirectoryNode" />
+              <item name="vision" type="462c0819:PsiDirectoryNode" />
+              <item name="vision" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -176,6 +196,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/client" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
@@ -206,7 +227,29 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.cash_flow">
+    <configuration name="cash_flow" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="panther" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/client" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/client/cash_flow.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="sqlengine" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="panther" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -231,6 +274,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.cash_flow" />
         <item itemvalue="Python.sqlengine" />
       </list>
     </recent_temporary>
@@ -247,16 +291,18 @@
       <updated>1566521770336</updated>
       <workItem from="1566521771831" duration="2486000" />
       <workItem from="1566890374756" duration="35858000" />
+      <workItem from="1567319859515" duration="2428000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="38344000" />
+    <option name="totallyTimeSpent" value="40772000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2832" y="-178" width="1408" height="1080" extended-state="0" />
+    <frame x="1680" y="-178" width="2560" height="1080" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20424597" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13423352" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -270,7 +316,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.32970297" />
+      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.09405941" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -283,7 +329,8 @@
     <option name="version" value="1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/panther$sqlengine.coverage" NAME="sqlengine Coverage Results" MODIFIED="1567000419210" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/client/engines" />
+    <SUITE FILE_PATH="coverage/panther$sqlengine.coverage" NAME="sqlengine Coverage Results" MODIFIED="1567387148892" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/client/engines" />
+    <SUITE FILE_PATH="coverage/panther$cash_flow.coverage" NAME="cash_flow Coverage Results" MODIFIED="1567387170811" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/client" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/model.py">
@@ -300,27 +347,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/client.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="43" column="26" lean-forward="true" selection-start-line="43" selection-start-column="26" selection-end-line="43" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/constrain.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="11" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/factor/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="22" column="58" selection-start-line="22" selection-start-column="58" selection-end-line="22" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/client/client.py" />
+    <entry file="file://$PROJECT_DIR$/client/constrain.py" />
+    <entry file="file://$PROJECT_DIR$/factor/models.py" />
     <entry file="file://$PROJECT_DIR$/factor/utillities/mlog.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -352,16 +381,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/alphax/dispatch.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="60" lean-forward="true" selection-start-line="21" selection-start-column="60" selection-end-line="21" selection-end-column="60" />
-          <folding>
-            <element signature="e#24#34#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/alphax/dispatch.py" />
     <entry file="file://$PROJECT_DIR$/factor/factor_volatility_value_task.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2596">
@@ -379,33 +399,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/alphax/singleton.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/utillities/mlog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="38" column="7" selection-start-line="38" selection-start-column="7" selection-end-line="38" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/utillities/calc_tools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="6" column="12" lean-forward="true" selection-start-line="6" selection-start-column="12" selection-end-line="6" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/utillities/daily_price.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="13" column="8" lean-forward="true" selection-start-line="13" selection-start-column="8" selection-end-line="13" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/utillities/time_common.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/alphax/singleton.py" />
+    <entry file="file://$PROJECT_DIR$/client/utillities/mlog.py" />
+    <entry file="file://$PROJECT_DIR$/client/utillities/calc_tools.py" />
+    <entry file="file://$PROJECT_DIR$/client/utillities/daily_price.py" />
+    <entry file="file://$PROJECT_DIR$/client/utillities/time_common.py" />
     <entry file="file://$PROJECT_DIR$/client/utillities/sync_util.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
@@ -474,16 +472,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/factor/factor_cash_flow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="156">
-          <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
-          <folding>
-            <element signature="e#39#50#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/dbmodel/model.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1025">
@@ -495,16 +483,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/engines/sqlengine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
-          <folding>
-            <element signature="e#126#153#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/factor/factor_constrain.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="80">
@@ -512,10 +490,48 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="372">
+          <caret line="106" column="5" lean-forward="true" selection-start-line="106" selection-start-column="5" selection-end-line="106" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" column="19" lean-forward="true" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/factor/factor_cash_flow.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="62" column="29" selection-start-line="62" selection-start-column="29" selection-end-line="62" selection-end-column="29" />
+          <folding>
+            <element signature="e#39#50#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vision/vision/db/signletion_engine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="819">
+          <caret line="70" column="59" lean-forward="true" selection-start-line="70" selection-start-column="59" selection-end-line="70" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client/cash_flow.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
-          <caret line="129" lean-forward="true" selection-start-line="129" selection-end-line="129" />
+        <state relative-caret-position="258">
+          <caret line="98" column="71" lean-forward="true" selection-start-line="98" selection-start-column="71" selection-end-line="98" selection-end-column="71" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/engines/sqlengine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="538">
+          <caret line="98" column="77" lean-forward="true" selection-start-line="98" selection-start-column="77" selection-end-line="98" selection-end-column="77" />
         </state>
       </provider>
     </entry>

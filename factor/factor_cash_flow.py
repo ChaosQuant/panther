@@ -50,8 +50,8 @@ class FactorCashFlow(FactorBase):
 
     # 经营活动净现金流（TTM）/负债（TTM）
     @staticmethod
-    def nocf_to_t_liability_ttm(ttm_cash_flow, factor_cash_flow):
-        dependencies = ['net_operate_cash_flow', 'total_liability']
+    def nocf_to_t_liability_ttm(ttm_cash_flow, factor_cash_flow, dependencies = ['net_operate_cash_flow', 'total_liability']):
+
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToLiabilityTTM'] = np.where(
             CalcTools.is_zero(cash_flow.total_liability.values), 0,
