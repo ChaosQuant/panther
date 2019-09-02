@@ -24,7 +24,6 @@ class CalcEngine(object):
         
     #计算单个最大窗口
     def _method_max_windows(self, packet_name, class_name):
-        print(packet_name, class_name)
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         alpha_max_window = 0
         func_sets = self._func_sets(class_method)
