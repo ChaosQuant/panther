@@ -16,9 +16,9 @@ import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base
 
 import config
-from client.dbmodel.model import BalanceMRQ, BalanceTTM, IndicatorReport
-from client.utillities.internal_code import InternalCode
-from client.utillities.sync_util import SyncUtil
+from dbmodel.model import BalanceMRQ, BalanceTTM, IndicatorReport
+from utillities.internal_code import InternalCode
+from utillities.sync_util import SyncUtil
 
 
 class sqlEngine(object):
@@ -51,12 +51,14 @@ class sqlEngine(object):
         deal_df = pd.DataFrame()
         for trade_date in dates:
             report_date = self._sync_util.get_before_report_date(trade_date, 2)
+            trade_date = datetime.strptime(str(trade_date), '%Y%m%d').date()
+            report_date = datetime.strptime(str(report_date), '%Y%m%d').date()
             trades_date_fundamentals = fundamentals_sets[
-                (fundamentals_sets['ENDDATE'] >= str(report_date)) & (
-                        fundamentals_sets['PUBLISHDATE'] <= str(trade_date))]
+                (fundamentals_sets['ENDDATE'] >= report_date) & (
+                        fundamentals_sets['PUBLISHDATE'] <= trade_date)]
             trades_date_fundamentals.sort_values(by='ENDDATE', ascending=False, inplace=True)
             trades_date_fundamentals.drop_duplicates(subset=['COMPCODE'], keep='first', inplace=True)
-            trades_date_fundamentals['trade_date'] = datetime.strptime(str(trade_date), '%Y%m%d').date()
+            trades_date_fundamentals['trade_date'] = trade_date
             trades_date_fundamentals = trades_date_fundamentals.dropna(how='all')
             deal_df = deal_df.append(trades_date_fundamentals)
         deal_df.reset_index(drop=True, inplace=True)
@@ -65,8 +67,18 @@ class sqlEngine(object):
     def fetch_fundamentals(self,
                            db_name: declarative_base(),
                            db_entities: List = None,
-                           db_filters: List = None,
-                           dates: Iterable[str] = None):
+                           db_filters: List = None):
+        query = self.session.query(*db_entities, db_name.PUBLISHDATE, db_name.ENDDATE).filter(db_name.REPORTTYPE == 1)
+        if db_filters is not None:
+            query = query.filter(*db_filters)
+        result_list = pd.read_sql(query.statement, self.session.bind)
+        return result_list
+
+    def fetch_fundamentals_pit(self,
+                               db_name: declarative_base(),
+                               db_entities: List = None,
+                               db_filters: List = None,
+                               dates: Iterable[str] = None):
         dates = list(set(dates))
         dates.sort()
         report_date = self._sync_util.get_before_report_date(dates[0], 2)
@@ -81,12 +93,12 @@ class sqlEngine(object):
             df = self.deal_fundamentals(dates, result_list)
         return df
 
-    def fetch_fundamentals_extend_company_id(self, db_name: declarative_base(),
-                                             db_entities: List = None,
-                                             db_filters: List = None,
-                                             dates: Iterable[str] = None):
+    def fetch_fundamentals_pit_extend_company_id(self, db_name: declarative_base(),
+                                                 db_entities: List = None,
+                                                 db_filters: List = None,
+                                                 dates: Iterable[str] = None):
         db_entities.append(db_name.COMPCODE)
-        df = self.fetch_fundamentals(db_name, db_entities, db_filters, dates)
+        df = self.fetch_fundamentals_pit(db_name, db_entities, db_filters, dates)
         df = self._internal.join_internal_code(df, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
         return df
 
@@ -94,7 +106,7 @@ class sqlEngine(object):
 if __name__ == '__main__':
     internal = InternalCode()
     engine = sqlEngine()
-    a = engine.fetch_fundamentals(IndicatorReport, [IndicatorReport.COMPCODE,
+    a = engine.fetch_fundamentals_pit(IndicatorReport, [IndicatorReport.COMPCODE,
                                                     IndicatorReport.PUBLISHDATE,
                                                     IndicatorReport.DIVCOVER,
                                                     IndicatorReport.ROE,
@@ -104,7 +116,7 @@ if __name__ == '__main__':
     # 内码转换
     df = internal.join_internal_code(a, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
     print(df)
-    df = engine.fetch_fundamentals_extend_company_id(IndicatorReport, [IndicatorReport.COMPCODE,
+    df = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport, [IndicatorReport.COMPCODE,
                                                                        IndicatorReport.PUBLISHDATE,
                                                                        IndicatorReport.DIVCOVER,
                                                                        IndicatorReport.ROE,
