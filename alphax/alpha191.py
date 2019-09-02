@@ -47,6 +47,10 @@ def rolling_dot(df, x, win):
 class Alpha191(object):
     def __init__(self):
         __str__ = 'alpha191'
+        self.name = 'Alpha191'
+        self.factor_type1 = 'Features'
+        self.factor_type2 = 'Features'
+        self.desciption = 'price and volumns features'
     
     # (-1*CORR(RANK(DELTA(LOG(VOLUME),1)),RANK(((CLOSE-OPEN)/OPEN)),6)
     def alpha_1(self, data, param1=1, param2=6, dependencies=['close_price','open_price',
