@@ -4,7 +4,7 @@
 """
 @version: 0.1
 @author: li
-@file: factor_historical_value.py
+@file: factor_valuation.py
 @time: 2019-01-28 11:33
 """
 import sys
@@ -22,13 +22,13 @@ from factor.utillities.calc_tools import CalcTools
 from ultron.cluster.invoke.cache_data import cache_data
 
 
-class HistoricalValue(FactorBase):
+class Valuation(FactorBase):
     """
-    价值类因子
+    估值
     """
 
     def __init__(self, name):
-        super(HistoricalValue, self).__init__(name)
+        super(Valuation, self).__init__(name)
 
     # 构建因子表
     def create_dest_tables(self):
@@ -52,7 +52,7 @@ class HistoricalValue(FactorBase):
                     `CEToPTTM` decimal(19,4),
                     PRIMARY KEY(`id`,`trade_date`,`symbol`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
-        super(HistoricalValue, self)._create_tables(create_sql, drop_sql)
+        super(Valuation, self)._create_tables(create_sql, drop_sql)
 
     @staticmethod
     def ps_indu(tp_historical_value, factor_historical_value, dependencies=['ps', 'isymbol']):
@@ -398,7 +398,7 @@ def factor_calculate(**kwargs):
     print("history_value_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
-    historical_value = HistoricalValue('factor_historical_value')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+    historical_value = Valuation('factor_historical_value')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     content = cache_data.get_cache(session + str(date_index), date_index)
     total_history_data = json_normalize(json.loads(str(content, encoding='utf8')))
     print("len_history_value_data {}".format(len(total_history_data)))

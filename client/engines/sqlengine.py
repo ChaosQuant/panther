@@ -123,4 +123,4 @@ if __name__ == '__main__':
                                                                        IndicatorReport.ENDDATE],
                                                      # [IndicatorReport.PUBLISHDATE <= '20190801'],
                                                      dates=['20190822', '20190818'])
-    print(df)
+    print(df.keys())

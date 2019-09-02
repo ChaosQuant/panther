@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 sys.path.append('..')
 from factor.utillities.trade_date import TradeDate
-from factor import factor_config
+# from factor import factor_config
 
 
 class FactorBase(object):
