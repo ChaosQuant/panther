@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-# RECORD_BASE_DIR = '/home/vision/data/vision/'
+RECORD_BASE_DIR = '/home/vision/data/vision/'
 
 source_db_host = '192.168.100.151'
 source_db_port = '1433'
@@ -31,3 +31,9 @@ hh_db_port = '1433'
 hh_db_database = 'dnds'
 hh_db_user = 'reader'
 hh_db_pwd = 'reader'
+
+destination_db_host = '10.15.97.128'
+destination_db_port = '3306'
+destination_db_database = 'factors'
+destination_db_user = 'root'
+destination_db_pwd = '1234'

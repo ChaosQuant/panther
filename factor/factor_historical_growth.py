@@ -10,13 +10,14 @@
 import json
 import numpy as np
 import pandas as pd
-from sklearn import linear_model
+from factor.utillities.calc_tools import CalcTools
 from pandas.io.json import json_normalize
-
-from factor import app
 from factor.factor_base import FactorBase
-from factor.ttm_fundamental import *
-from ultron.cluster.invoke.cache_data import cache_data
+
+# from factor import app
+# from ultron.cluster.invoke.cache_data import cache_data
+
+pd.set_option('display.max_columns', None)
 
 
 class Growth(FactorBase):
@@ -34,7 +35,7 @@ class Growth(FactorBase):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
                     `id` varchar(32) NOT NULL,
-                    `symbol` varchar(24) NOT NULL,
+                    `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `NetAsset1YChg` decimal(19,4),
                     `TotalAsset1YChg` decimal(19,4),
@@ -49,37 +50,14 @@ class Growth(FactorBase):
                     `ORev5YChgTTM` decimal(19,4),
                     `NetCF1YChgTTM` decimal(19,4),
                     `NetPftAPNNRec1YChgTTM` decimal(19,4),
-                    `NetPft5YAvgChgTTM` decimal(19,4),
                     `StdUxpErn1YTTM` decimal(19,4),
                     `StdUxpGrPft1YTTM` decimal(19,4),
                     `FCF1YChgTTM` decimal(19,4),
                     `ICF1YChgTTM` decimal(19,4),
                     `OCF1YChgTTM` decimal(19,4),
-                    `Sales5YChgTTM` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`symbol`)
+                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(Growth, self)._create_tables(create_sql, drop_sql)
-
-    @staticmethod
-    def historical_financing_cash_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['net_finance_cash_flow', 'net_finance_cash_flow_pre_year']):
-        """
-        筹资活动产生的现金流量净额增长率
-        :param dependencies:
-        :param tp_historical_growth:
-        :param factor_historical_growth:
-        :return:
-        """
-
-        historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
-        fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
-        historical_growth['FCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
-
-        historical_growth = historical_growth.drop(columns=dependencies,
-                                                   axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
-        return factor_historical_growth
 
     @staticmethod
     def degm(ttm_earning, ttm_earning_p1y, factor_earning, dependencies=['operating_revenue', 'operating_cost']):
@@ -108,50 +86,8 @@ class Growth(FactorBase):
         earning["degm"] = earning["gross_income_ratio"] - earning_p1y["gross_income_ratio"]
         dependencies.append('gross_income_ratio')
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
-
-    @staticmethod
-    def historical_total_profit_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['total_profit', 'total_profit_pre_year']):
-        """
-        利润总额增长率
-        :param dependencies:
-        :param tp_historical_growth:
-        :param factor_historical_growth:
-        :return:
-        """
-
-        historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
-        fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        historical_growth['GrPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
-
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
-        return factor_historical_growth
-
-    @staticmethod
-    def historical_invest_cash_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['net_invest_cash_flow', 'net_invest_cash_flow_pre_year']):
-        """
-        投资活动产生的现金流量净额增长率
-        :param dependencies:
-        :param tp_historical_growth:
-        :param factor_historical_growth:
-        :return:
-        """
-
-        historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
-        fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
-        historical_growth['ICF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
-
-        historical_growth = historical_growth.drop(columns=dependencies,
-                                                   axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
-        return factor_historical_growth
-
 
     @staticmethod
     def historical_net_asset_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['total_owner_equities', 'total_owner_equities_pre_year']):
@@ -173,13 +109,95 @@ class Growth(FactorBase):
         historical_growth['NetAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
-    def historical_net_cash_flow_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['n_change_in_cash', 'n_change_in_cash_pre']):
+    def historical_total_asset_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['total_assets', 'total_assets_pre_year']):
         """
-        缺数据
+        总资产增长率
+        :param dependencies:
+        :param tp_historical_growth:
+        :param factor_historical_growth:
+        :return:
+        """
+
+        historical_growth = tp_historical_growth.loc[:, dependencies]
+        if len(historical_growth) <= 0:
+            return
+        fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        historical_growth['TotalAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
+
+        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        return factor_historical_growth
+
+    @staticmethod
+    def historical_financing_cash_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['net_finance_cash_flow', 'net_finance_cash_flow_pre_year']):
+        """
+        筹资活动产生的现金流量净额增长率
+        :param dependencies:
+        :param tp_historical_growth:
+        :param factor_historical_growth:
+        :return:
+        """
+
+        historical_growth = tp_historical_growth.loc[:, dependencies]
+        if len(historical_growth) <= 0:
+            return
+        fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
+        historical_growth['FCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
+
+        historical_growth = historical_growth.drop(columns=dependencies,
+                                                   axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        return factor_historical_growth
+
+    @staticmethod
+    def historical_total_profit_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['total_profit', 'total_profit_pre_year']):
+        """
+        利润总额增长率
+        :param dependencies:
+        :param tp_historical_growth:
+        :param factor_historical_growth:
+        :return:
+        """
+
+        historical_growth = tp_historical_growth.loc[:, dependencies]
+        if len(historical_growth) <= 0:
+            return
+        fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        historical_growth['GrPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
+
+        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        return factor_historical_growth
+
+    @staticmethod
+    def historical_invest_cash_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['net_invest_cash_flow', 'net_invest_cash_flow_pre_year']):
+        """
+        投资活动产生的现金流量净额增长率
+        :param dependencies:
+        :param tp_historical_growth:
+        :param factor_historical_growth:
+        :return:
+        """
+
+        historical_growth = tp_historical_growth.loc[:, dependencies]
+        if len(historical_growth) <= 0:
+            return
+        fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
+        historical_growth['ICF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
+
+        historical_growth = historical_growth.drop(columns=dependencies,
+                                                   axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        return factor_historical_growth
+
+    @staticmethod
+    def historical_net_cash_flow_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['n_change_in_cash', 'n_change_in_cash_pre_year']):
+        """
+
         净现金流量增长率
         :param dependencies:
         :param tp_historical_growth:
@@ -194,7 +212,7 @@ class Growth(FactorBase):
         historical_growth['NetCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -215,7 +233,7 @@ class Growth(FactorBase):
         historical_growth['NetPftAP1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -236,7 +254,7 @@ class Growth(FactorBase):
         historical_growth['NetPftAPNNRec1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -256,7 +274,7 @@ class Growth(FactorBase):
         historical_growth['NetPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -277,7 +295,7 @@ class Growth(FactorBase):
 
         historical_growth = historical_growth.drop(columns=dependencies,
                                                    axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -297,7 +315,7 @@ class Growth(FactorBase):
         historical_growth['OPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -318,31 +336,11 @@ class Growth(FactorBase):
         historical_growth['ORev1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
-    def historical_total_asset_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['total_assets', 'total_assets_pre_year']):
-        """
-        总资产增长率
-        :param dependencies:
-        :param tp_historical_growth:
-        :param factor_historical_growth:
-        :return:
-        """
-
-        historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
-        fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        historical_growth['TotalAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
-
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
-        return factor_historical_growth
-
-    @staticmethod
-    def historical_sue(tp_historical_growth, factor_historical_growth, dependencies=['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2', 'net_profit_pre_year_3', 'net_profit_pre_year_4']):
+    def historical_sue(tp_historical_growth, factor_historical_growth, dependencies=['net_profit', 'net_profit_pre_year', 'net_profit_pre_year_2', 'net_profit_pre_year_3', 'net_profit_pre_year_4']):
         """
         未预期盈余
         :param dependencies:
@@ -363,14 +361,14 @@ class Growth(FactorBase):
 
         # historical_growth = historical_growth.drop(columns=['net_profit', 'std', 'mean'], axis=1)
         historical_growth = historical_growth[['StdUxpErn1YTTM']]
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
 
         return factor_historical_growth
 
     @staticmethod
-    def historical_suoi(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue', 'operating_revenue_pre_year_1', 'operating_revenue_pre_year_2',
+    def historical_suoi(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue', 'operating_revenue_pre_year', 'operating_revenue_pre_year_2',
                                                                                       'operating_revenue_pre_year_3', 'operating_revenue_pre_year_4', 'operating_revenue_pre_year_5',
-                                                                                      'operating_cost', 'operating_cost_pre_year_1', 'operating_cost_pre_year_2',
+                                                                                      'operating_cost', 'operating_cost_pre_year', 'operating_cost_pre_year_2',
                                                                                       'operating_cost_pre_year_3', 'operating_cost_pre_year_4', 'operating_cost_pre_year_5']):
         """
         未预期毛利
@@ -399,7 +397,7 @@ class Growth(FactorBase):
         historical_growth['StdUxpGrPft1YTTM'] = historical_growth[['gi_1', 'mean', 'std']].apply(fun, axis=1)
 
         historical_growth = historical_growth[['StdUxpGrPft1YTTM']]
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
 
         return factor_historical_growth
 
@@ -420,7 +418,7 @@ class Growth(FactorBase):
         historical_growth['NetPft3YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -440,7 +438,7 @@ class Growth(FactorBase):
         historical_growth['NetPft5YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -461,7 +459,7 @@ class Growth(FactorBase):
         historical_growth['ORev3YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -483,23 +481,24 @@ class Growth(FactorBase):
 
         historical_growth = historical_growth.drop(columns=dependencies,
                                                    axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='symbol')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
         return factor_historical_growth
 
 
-def calculate(trade_date, growth_sets, growth):
+def calculate(trade_date, growth_sets):
     """
-    :param growth: 成长类
     :param growth_sets: 基础数据
     :param trade_date: 交易日
     :return:
-        """
+    """
+    growth_sets.set_index('security_code', inplace=True)
+    growth = Growth('factor_growth')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     if len(growth_sets) <= 0:
         print("%s has no data" % trade_date)
         return
 
     factor_historical_growth = pd.DataFrame()
-    factor_historical_growth['symbol'] = growth_sets.index
+    factor_historical_growth['security_code'] = growth_sets.index
 
     factor_historical_growth = growth.historical_net_asset_grow_rate(growth_sets, factor_historical_growth)
     factor_historical_growth = growth.historical_total_asset_grow_rate(growth_sets, factor_historical_growth)
@@ -511,23 +510,20 @@ def calculate(trade_date, growth_sets, growth):
     factor_historical_growth = growth.historical_net_profit_grow_rate_3y(growth_sets, factor_historical_growth)
     factor_historical_growth = growth.historical_net_profit_grow_rate_5y(growth_sets, factor_historical_growth)
     factor_historical_growth = growth.historical_operating_revenue_grow_rate_3y(growth_sets, factor_historical_growth)
-    factor_historical_growth = growth.historical_operating_revenue_grow_rate_5y(factor_historical_growth,
+    factor_historical_growth = growth.historical_operating_revenue_grow_rate_5y(growth_sets,
                                                                                 factor_historical_growth)
-    factor_historical_growth = growth.historical_net_cash_flow_grow_rate(factor_historical_growth,
+    factor_historical_growth = growth.historical_net_cash_flow_grow_rate(growth_sets,
                                                                          factor_historical_growth)
-    factor_historical_growth = growth.historical_np_parent_company_cut_yoy(factor_historical_growth,
-                                                                           factor_historical_growth)
-    factor_historical_growth = growth.historical_egro(factor_historical_growth, factor_historical_growth)
-    factor_historical_growth = growth.historical_sue(factor_historical_growth, factor_historical_growth)
-    factor_historical_growth = growth.historical_suoi(factor_historical_growth, factor_historical_growth)
-    factor_historical_growth = growth.historical_financing_cash_grow_rate(factor_historical_growth,
+    # factor_historical_growth = growth.historical_np_parent_company_cut_yoy(growth_sets, factor_historical_growth)
+    factor_historical_growth = growth.historical_sue(growth_sets, factor_historical_growth)
+    factor_historical_growth = growth.historical_suoi(growth_sets, factor_historical_growth)
+    factor_historical_growth = growth.historical_financing_cash_grow_rate(growth_sets,
                                                                           factor_historical_growth)
-    factor_historical_growth = growth.historical_oper_cash_grow_rate(factor_historical_growth,
+    factor_historical_growth = growth.historical_oper_cash_grow_rate(growth_sets,
                                                                      factor_historical_growth)
-    factor_historical_growth = growth.historical_invest_cash_grow_rate(factor_historical_growth,
+    factor_historical_growth = growth.historical_invest_cash_grow_rate(growth_sets,
                                                                        factor_historical_growth)
-    factor_historical_growth = growth.historical_sgro(factor_historical_growth, factor_historical_growth)
-    factor_historical_growth = factor_historical_growth[['symbol',
+    factor_historical_growth = factor_historical_growth[['security_code',
                                                          'NetAsset1YChg',
                                                          'TotalAsset1YChg',
                                                          'ORev1YChgTTM',
@@ -540,28 +536,26 @@ def calculate(trade_date, growth_sets, growth):
                                                          'ORev3YChgTTM',
                                                          'ORev5YChgTTM',
                                                          'NetCF1YChgTTM',
-                                                         'NetPftAPNNRec1YChgTTM',
-                                                         'NetPft5YAvgChgTTM',
+                                                         # 'NetPftAPNNRec1YChgTTM',
                                                          'StdUxpErn1YTTM',
                                                          'StdUxpGrPft1YTTM',
                                                          'FCF1YChgTTM',
                                                          'ICF1YChgTTM',
                                                          'OCF1YChgTTM',
-                                                         'Sales5YChgTTM']]
+                                                         ]]
 
-    factor_historical_growth['id'] = factor_historical_growth['symbol'] + str(trade_date)
+    factor_historical_growth['id'] = factor_historical_growth['security_code'] + str(trade_date)
     factor_historical_growth['trade_date'] = str(trade_date)
-    growth._storage_data(factor_historical_growth, trade_date)
+    # growth._storage_data(factor_historical_growth, trade_date)
 
 
-@app.task()
+# @app.task()
 def factor_calculate(**kwargs):
     print("growth_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
-    growth = Growth('factor_growth')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     content = cache_data.get_cache(session, "growth" + str(date_index))
     total_growth_data = json_normalize(json.loads(str(content, encoding='utf8')))
     print("len_total_growth_data {}".format(len(total_growth_data)))
-    calculate(date_index, total_growth_data, growth)
+    calculate(date_index, total_growth_data)
 

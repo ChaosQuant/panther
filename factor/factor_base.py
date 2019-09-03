@@ -9,21 +9,21 @@ from sqlalchemy.orm import sessionmaker
 
 sys.path.append('..')
 from factor.utillities.trade_date import TradeDate
-# from factor import factor_config
+import config
 
 
 class FactorBase(object):
     def __init__(self, name):
-        destination_db = '''mysql+mysqlconnector://{0}:{1}@{2}:{3}/{4}'''.format(factor_config.destination_db_user,
-                                                                                 factor_config.destination_db_pwd,
-                                                                                 factor_config.destination_db_host,
-                                                                                 factor_config.destination_db_port,
-                                                                                 factor_config.destination_db_database)
+        destination_db = '''mysql+mysqlconnector://{0}:{1}@{2}:{3}/{4}'''.format(config.destination_db_user,
+                                                                                 config.destination_db_pwd,
+                                                                                 config.destination_db_host,
+                                                                                 config.destination_db_port,
+                                                                                 config.destination_db_database)
         self._name = name
         self._destination = sa.create_engine(destination_db)
         self._dest_session = sessionmaker(bind=self._destination, autocommit=False, autoflush=True)
-        self._trade_date = TradeDate()
-        self._dir = factor_config.RECORD_BASE_DIR + 'factor/' + str(self._name)
+        # self._trade_date = TradeDate()
+        # self._dir = config.RECORD_BASE_DIR + 'factor/' + str(self._name)
 
     def __del__(self):
         session = self._dest_session()
@@ -54,12 +54,13 @@ class FactorBase(object):
         data_flow = data_flow.where(pd.notnull(data_flow), None)
         data_flow = data_flow.replace([-np.inf, np.inf], 0).fillna(value=0)
         # 保存本地
-        if not os.path.exists(self._dir):
-            os.makedirs(self._dir)
-        file_name = self._dir + '/' + str(trade_date) + '.csv'
-        if os.path.exists(str(file_name)):
-            os.remove(str(file_name))
-        data_flow.to_csv(file_name, encoding='UTF-8')
+        # if not os.path.exists(self._dir):
+        #     os.makedirs(self._dir)
+        # file_name = self._dir + '/' + str(trade_date) + '.csv'
+        # if os.path.exists(str(file_name)):
+        #     os.remove(str(file_name))
+        # data_flow.to_csv(file_name, encoding='UTF-8')
+        # 保存数据库
         try:
             self.delete_trade_data(trade_date)
             data_flow.to_sql(name=self._name, con=self._destination, if_exists='append', index=False)

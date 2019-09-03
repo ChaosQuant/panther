@@ -43,84 +43,106 @@ class RevenueQuality(FactorBase):
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(RevenueQuality, self)._create_tables(create_sql, drop_sql)
 
-
     @staticmethod
-    def net_non_oi_to_tp_ttm(ttm_earning, factor_earning):
+    def net_non_oi_to_tp_latest(tp_earning, factor_earning, dependencies=['total_profit', 'non_operating_revenue', 'non_operating_expense']):
         """
         营业外收支净额/利润总额
+        :param dependencies:
+        :param tp_earning:
+        :param factor_earning:
+        :return:
+        """
+
+        earning = tp_earning.loc[:, dependencies]
+        earning['net_non_oi_to_tp_latest'] = np.where(
+            CalcTools.is_zero(earning.total_profit.values), 0,
+            (earning.non_operating_revenue.values +
+             earning.non_operating_expense.values)
+            / earning.total_profit.values
+            )
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        return factor_earning
+
+    @staticmethod
+    def net_non_oi_to_tp_ttm(ttm_earning, factor_earning, dependencies=['total_profit', 'non_operating_revenue', 'non_operating_expense']):
+        """
+        营业外收支净额/利润总额
+        :param dependencies:
         :param ttm_earning:
         :param factor_earning:
         :return:
         """
-        columns_list = ['total_profit', 'non_operating_revenue', 'non_operating_expense']
-        earning = ttm_earning.loc[:, columns_list]
+        earning = ttm_earning.loc[:, dependencies]
         earning['net_non_oi_to_tp_ttm'] = np.where(
             CalcTools.is_zero(earning.total_profit.values), 0,
             (earning.non_operating_revenue.values +
              earning.non_operating_expense.values)
             / earning.total_profit.values
             )
-        earning = earning.drop(columns_list, axis=1)
+        earning = earning.drop(dependencies, axis=1)
         factor_earning = pd.merge(factor_earning, earning, on="symbol")
         return factor_earning
 
-
     @staticmethod
-    def operating_ni_to_tp_ttm(ttm_earning, factor_earning):
+    def operating_ni_to_tp_ttm(ttm_earning, factor_earning, dependencies=['total_operating_revenue', 'total_operating_cost', 'total_profit']):
         """
         经营活动净收益/利润总额
         （注，对于非金融企业 经营活动净收益=营业总收入-营业总成本；
         对于金融企业 经营活动净收益=营业收入-公允价值变动损益-投资收益-汇兑损益-营业支出
         此处以非金融企业的方式计算）
+        :param dependencies:
         :param ttm_earning:
         :param factor_earning:
         :return:
         """
-        columns_list = ['total_operating_revenue', 'total_operating_cost',
-                        'total_profit']
-        earning = ttm_earning.loc[:, columns_list]
+        earning = ttm_earning.loc[:, dependencies]
         earning['operating_ni_to_tp_ttm'] = np.where(
             CalcTools.is_zero(earning.total_profit.values), 0,
             (earning.total_operating_revenue.values -
              earning.total_operating_cost.values)
             / earning.total_profit.values)
-        earning = earning.drop(columns_list, axis=1)
+        earning = earning.drop(dependencies, axis=1)
         factor_earning = pd.merge(factor_earning, earning, on="symbol")
         return factor_earning
 
-
     @staticmethod
-    def operating_ni_to_tp_latest(tp_earning, factor_earning):
+    def operating_ni_to_tp_latest(tp_earning, factor_earning, dependencies=['total_operating_revenue', 'total_operating_cost', 'total_profit']):
         """
         经营活动净收益/利润总额
         （注，对于非金融企业 经营活动净收益=营业总收入-营业总成本；
         对于金融企业 经营活动净收益=营业收入-公允价值变动损益-投资收益-汇兑损益-营业支出
         此处以非金融企业的方式计算）
+        :param dependencies:
         :param tp_earning:
         :param factor_earning:
         :return:
         """
-        columns_list = ['total_operating_revenue', 'total_operating_cost',
-                        'total_profit']
-        earning = tp_earning.loc[:, columns_list]
+        earning = tp_earning.loc[:, dependencies]
         earning['operating_ni_to_tp_latest'] = np.where(
             CalcTools.is_zero(earning.total_profit.values), 0,
             (earning.total_operating_revenue.values -
              earning.total_operating_cost.values)
             / earning.total_profit.values)
-        earning = earning.drop(columns_list, axis=1)
+        earning = earning.drop(dependencies, axis=1)
         factor_earning = pd.merge(factor_earning, earning, on="symbol")
         return factor_earning
 
-    # 经营活动产生的现金流量净额（TTM）/流动负债（TTM）
     @staticmethod
-    def oper_cash_in_to_current_liability_ttm(ttm_cash_flow, factor_cash_flow):
-        columns_list = ['net_operate_cash_flow', 'total_current_liability']
-        cash_flow = ttm_cash_flow.loc[:, columns_list]
+    def oper_cash_in_to_current_liability_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_current_liability']):
+        """
+        经营活动产生的现金流量净额（TTM）/流动负债（TTM）
+
+        :param dependencies:
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :return:
+        """
+        cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToCurrLiabilityTTM'] = np.where(
             CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability.values)
-        cash_flow = cash_flow.drop(columns_list, axis=1)
+        cash_flow = cash_flow.drop(dependencies, axis=1)
         factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
         return factor_cash_flow
 

@@ -15,20 +15,19 @@ sys.path.append('../../../')
 import time
 import collections
 import argparse
+import pandas as pd
 from datetime import datetime, timedelta
 from factor import factor_cash_flow
-import pandas as pd
 from client.engines.sqlengine import sqlEngine
-from client.utillities.trade_date import TradeDate
 from client.utillities.sync_util import SyncUtil
 
 from client.dbmodel.model import BalanceMRQ, BalanceTTM, BalanceReport
-from client.dbmodel.model import CashFlowMRQ, CashFlowTTM,CashFlowReport
+from client.dbmodel.model import CashFlowMRQ, CashFlowTTM, CashFlowReport
 from client.dbmodel.model import IndicatorReport, IndicatorMRQ, IndicatorTTM
 from client.dbmodel.model import IncomeMRQ, IncomeReport, IncomeTTM
 
 from vision.vision.db.signletion_engine import *
-from ultron.ultron.cluster.invoke.cache_data import cache_data
+# from ultron.cluster.invoke.cache_data import cache_data
 pd.set_option('display.max_columns', None)
 
 
@@ -39,20 +38,20 @@ def get_trade_date(trade_date, n):
     :param n:
     :return:
     """
-    _trade_date = TradeDate()
-    trade_date_sets = collections.OrderedDict(
-        sorted(_trade_date._trade_date_sets.items(), key=lambda t: t[0], reverse=False))
+    syn_util = SyncUtil()
+    trade_date_sets = syn_util.get_all_trades('001002', '19900101', trade_date)
+    trade_date_sets = trade_date_sets['TRADEDATE'].values
 
     time_array = datetime.strptime(str(trade_date), "%Y%m%d")
     time_array = time_array - timedelta(days=365) * n
-    date_time = int(datetime.strftime(time_array, "%Y%m%d"))
-    if date_time < min(trade_date_sets.keys()):
-        # print('date_time %s is outof trade_date_sets' % date_time)
+    date_time = str(datetime.strftime(time_array, "%Y%m%d"))
+    if date_time < min(trade_date_sets):
+        print('date_time %s is outof trade_date_sets' % date_time)
         return date_time
     else:
         while date_time not in trade_date_sets:
             date_time = date_time - 1
-        # print('trade_date pre %s year %s' % (n, date_time))
+        print('trade_date pre %s year %s' % (n, date_time))
         return date_time
 
 
@@ -63,32 +62,32 @@ def get_basic_cash_flow(trade_date):
     :return:
     """
     engine = sqlEngine()
-    maplist = {'net_operate_cash_flow': 'MANANETR',  # 经营活动现金流量净额
-               'goods_sale_and_service_render_cash': 'LABORGETCASH',   # 销售商品、提供劳务收到的现金
+    maplist = {'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
+               'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
 
-               'operating_revenue': 'BIZINCO',  # 营业收入
-               'total_operating_revenue': 'BIZTOTINCO',    # 营业总收入
-               'total_operating_cost': 'BIZTOTCOST',    # 营业总成本
-               'net_profit':'NETPROFIT',   # 净利润
-               'np_parent_company_owners':'PARENETP',    # 归属于母公司所有者的净利润
+               'BIZINCO': 'operating_revenue',  # 营业收入
+               'BIZTOTINCO': 'total_operating_revenue',    # 营业总收入
+               'BIZTOTCOST': 'total_operating_cost',    # 营业总成本
+               'NETPROFIT':'net_profit',   # 净利润
+               'PARENETP':'np_parent_company_owners',    # 归属于母公司所有者的净利润
 
-               'total_liability': 'TOTLIAB',  # 负债合计
-               'shortterm_loan':'SHORTTERMBORR',  # 短期借款
-               'longterm_loan':'LONGBORR',  # 长期借款
-               'total_current_liability':'TOTALCURRLIAB',   # 流动负债合计
+               'TOTLIAB': 'total_liability',  # 负债合计
+               'SHORTTERMBORR':'shortterm_loan',  # 短期借款
+               'LONGBORR':'longterm_loan',  # 长期借款
+               'TOTALCURRLIAB':'total_current_liability',   # 流动负债合计
                'net_liability':'',  # 净负债
-               'total_current_assets':'TOTCURRASSET',  # 流动资产合计
-               'total_assets':'TOTASSET',      # 资产总计
-               'cash_and_equivalents_at_end':'FINALCASHBALA',  # 期末现金及现金等价物余额
+               'TOTCURRASSET':'total_current_assets',  # 流动资产合计
+               'TOTASSET':'total_assets',      # 资产总计
+               'FINALCASHBALA':'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
                }
 
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
     # report data
     cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
-                                                                 [CashFlowReport.MANANETR,  # 经营活动现金流量净额
-                                                                  CashFlowReport.LABORGETCASH,  # 销售商品、提供劳务收到的现金
-                                                                  ],
-                                                                 dates=[trade_date]).drop(columns, axis=1)
+                                                                     [CashFlowReport.MANANETR,  # 经营活动现金流量净额
+                                                                      CashFlowReport.LABORGETCASH,  # 销售商品、提供劳务收到的现金
+                                                                      ],
+                                                                     dates=[trade_date]).drop(columns, axis=1)
 
     income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                   [IncomeReport.BIZINCO,  # 营业收入
@@ -96,11 +95,15 @@ def get_basic_cash_flow(trade_date):
                                                                    IncomeReport.BIZTOTINCO,  # 营业总收入
                                                                    ],
                                                                   dates=[trade_date]).drop(columns, axis=1)
-    print(cash_flow_sets.head())
-    print(income_sets.head())
 
     tp_cash_flow = pd.merge(cash_flow_sets, income_sets, on="security_code")
-    print(tp_cash_flow.head())
+
+    tp_cash_flow = tp_cash_flow.rename(columns={'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
+                                                'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
+                                                'BIZINCO': 'operating_revenue',  # 营业收入
+                                                'BIZTOTINCO': 'total_operating_revenue',    # 营业总收入
+                                                'BIZTOTCOST': 'total_operating_cost',    # 营业总成本
+                                                })
 
     # ttm data
     balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
@@ -111,13 +114,13 @@ def get_basic_cash_flow(trade_date):
                                                                         BalanceTTM.TOTCURRASSET,   # 流动资产合计
                                                                         BalanceTTM.TOTASSET,       # 资产总计
                                                                         ],
-                                                                       dates=[trade_date])
+                                                                       dates=[trade_date]).drop(columns, axis=1)
 
     cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                          [CashFlowTTM.MANANETR,       # 经营活动现金流量净额
                                                                           CashFlowTTM.FINALCASHBALA,  # 期末现金及现金等价物余额
                                                                           ],
-                                                                         dates=[trade_date])
+                                                                         dates=[trade_date]).drop(columns, axis=1)
 
     income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                       [IncomeTTM.BIZTOTCOST,  # 营业总成本
@@ -126,55 +129,54 @@ def get_basic_cash_flow(trade_date):
                                                                        IncomeTTM.NETPROFIT,   # 净利润
                                                                        IncomeTTM.PARENETP,    # 归属于母公司所有者的净利润
                                                                        ],
-                                                                      dates=[trade_date])
+                                                                      dates=[trade_date]).drop(columns, axis=1)
+
+    ttm_cash_flow = pd.merge(balance_ttm_sets, cash_flow_ttm_sets, on="security_code")
+    ttm_cash_flow = pd.merge(income_ttm_sets, ttm_cash_flow, on="security_code")
+    ttm_cash_flow = ttm_cash_flow.rename(columns={'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
+                                                  'BIZINCO': 'operating_revenue',  # 营业收入
+                                                  'BIZTOTINCO': 'total_operating_revenue',    # 营业总收入
+                                                  'BIZTOTCOST': 'total_operating_cost',    # 营业总成本
+                                                  'NETPROFIT':'net_profit',   # 净利润
+                                                  'PARENETP':'np_parent_company_owners',    # 归属于母公司所有者的净利润
+                                                  'TOTLIAB': 'total_liability',  # 负债合计
+                                                  'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
+                                                  'LONGBORR': 'longterm_loan',  # 长期借款
+                                                  'TOTALCURRLIAB': 'total_current_liability',   # 流动负债合计
+                                                  # 'net_liability':'',  # 净负债
+                                                  'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
+                                                  'TOTASSET': 'total_assets',      # 资产总计
+                                                  'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
+                                                  })
+
+    return tp_cash_flow, ttm_cash_flow
 
 
-    # valuation_sets = get_fundamentals(add_filter_trade(query(Valuation.__name__,
-    #                                                          [Valuation.symbol,
-    #                                                           Valuation.market_cap, # 总市值
-    #                                                           Valuation.circulating_market_cap]), [trade_date])) # 流通市值
-
-    # 合并
-    # tp_cash_flow = pd.merge(cash_flow_sets, income_sets, on="symbol")
-    # tp_cash_flow = tp_cash_flow[-tp_cash_flow.duplicated()]
-
-
-    # ttm_factors = {Balance.__name__: [Balance.symbol,
-    #                                   Balance.total_liability,  # 负债合计
-    #                                   Balance.shortterm_loan,  # 短期借款
-    #                                   Balance.longterm_loan,  # 长期借款
-    #                                   Balance.total_current_liability,  # 流动负债合计
-    #                                   Balance.net_liability,  # 缺 净负债
-    #                                   Balance.total_current_assets,  # 流动资产合计
-    #                                   Balance.interest_bearing_liability,  # 带息负债， 缺
-    #                                   Balance.total_assets],  # 资产总计
-    #
-    #                CashFlow.__name__: [CashFlow.symbol,
-    #                                    CashFlow.net_operate_cash_flow,  # 经营活动产生的现金流量净额
-    #                                    CashFlow.goods_sale_and_service_render_cash,  # 缺 销售商品、提供劳务收到的现金
-    #                                    CashFlow.cash_and_equivalents_at_end],  # 期末现金及现金等价物余额
-    #                Income.__name__: [Income.symbol,
-    #                                  Income.operating_revenue,  # 营业收入 缺
-    #                                  Income.total_operating_revenue,  # 营业总收入
-    #                                  Income.total_operating_cost,  # 营业总成本
-    #                                  Income.net_profit,  # 净利润
-    #                                  Income.np_parent_company_owners] # 归属于母公司所有者的净利润
-    #                }
-    # ttm_cash_flow_sets = get_ttm_fundamental([], ttm_factors, trade_date).reset_index()
-    # ttm_cash_flow_sets = ttm_cash_flow_sets[-ttm_cash_flow_sets.duplicated()]
-    # # 合并
-    # ttm_cash_flow_sets = pd.merge(ttm_cash_flow_sets, valuation_sets, on="symbol")
-
-    return tp_cash_flow
-
-
-def prepare_calculate(trade_date):
-    # cash flow
+def prepare_calculate_local(trade_date):
+    # 本地计算
+    tic = time.time()
     tp_cash_flow, ttm_cash_flow_sets = get_basic_cash_flow(trade_date)
     print('len_tp_cash_flow: %s' % len(tp_cash_flow))
     print('len_ttm_cash_flow: %s' % len(ttm_cash_flow_sets))
-    print('tp_cash_flow: %s' % tp_cash_flow.head())
-    print('ttm_cash_flow: %s' % ttm_cash_flow_sets.head())
+    print('tp_cash_flow: \n%s' % tp_cash_flow.head())
+    print('ttm_cash_flow: \n%s' % ttm_cash_flow_sets.head())
+
+    if len(tp_cash_flow) <= 0 or len(ttm_cash_flow_sets) <= 0:
+        print("%s has no data" % trade_date)
+        return
+    else:
+        factor_cash_flow.calculate(trade_date, tp_cash_flow, ttm_cash_flow_sets)
+    end = time.time()
+    print('cash_flow_cal_time:{}'.format(end - tic))
+
+
+def prepare_calculate_remote(trade_date):
+    # 远程计算
+    tp_cash_flow, ttm_cash_flow_sets = get_basic_cash_flow(trade_date)
+    print('len_tp_cash_flow: %s' % len(tp_cash_flow))
+    print('len_ttm_cash_flow: %s' % len(ttm_cash_flow_sets))
+    print('tp_cash_flow: \n%s' % tp_cash_flow.head())
+    print('ttm_cash_flow: \n%s' % ttm_cash_flow_sets.head())
 
     if len(tp_cash_flow) <= 0 or len(ttm_cash_flow_sets) <= 0:
         print("%s has no data" % trade_date)
@@ -190,13 +192,14 @@ def prepare_calculate(trade_date):
 
 
 def do_update(start_date, end_date, count):
-    # 读取本地交易日
+    # 读取交易日
     syn_util = SyncUtil()
-    trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count)
-    print(trade_date_sets)
-    # for trade_date in trade_date_sets:
-    #     print('因子计算日期： %s' % trade_date)
-    #     prepare_calculate(trade_date)
+    trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count, order='DESC')
+    trade_date_sets = trade_date_sets['TRADEDATE'].values
+    print('交易日：%s' % trade_date_sets)
+    for trade_date in trade_date_sets:
+        print('因子计算日期： %s' % trade_date)
+        prepare_calculate_local(trade_date)
     print('----->')
 
 
@@ -221,4 +224,4 @@ if __name__ == '__main__':
     # if args.update:
     #     do_update(args.start_date, end_date, args.count)
 
-    do_update('20190821', '20190823', 1)
+    do_update('20190819', '20190823', 10)
