@@ -39,14 +39,14 @@ class FactorEarning(FactorBase):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
                     `id` varchar(32) NOT NULL,
-                    `symbol` varchar(24) NOT NULL,
+                    `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `net_profit_ratio` decimal(19,4),
                     `operating_profit_ratio` decimal(19,4),
                     `np_to_tor` decimal(19,4),
                     `operating_profit_to_tor` decimal(19,4),
                     `gross_income_ratio`  decimal(19,4),
-                    `ebit_to_tor` decimal(19,4),
+                    `ebit_to_tor_ttm` decimal(19,4),
                     `roa` decimal(19,4),
                     `roa5` decimal(19,4),
                     `roe` decimal(19,4),
@@ -63,9 +63,58 @@ class FactorEarning(FactorBase):
                     `interest_cover_ttm` decimal(19,4),
                     `net_non_oi_to_tp_ttm` decimal(19,4),
                     `net_non_oi_to_tp_latest` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`symbol`)
+                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(FactorEarning, self)._create_tables(create_sql, drop_sql)
+
+    @staticmethod
+    def historical_sgro(tp_earning, factor_earning, dependencies=['operating_revenue',
+                                                                  'operating_revenue_pre_year_1',
+                                                                  'operating_revenue_pre_year_2',
+                                                                  'operating_revenue_pre_year_3',
+                                                                  'operating_revenue_pre_year_4']):
+        """
+        五年营业收入增长率
+        :param dependencies:
+        :param tp_earning:
+        :param factor_earning:
+        :return:
+        """
+        regr = linear_model.LinearRegression()
+        # 读取五年的时间和净利润
+        historical_growth = tp_earning.loc[:, dependencies]
+        if len(historical_growth) <= 0:
+            return
+
+        def has_non(a):
+            tmp = 0
+            for i in a.tolist():
+                for j in i:
+                    if j is None or j == 'nan':
+                        tmp += 1
+            if tmp >= 1:
+                return True
+            else:
+                return False
+
+        def fun2(x):
+            aa = x[dependencies].fillna('nan').values.reshape(-1, 1)
+            if has_non(aa):
+                return None
+            else:
+                regr.fit(aa, range(0, 5))
+                return regr.coef_[-1]
+
+        historical_growth['coefficient'] = historical_growth.apply(fun2, axis=1)
+        historical_growth['mean'] = historical_growth[dependencies].fillna(0.0).mean(axis=1)
+
+        fun1 = lambda x: x[0] / abs(x[1]) if x[1] is not None and x[0] is not None and x[1] != 0 else None
+        historical_growth['Rev5YChg'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
+
+        historical_growth = historical_growth[['Rev5YChg']]
+        factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
+
+        return factor_earning
 
     @staticmethod
     def historical_egro(tp_earning, factor_earning,
@@ -104,10 +153,6 @@ class FactorEarning(FactorBase):
                 regr.fit(aa, range(0, 5))
                 return regr.coef_[-1]
 
-        # fun = lambda x: (regr.coef_[-1] if regr.fit(x[['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2',
-        #                                                'net_profit_pre_year_3', 'net_profit_pre_year_4']].values.reshape(-1, 1),
-        #                                             range(0, 5)) else None)
-
         historical_growth['coefficient'] = historical_growth.apply(fun2, axis=1)
         historical_growth['mean'] = historical_growth[dependencies].fillna('nan').mean(axis=1)
 
@@ -118,15 +163,15 @@ class FactorEarning(FactorBase):
         #     columns=['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2', 'net_profit_pre_year_3',
         #              'net_profit_pre_year_4', 'coefficient', 'mean'], axis=1)
 
-        historical_growth = historical_growth[['symbol', 'NetPft5YAvgChgTTM']]
-        factor_earning = pd.merge(factor_earning, historical_growth, on='symbol')
+        historical_growth = historical_growth[['security_code', 'NetPft5YAvgChgTTM']]
+        factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
 
         return factor_earning
 
     @staticmethod
     def historical_egro_ttm(ttm_earning, factor_earning,
                             dependencies=['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2',
-                                      'net_profit_pre_year_3', 'net_profit_pre_year_4']):
+                                          'net_profit_pre_year_3', 'net_profit_pre_year_4']):
         """
         5年收益增长率
         :param ttm_earning:
@@ -134,7 +179,6 @@ class FactorEarning(FactorBase):
         :param dependencies:
         :return:
         """
-
         regr = linear_model.LinearRegression()
         # 读取五年的时间和净利润
         historical_growth = ttm_earning.loc[:, dependencies]
@@ -159,29 +203,23 @@ class FactorEarning(FactorBase):
             else:
                 regr.fit(aa, range(0, 5))
                 return regr.coef_[-1]
-
-        # fun = lambda x: (regr.coef_[-1] if regr.fit(x[['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2',
-        #                                                'net_profit_pre_year_3', 'net_profit_pre_year_4']].values.reshape(-1, 1),
-        #                                             range(0, 5)) else None)
-
         historical_growth['coefficient'] = historical_growth.apply(fun2, axis=1)
         historical_growth['mean'] = historical_growth[dependencies].fillna('nan').mean(axis=1)
 
         fun1 = lambda x: x[0] / abs(x[1]) if x[1] != 0 and x[1] is not None and x[0] is not None else None
         historical_growth['NetPft5YAvgChgTTM'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
 
-        # historical_growth = historical_growth.drop(
-        #     columns=['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2', 'net_profit_pre_year_3',
-        #              'net_profit_pre_year_4', 'coefficient', 'mean'], axis=1)
-
-        historical_growth = historical_growth[['symbol', 'NetPft5YAvgChgTTM']]
-        factor_earning = pd.merge(factor_earning, historical_growth, on='symbol')
+        historical_growth = historical_growth[['security_code', 'NetPft5YAvgChgTTM']]
+        factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
 
         return factor_earning
 
     @staticmethod
-    def historical_sgro(tp_earning, factor_earning, dependencies=['operating_revenue', 'operating_revenue_pre_year_1',
-                                                                                      'operating_revenue_pre_year_2', 'operating_revenue_pre_year_3', 'operating_revenue_pre_year_4']):
+    def historical_sgro_ttm(tp_earning, factor_earning, dependencies=['operating_revenue',
+                                                                      'operating_revenue_pre_year_1',
+                                                                      'operating_revenue_pre_year_2',
+                                                                      'operating_revenue_pre_year_3',
+                                                                      'operating_revenue_pre_year_4']):
         """
         五年营业收入增长率
         :param dependencies:
@@ -224,9 +262,10 @@ class FactorEarning(FactorBase):
         #     columns=['operating_revenue', 'operating_revenue_pre_year_1', 'operating_revenue_pre_year_2',
         #              'operating_revenue_pre_year_3', 'operating_revenue_pre_year_4', 'coefficient', 'mean'], axis=1)
         historical_growth = historical_growth[['Sales5YChgTTM']]
-        factor_earning = pd.merge(factor_earning, historical_growth, on='symbol')
+        factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
 
         return factor_earning
+
 
     @staticmethod
     def roa(ttm_earning, factor_earning, dependencies=['net_profit', 'total_assets']):
@@ -243,7 +282,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.total_assets.values), 0,
             earning.net_profit.values / earning.total_assets.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -261,7 +300,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.total_assets.values), 0,
             earning.net_profit.values / earning.total_assets.values / 4)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -278,7 +317,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.total_owner_equities.values), 0,
             earning.net_profit.values / earning.total_owner_equities.values / 4)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -298,7 +337,7 @@ class FactorEarning(FactorBase):
             contrarian['administration_expense'] / contrarian['total_operating_revenue']
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="symbol")
+        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -317,11 +356,11 @@ class FactorEarning(FactorBase):
             0, contrarian['operating_cost'] / contrarian['operating_revenue']
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="symbol")
+        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
         return factor_earning
 
     @staticmethod
-    def ebit_to_tor(ttm_earning, factor_earning, dependencies=['total_profit', 'financial_expense', 'interest_income', 'total_operating_revenue']):
+    def ebit_to_tor_ttm(ttm_earning, factor_earning, dependencies=['total_profit', 'financial_expense', 'interest_income', 'total_operating_revenue']):
         """
         息税前利润与营业总收入之比
         息税前利润与营业总收入之比=（利润总额+利息支出-利息收入)/营业总收入
@@ -331,14 +370,14 @@ class FactorEarning(FactorBase):
         :return:
         """
         earning = ttm_earning.loc[:, dependencies]
-        earning['ebit_to_tor'] = np.where(
+        earning['ebit_to_tor_ttm'] = np.where(
             CalcTools.is_zero(earning.total_operating_revenue.values), 0,
             (earning.total_profit.values +
              earning.financial_expense.values -
              earning.interest_income.values)
             / earning.total_operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -357,7 +396,7 @@ class FactorEarning(FactorBase):
             contrarian['operating_revenue']
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="symbol")
+        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -375,7 +414,7 @@ class FactorEarning(FactorBase):
             contrarian['financial_expense'] / contrarian['total_operating_cost']
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="symbol")
+        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -394,7 +433,7 @@ class FactorEarning(FactorBase):
             earning.adjusted_profit.values
             / earning.net_profit.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -412,7 +451,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.operating_revenue.values), 0,
             earning.net_profit.values / earning.operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -430,7 +469,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.total_operating_revenue.values), 0,
             earning.net_profit.values / earning.total_operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -449,7 +488,7 @@ class FactorEarning(FactorBase):
             contrarian['sale_expense'] / contrarian['total_operating_revenue']
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="symbol")
+        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -467,7 +506,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.operating_revenue.values), 0,
             earning.operating_profit.values / earning.operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -485,7 +524,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.total_operating_revenue.values), 0,
             earning.operating_profit.values / earning.total_operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -508,7 +547,7 @@ class FactorEarning(FactorBase):
              earning.interest_income.values)
             / earning.total_assets.values / 4)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -528,7 +567,7 @@ class FactorEarning(FactorBase):
             earning.np_parent_company_owners.values /
             earning.equities_parent_company_owners.values / 4)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -550,7 +589,7 @@ class FactorEarning(FactorBase):
             earning.np_parent_company_owners.values /
             earning.equities_parent_company_owners.values / 4)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -569,7 +608,7 @@ class FactorEarning(FactorBase):
             earning.adjusted_profit.values /
             earning.equities_parent_company_owners.values / 4)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -587,7 +626,7 @@ class FactorEarning(FactorBase):
             CalcTools.is_zero(earning.total_owner_equities.values), 0,
             earning.net_profit.values / earning.total_owner_equities.values / 4)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -606,7 +645,7 @@ class FactorEarning(FactorBase):
             (earning.operating_revenue.values - earning.operating_cost.values)
             / earning.operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -625,7 +664,7 @@ class FactorEarning(FactorBase):
             contrarian['operating_tax_surcharges'] / contrarian['operating_revenue']
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="symbol")
+        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -651,7 +690,7 @@ class FactorEarning(FactorBase):
             management.total_profit.values / management.cost.values)
         dependencies.append('cost')
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -670,7 +709,7 @@ class FactorEarning(FactorBase):
             earning.invest_income_associates.values
             / earning.total_profit.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -689,26 +728,31 @@ class FactorEarning(FactorBase):
             earning.invest_income_associates.values
             / earning.total_profit.values)
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
 
-def calculate(trade_date, earning_sets_dic, earning):  # 计算对应因子
+def calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y):  # 计算对应因子
     print(trade_date)
-    tp_earning = earning_sets_dic['tp_earning']
-    ttm_earning = earning_sets_dic['ttm_earning']
-    ttm_earning_5y = earning_sets_dic['ttm_earning_5y']
+    # tp_earning = earning_sets_dic['tp_earning']
+    # ttm_earning = earning_sets_dic['ttm_earning']
+    # ttm_earning_5y = earning_sets_dic['ttm_earning_5y']
+    tp_earning = tp_earning.set_index('security_code', inplace=True)
+    ttm_earning = ttm_earning.set_index('security_code', inplace=True)
+    ttm_earning_5y = ttm_earning_5y.set_index('security_code', inplace=True)
+
+    earning = FactorEarning('factor_earning')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
 
     # 因子计算
     factor_earning = pd.DataFrame()
-    factor_earning['symbol'] = tp_earning.index
+    factor_earning['security_code'] = tp_earning.index
 
     factor_earning = earning.net_profit_ratio(ttm_earning, factor_earning)
     factor_earning = earning.operating_profit_ratio(ttm_earning, factor_earning)
     factor_earning = earning.np_to_tor(ttm_earning, factor_earning)
     factor_earning = earning.operating_profit_to_tor(ttm_earning, factor_earning)
     factor_earning = earning.gross_income_ratio(ttm_earning, factor_earning)
-    factor_earning = earning.ebit_to_tor(ttm_earning, factor_earning)
+    factor_earning = earning.ebit_to_tor_ttm(ttm_earning, factor_earning)
     factor_earning = earning.roa(ttm_earning, factor_earning)
     factor_earning = earning.roa5(ttm_earning_5y, factor_earning)
     factor_earning = earning.roe(ttm_earning, factor_earning)
@@ -721,19 +765,19 @@ def calculate(trade_date, earning_sets_dic, earning):  # 计算对应因子
     # factor_earning = self.roic()
     # factor_earning = self.roa_ebit()
     factor_earning = earning.roa_ebit_ttm(ttm_earning, factor_earning)
-    factor_earning = earning.operating_ni_to_tp_ttm(ttm_earning, factor_earning)
-    factor_earning = earning.operating_ni_to_tp_latest(tp_earning, factor_earning)
+    # factor_earning = earning.operating_ni_to_tp_ttm(ttm_earning, factor_earning)
+    # factor_earning = earning.operating_ni_to_tp_latest(tp_earning, factor_earning)
     factor_earning = earning.invest_r_associates_to_tp_ttm(ttm_earning, factor_earning)
     factor_earning = earning.invest_r_associates_to_tp_latest(tp_earning, factor_earning)
     factor_earning = earning.npcut_to_np(tp_earning, factor_earning)
-    factor_earning = earning.interest_cover_ttm(ttm_earning, factor_earning)
+    # factor_earning = earning.interest_cover_ttm(ttm_earning, factor_earning)
     # factor_earning = self.degm(ttm_earning, ttm_earning_p1y, factor_earning)
-    factor_earning = earning.net_non_oi_to_tp_ttm(ttm_earning, factor_earning)
-    factor_earning = earning.net_non_oi_to_tp_latest(tp_earning, factor_earning)
+    # factor_earning = earning.net_non_oi_to_tp_ttm(ttm_earning, factor_earning)
+    # factor_earning = earning.net_non_oi_to_tp_latest(tp_earning, factor_earning)
 
-    factor_earning['id'] = factor_earning['symbol'] + str(trade_date)
+    factor_earning['id'] = factor_earning['security_code'] + str(trade_date)
     factor_earning['trade_date'] = str(trade_date)
-    earning._storage_data(factor_earning, trade_date)
+    # earning._storage_data(factor_earning, trade_date)
 
 
 # @app.task()
@@ -741,7 +785,6 @@ def factor_calculate(**kwargs):
     print("constrain_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
-    earning = FactorEarning('factor_earning')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
     content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
     content3 = cache_data.get_cache(session + str(date_index) + "3", date_index)
@@ -752,9 +795,9 @@ def factor_calculate(**kwargs):
     ttm_earning_5y = json_normalize(json.loads(str(content2, encoding='utf8')))
     ttm_earning = json_normalize(json.loads(str(content3, encoding='utf8')))
     # cache_date.get_cache使得index的名字丢失， 所以数据需要按照下面的方式设置index
-    tp_earning.set_index('symbol', inplace=True)
-    ttm_earning.set_index('symbol', inplace=True)
-    ttm_earning_5y.set_index('symbol', inplace=True)
-    total_earning_data = {'tp_earning': tp_earning, 'ttm_earning_5y': ttm_earning_5y, 'ttm_earning': ttm_earning}
-    calculate(date_index, total_earning_data, earning)
+    tp_earning.set_index('security_code', inplace=True)
+    ttm_earning.set_index('security_code', inplace=True)
+    ttm_earning_5y.set_index('security_code', inplace=True)
+    # total_earning_data = {'tp_earning': tp_earning, 'ttm_earning_5y': ttm_earning_5y, 'ttm_earning': ttm_earning}
+    calculate(date_index, tp_earning, ttm_earning, ttm_earning_5y)
 

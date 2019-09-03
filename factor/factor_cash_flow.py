@@ -215,8 +215,8 @@ class FactorCashFlow(FactorBase):
 
 
 def calculate(trade_date, tp_cash_flow, ttm_factor_sets):  # 计算对应因子
-    tp_cash_flow.set_index('security_code', inplace=True)
-    ttm_factor_sets.set_index('security_code', inplace=True)
+    tp_cash_flow = tp_cash_flow.set_index('security_code', inplace=True)
+    ttm_factor_sets = ttm_factor_sets.set_index('security_code', inplace=True)
 
     cash_flow = FactorCashFlow('factor_cash_flow')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     factor_cash_flow = pd.DataFrame()

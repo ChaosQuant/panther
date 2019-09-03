@@ -44,15 +44,15 @@ def get_trade_date(trade_date, n):
 
     time_array = datetime.strptime(str(trade_date), "%Y%m%d")
     time_array = time_array - timedelta(days=365) * n
-    date_time = str(datetime.strftime(time_array, "%Y%m%d"))
-    if date_time < min(trade_date_sets):
-        print('date_time %s is outof trade_date_sets' % date_time)
-        return date_time
+    date_time = int(datetime.strftime(time_array, "%Y%m%d"))
+    if str(date_time) < min(trade_date_sets):
+        # print('date_time %s is out of trade_date_sets' % date_time)
+        return str(date_time)
     else:
-        while date_time not in trade_date_sets:
+        while str(date_time) not in trade_date_sets:
             date_time = date_time - 1
-        print('trade_date pre %s year %s' % (n, date_time))
-        return date_time
+        # print('trade_date pre %s year %s' % (n, date_time))
+        return str(date_time)
 
 
 def get_basic_cash_flow(trade_date):

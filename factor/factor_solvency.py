@@ -93,7 +93,7 @@ class FactorCashFlow(FactorBase):
     @staticmethod
     def cash_to_current_liability_ttm(ttm_cash_flow, factor_cash_flow):
         """
-            # 期末现金及现金等价物余额（TTM）/流动负债（TTM）
+        期末现金及现金等价物余额（TTM）/流动负债（TTM）
         :param ttm_cash_flow:
         :param factor_cash_flow:
         :return:
