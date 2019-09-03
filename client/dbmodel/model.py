@@ -57,6 +57,11 @@ class BalanceMRQ(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class BalanceTTM(Base):
@@ -100,6 +105,11 @@ class BalanceTTM(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class BalanceReport(Base):
@@ -143,6 +153,11 @@ class BalanceReport(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class CashFlowMRQ(Base):
@@ -166,6 +181,11 @@ class CashFlowMRQ(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class CashFlowTTM(Base):
@@ -189,6 +209,11 @@ class CashFlowTTM(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class CashFlowReport(Base):
@@ -212,6 +237,11 @@ class CashFlowReport(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class IncomeTTM(Base):
@@ -244,6 +274,11 @@ class IncomeTTM(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class IncomeMRQ(Base):
@@ -276,6 +311,11 @@ class IncomeMRQ(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class IncomeReport(Base):
@@ -308,6 +348,11 @@ class IncomeReport(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class IndicatorTTM(Base):
@@ -369,6 +414,11 @@ class IndicatorTTM(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class IndicatorMRQ(Base):
@@ -430,6 +480,11 @@ class IndicatorMRQ(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }
 
 
 class IndicatorReport(Base):
@@ -491,10 +546,8 @@ class IndicatorReport(Base):
     TMSTAMP = Column(Integer)
     creat_time = Column(DATE)
     update_time = Column(DATE)
-
-
-
-
-
-
-
+    __pit_column__ = {
+        'pub_date': PUBLISHDATE,
+        'filter_date': ENDDATE,
+        'index': COMPCODE
+    }

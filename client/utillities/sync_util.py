@@ -137,6 +137,9 @@ class SyncUtil(object):
 
 
 if __name__ == "__main__":
-    pdb.set_trace()
     sync = SyncUtil()
-    sync.ttm_report_date_by_year('2018-06-10', 5)
+    # sync.ttm_report_date_by_year('2018-06-10', 5)
+    # test = sync.ttm_report_date_by_year('2018-06-10', 5)
+    # test = sync.get_before_report_date('20180701', 2)
+    test = sync.get_trades_ago('001002', '20180610', '20180615', 1, order='DESC')
+    print(test)

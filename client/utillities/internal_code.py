@@ -11,7 +11,7 @@
 import datetime
 import sys
 
-sys.path.append('..')
+sys.path.append('../..')
 
 import config
 import sqlalchemy as sa
