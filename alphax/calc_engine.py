@@ -4,14 +4,16 @@ import pandas as pd
 import pdb,importlib,inspect,time,datetime,json
 from PyFin.api import advanceDateByCalendar
 from data.polymerize import DBPolymerize
+from data.storage_engine import StorageEngine
 from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, methods=[{'packet':'alphax.alpha191','class':'Alpha191'},
+    def __init__(self, name, url, methods=[{'packet':'alphax.alpha191','class':'Alpha191'},
                                     {'packet':'alphax.alpha101','class':'Alpha101'}]):
         self._name= name
         self._methods = methods
+        self._url = url
         self._INDU_STYLES = ['Bank','RealEstate','Health','Transportation','Mining','NonFerMetal',
                    'HouseApp','LeiService','MachiEquip','BuildDeco','CommeTrade','CONMAT',
                    'Auto','Textile','FoodBever','Electronics','Computer','LightIndus',
@@ -24,7 +26,6 @@ class CalcEngine(object):
         
     #计算单个最大窗口
     def _method_max_windows(self, packet_name, class_name):
-        print(packet_name, class_name)
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         alpha_max_window = 0
         func_sets = self._func_sets(class_method)
@@ -81,7 +82,7 @@ class CalcEngine(object):
     
     #计算因子
     def calc_factor(self, packet_name, class_name, mkt_df, trade_date):
-        result = None
+        result = pd.DataFrame()
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         alpha_max_window = 0
         func_sets = self._func_sets(class_method)
@@ -101,20 +102,20 @@ class CalcEngine(object):
             res = getattr(class_method(),func)(data)
             res = pd.DataFrame(res)
             res.columns=[func]
-            res = res.reset_index()
-            if result is None:
-                result = res
-            else:
-                result = result.merge(res,on=['code'])
+            res = res.reset_index().sort_values(by='code',ascending=True)
+            result[func] = res[func]
+        result['symbol'] = res['code']
+        result['trade_date'] = trade_date
         return result
     
     def local_run(self, trade_date):
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
-        self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
+        result = self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
+        storage_engine = StorageEngine(self._url)
+        storage_engine.update_destdb('alpha191', trade_date, result)
         
     def remote_run(self, trade_date):
-        pdb.set_trace()
         total_data = self.loadon_data(trade_date)
         #存储数据
         session = str(int(time.time() * 1000000 + datetime.datetime.now().microsecond))
@@ -123,7 +124,7 @@ class CalcEngine(object):
         
     def distributed_factor(self, total_data):
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
-        self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
+        result = self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
         
 @app.task    
 def distributed_factor(session, trade_date, packet_sets, name):
