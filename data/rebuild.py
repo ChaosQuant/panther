@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import importlib,pdb
+import importlib,pdb,inspect
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
@@ -38,10 +38,11 @@ class Rebuild(object):
         delete_sql = ''
         update_sql = ''
         for func in func_sets:
+            desc = str(str(getattr(class_method,func).__doc__.split('\n')[-2]).split(':')[-1])
             delete_sql = """delete from `{0}` where factor_type='{1}'""".format('factor_detail', class_name)
             session.execute(delete_sql)
             update_sql ="""insert into `{0}` (`factor_type`,`factor_name`,`description`) values('{1}','{2}','{3}');""".format(
-            'factor_detail', class_name, str(func), 'desc')
+            'factor_detail', class_name, str(func), desc)
             session.execute(update_sql)
         
     def _build_table(self, class_name, func_sets, session):
@@ -52,11 +53,12 @@ class Rebuild(object):
     
     def rebuild_table(self, packet_name, class_name):
         #动态获取对应类
+        pdb.set_trace()
         session = self._destsession()
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         func_sets = self._func_sets(class_method)
         self._build_table(class_name, func_sets, session)
-        self._update_factor_info(class_name, class_method, session)
         self._update_factor_detail(class_name, class_method, func_sets, session)
+        self._update_factor_info(class_name, class_method, session)
         session.commit()
         session.close()
