@@ -223,5 +223,4 @@ if __name__ == '__main__':
     #     do_update(args.start_date, end_date, args.count)
     # if args.update:
     #     do_update(args.start_date, end_date, args.count)
-
     do_update('20190819', '20190823', 10)

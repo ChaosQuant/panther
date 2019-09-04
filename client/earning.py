@@ -112,10 +112,12 @@ def get_basic_earning(trade_date):
     income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                   [IncomeReport.BIZTOTINCO,
                                                                    IncomeReport.BIZINCO,
+                                                                   IncomeReport.PERPROFIT,
                                                                    ],
                                                                   dates=[trade_date]).drop(columns, axis=1)
     income_sets = income_sets.rename(columns={'NETPROFIT': 'net_profit',   # 净利润
                                               'BIZINCO': 'operating_revenue',  # 营业收入
+                                              'PERPROFIT': 'operating_profit',  # 营业利润
                                                })
 
     indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,

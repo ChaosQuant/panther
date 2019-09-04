@@ -17,11 +17,10 @@ sys.path.append("../../../")
 import pandas as pd
 import json
 from pandas.io.json import json_normalize
-from factor.ttm_fundamental import *
 from factor.factor_base import FactorBase
 
-from factor import app
-from ultron.cluster.invoke.cache_data import cache_data
+# from factor import app
+# from ultron.cluster.invoke.cache_data import cache_data
 
 
 class PerShareIndicators(FactorBase):
@@ -76,10 +75,7 @@ class PerShareIndicators(FactorBase):
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['CapticalSurplusPS'] = share_indicators[
-            ['capital_reserve_fund', 'capitalization']].apply(
-            fun,
-            axis=1)
+        share_indicators['CapticalSurplusPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
         # share_indicators = share_indicators.drop(columns=['capital_reserve_fund'], axis=1)
         # share_indicators = share_indicators[['security_code', 'CapticalSurplusPS']]
@@ -142,17 +138,18 @@ class PerShareIndicators(FactorBase):
         return factor_share_indicators
 
     @staticmethod
-    def shareholder_fcfps(tp_share_indicators, factor_share_indicators, dependencies=['shareholder_fcfps']):
+    def shareholder_fcfps(tp_share_indicators, factor_share_indicators, dependencies=['shareholder_fcfps', 'capitalization']):
         """
         每股股东自由现金流量
-        缺每股股东自由现金流量
         :param dependencies:
         :param tp_share_indicators:
         :param factor_share_indicators:
         :return:
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators['ShareholderFCFPS'] = share_indicators['shareholder_fcfps']
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['ShareholderFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
+
         # share_indicators = share_indicators.drop(columns=['shareholder_fcfps'], axis=1)
         # share_indicators = share_indicators[['security_code', 'ShareholderFCFPS']]
         # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
@@ -160,17 +157,17 @@ class PerShareIndicators(FactorBase):
         return factor_share_indicators
 
     @staticmethod
-    def enterprise_fcfps(tp_share_indicators, factor_share_indicators, dependencies=['enterprise_fcfps']):
+    def enterprise_fcfps(tp_share_indicators, factor_share_indicators, dependencies=['enterprise_fcfps', 'capitalization']):
         """
         每股企业自由现金流量
-        缺每股企业自由现金流量
         :param dependencies:
         :param tp_share_indicators:
         :param factor_share_indicators:
         :return:
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators['EnterpriseFCFPS'] = share_indicators['enterprise_fcfps']
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['EnterpriseFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
         # share_indicators = share_indicators.drop(columns=['enterprise_fcfps'], axis=1)
         # share_indicators = share_indicators[['security_code', 'EnterpriseFCFPS']]
         # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
@@ -475,14 +472,12 @@ def calculate(trade_date, valuation_sets):
     :param trade_date: 交易日
     :return:
     """
-    valuation_sets = valuation_sets.set_index('security_code', inplace=True)
-    if len(valuation_sets) <= 0:
-        print("%s has no data" % trade_date)
-        return
-
     per_share = PerShareIndicators('factor_per_share')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     factor_share_indicators = pd.DataFrame()
-    factor_share_indicators['security_code'] = valuation_sets.index
+    factor_share_indicators['security_code'] = valuation_sets['security_code']
+    valuation_sets = valuation_sets.set_index('security_code')
+    print(valuation_sets)
+
     factor_share_indicators = factor_share_indicators.set_index('security_code')
 
     # psindu
@@ -552,7 +547,7 @@ def calculate(trade_date, valuation_sets):
     # per_share._storage_data(factor_share_indicators, trade_date)
 
 
-@app.task()
+# @app.task()
 def factor_calculate(**kwargs):
     print("per_share_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']

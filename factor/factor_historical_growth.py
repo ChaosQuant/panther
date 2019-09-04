@@ -491,7 +491,7 @@ def calculate(trade_date, growth_sets):
     :param trade_date: 交易日
     :return:
     """
-    growth_sets = growth_sets.set_index('security_code', inplace=True)
+    growth_sets = growth_sets.set_index('security_code')
     growth = Growth('factor_growth')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     if len(growth_sets) <= 0:
         print("%s has no data" % trade_date)

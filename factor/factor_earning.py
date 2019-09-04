@@ -737,9 +737,9 @@ def calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y):  # 计算对
     # tp_earning = earning_sets_dic['tp_earning']
     # ttm_earning = earning_sets_dic['ttm_earning']
     # ttm_earning_5y = earning_sets_dic['ttm_earning_5y']
-    tp_earning = tp_earning.set_index('security_code', inplace=True)
-    ttm_earning = ttm_earning.set_index('security_code', inplace=True)
-    ttm_earning_5y = ttm_earning_5y.set_index('security_code', inplace=True)
+    tp_earning = tp_earning.set_index('security_code')
+    ttm_earning = ttm_earning.set_index('security_code')
+    ttm_earning_5y = ttm_earning_5y.set_index('security_code')
 
     earning = FactorEarning('factor_earning')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
 
