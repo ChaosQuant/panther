@@ -53,7 +53,7 @@ def get_trade_date(trade_date, n):
         return str(date_time)
 
 
-def get_basic_earning(trade_date):
+def get_basic_data(trade_date):
     # 读取目前涉及到的因子
     maplist = {
         # cash flow
@@ -307,7 +307,7 @@ def get_basic_earning(trade_date):
 def prepare_calculate_local(trade_date):
     # local
     tic = time.time()
-    tp_earning, ttm_earning_5y, ttm_earning = get_basic_earning(trade_date)
+    tp_earning, ttm_earning_5y, ttm_earning = get_basic_data(trade_date)
     if len(tp_earning) <= 0 or len(ttm_earning_5y) <= 0 or len(ttm_earning) <= 0:
         print("%s has no data" % trade_date)
         return
@@ -319,7 +319,7 @@ def prepare_calculate_local(trade_date):
 
 def prepare_calculate_remote(trade_date):
     # remote
-    tp_earning, ttm_earning_5y, ttm_earning = get_basic_earning(trade_date)
+    tp_earning, ttm_earning_5y, ttm_earning = get_basic_data(trade_date)
     if len(tp_earning) <= 0 or len(ttm_earning_5y) <= 0 or len(ttm_earning) <= 0:
         print("%s has no data" % trade_date)
         return

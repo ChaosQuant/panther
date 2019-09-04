@@ -51,7 +51,7 @@ def get_trade_date(trade_date, n):
         return str(date_time)
 
 
-def get_basic_growth_data(trade_date):
+def get_basic_data(trade_date):
     """
     获取基础数据
     按天获取当天交易日所有股票的基础数据
@@ -268,7 +268,7 @@ def prepare_calculate_local(trade_date):
     # growth
     tic = time.time()
     print('trade_date %s' % trade_date)
-    ttm_factor_sets, balance_sets = get_basic_growth_data(trade_date)
+    ttm_factor_sets, balance_sets = get_basic_data(trade_date)
     growth_sets = pd.merge(ttm_factor_sets, balance_sets, on='security_code')
     print('len_of_total_growth: %s' % len(growth_sets))
     print(growth_sets.head())
@@ -285,7 +285,7 @@ def prepare_calculate_remote(trade_date):
     # growth
     tic = time.time()
     print('trade_date %s' % trade_date)
-    ttm_factor_sets, balance_sets = get_basic_growth_data(trade_date)
+    ttm_factor_sets, balance_sets = get_basic_data(trade_date)
     growth_sets = pd.merge(ttm_factor_sets, balance_sets, on='security_code')
     print('len_of_total_growth: %s' % len(growth_sets))
     print(growth_sets.head())

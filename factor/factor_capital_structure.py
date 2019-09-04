@@ -180,7 +180,6 @@ class CapitalStructure(FactorBase):
         :param factor_management:
         :return:
         """
-
         management = tp_management.loc[:, dependencies]
         management['equity_fixed_asset_ratio'] = np.where(
             CalcTools.is_zero(management.fixed_assets.values +

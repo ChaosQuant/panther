@@ -14,19 +14,19 @@ from factor.utillities.calc_tools import CalcTools
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
-class FactorCashFlow(FactorBase):
+class Solvency(FactorBase):
     """
     偿债能力
     """
     def __init__(self, name):
-        super(FactorCashFlow, self).__init__(name)
+        super(Solvency, self).__init__(name)
 
     # 构建因子表
     def create_dest_tables(self):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
                     `id` varchar(32) NOT NULL,
-                    `symbol` varchar(24) NOT NULL,
+                    `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `OptCFToLiabilityTTM` decimal(19,4),
                     `OptCFToIBDTTM` decimal(19,4),
@@ -44,13 +44,10 @@ class FactorCashFlow(FactorBase):
                     `OptCFToRevTTM` decimal(19,4),
                     `SaleServCashToOptReTTM` decimal(19,4),
                     `SalesServCashToOR` decimal(19,4),
-                    `NOCFToOpt` decimal(19,4),
-                    
-                    
-                    
-                    PRIMARY KEY(`id`,`trade_date`,`symbol`)
+                    `NOCFToOpt` decimal(19,4),                   
+                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
-        super(FactorCashFlow, self)._create_tables(create_sql, drop_sql)
+        super(Solvency, self)._create_tables(create_sql, drop_sql)
 
     @staticmethod
     def bonds_payable_to_asset(tp_management, factor_management, dependencies=['bonds_payable', 'total_assets']):
@@ -68,7 +65,7 @@ class FactorCashFlow(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.bonds_payable.values / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -87,7 +84,7 @@ class FactorCashFlow(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.total_non_current_liability.values / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -98,13 +95,13 @@ class FactorCashFlow(FactorBase):
         :param factor_cash_flow:
         :return:
         """
-        columns_list = ['cash_and_equivalents_at_end', 'total_current_assets']
-        cash_flow = ttm_cash_flow.loc[:, columns_list]
+        dependencies = ['cash_and_equivalents_at_end', 'total_current_assets']
+        cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['CashRatioTTM'] = np.where(CalcTools.is_zero(cash_flow.total_current_assets.values),
                                                               0,
                                                               cash_flow.cash_and_equivalents_at_end.values / cash_flow.total_current_assets.values)
-        cash_flow = cash_flow.drop(columns_list, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        cash_flow = cash_flow.drop(dependencies, axis=1)
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
     @staticmethod
@@ -117,13 +114,12 @@ class FactorCashFlow(FactorBase):
         :param factor_management:
         :return:
         """
-
         management = tp_management.loc[:, dependencies]
         management['current_ratio'] = np.where(
             CalcTools.is_zero(management.total_current_liability.values), 0,
             management.total_current_assets.values / management.total_current_liability.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     # 债务总资产比=负债合计/资产合计
@@ -135,7 +131,7 @@ class FactorCashFlow(FactorBase):
             CalcTools.is_zero(contrarian['total_assets']), 0,
             contrarian['total_liability'] / contrarian['total_assets'])
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_contrarian = pd.merge(factor_contrarian, contrarian, on="symbol")
+        factor_contrarian = pd.merge(factor_contrarian, contrarian, on="security_code")
         return factor_contrarian
 
     # 负债合计/有形资产(流动资产+固定资产)
@@ -154,7 +150,7 @@ class FactorCashFlow(FactorBase):
             contrarian['total_current_liability'] / (contrarian['total_current_liability'] + contrarian['fixed_assets'])
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_contrarian = pd.merge(factor_contrarian, contrarian, on="symbol")
+        factor_contrarian = pd.merge(factor_contrarian, contrarian, on="security_code")
         return factor_contrarian
 
     @staticmethod
@@ -187,7 +183,7 @@ class FactorCashFlow(FactorBase):
             management.equities_parent_company_owners.values / management.debt.values)
         dependencies.append('debt')
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -215,7 +211,7 @@ class FactorCashFlow(FactorBase):
             management.equities_parent_company_owners.values / management.tc.values)
         dependencies.append('tc')
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     # InteBearDebtToTotalCapital = 有息负债/总资本   总资本=固定资产+净运营资本  净运营资本=流动资产-流动负债
@@ -238,7 +234,7 @@ class FactorCashFlow(FactorBase):
                                                             'total_current_liability'])
         )
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_contrarian = pd.merge(factor_contrarian, contrarian, on="symbol")
+        factor_contrarian = pd.merge(factor_contrarian, contrarian, on="security_code")
         return factor_contrarian
 
     @staticmethod
@@ -259,7 +255,7 @@ class FactorCashFlow(FactorBase):
             (earning.total_profit.values + earning.financial_expense.values - earning.interest_income.values) /
             (earning.financial_expense.values - earning.interest_income.values))
         earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="symbol")
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -279,7 +275,7 @@ class FactorCashFlow(FactorBase):
             management.total_non_current_assets.values
             / (management.total_current_assets.values - management.total_current_liability.values))
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -299,76 +295,94 @@ class FactorCashFlow(FactorBase):
             management.total_non_current_liability.values /
             (management.total_non_current_liability.values + management.market_cap.values))
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
-    # 经营活动净现金流（TTM）/负债（TTM）
     @staticmethod
-    def nocf_to_t_liability_ttm(ttm_cash_flow, factor_cash_flow):
-        dependencies = ['net_operate_cash_flow', 'total_liability']
+    def nocf_to_t_liability_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_liability']):
+        """
+        # 经营活动净现金流（TTM）/负债（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToLiabilityTTM'] = np.where(
             CalcTools.is_zero(cash_flow.total_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.total_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
-    # 经营活动净现金流（TTM）/带息负债（TTM）
     @staticmethod
     def nocf_to_interest_bear_debt_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_liability', 'interest_bearing_liability']):
+        """
+        youwenti
+        经营活动净现金流（TTM）/带息负债（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToIBDTTM'] = np.where(
             CalcTools.is_zero(cash_flow.interest_bearing_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.interest_bearing_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
-    # 经营活动净现金流（TTM）/净负债（TTM）
     @staticmethod
     def nocf_to_net_debt_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'net_liability']):
-
+        """
+        经营活动净现金流（TTM）/净负债（TTM）
+        :param ttm_cash_flow:
+        :param factor_cash_flow:
+        :param dependencies:
+        :return:
+        """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToNetDebtTTM'] = np.where(CalcTools.is_zero(cash_flow.net_liability.values), 0,
                                                      cash_flow.net_operate_cash_flow.values / cash_flow.net_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
     @staticmethod
-    def oper_cash_in_to_current_liability_mrq(ttm_cash_flow, factor_cash_flow):
+    def oper_cash_in_to_current_liability_mrq(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_current_liability']):
         """
-            # 经营活动产生的现金流量净额（MRQ）/流动负债（MRQ）
+        经营活动产生的现金流量净额（MRQ）/流动负债（MRQ）
+        :param dependencies:
         :param ttm_cash_flow:
         :param factor_cash_flow:
         :return:
         """
-        columns_list = ['net_operate_cash_flow', 'total_current_liability']
-        cash_flow = ttm_cash_flow.loc[:, columns_list]
-        cash_flow['OptCFToCurrLiabilityTTM'] = np.where(
+        cash_flow = ttm_cash_flow.loc[:, dependencies]
+        cash_flow['OptCFToCurrLiability'] = np.where(
             CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability.values)
-        cash_flow = cash_flow.drop(columns_list, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        cash_flow = cash_flow.drop(dependencies, axis=1)
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
     @staticmethod
-    def oper_cash_in_to_current_liability_ttm(ttm_cash_flow, factor_cash_flow):
+    def oper_cash_in_to_current_liability_ttm(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_current_liability']):
         """
         经营活动产生的现金流量净额（TTM）/流动负债（TTM）
 
+        :param dependencies:
         :param ttm_cash_flow:
         :param factor_cash_flow:
         :return:
         """
-        columns_list = ['net_operate_cash_flow', 'total_current_liability']
-        cash_flow = ttm_cash_flow.loc[:, columns_list]
+
+        cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToCurrLiabilityTTM'] = np.where(
             CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability.values)
-        cash_flow = cash_flow.drop(columns_list, axis=1)
-        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="symbol")
+        cash_flow = cash_flow.drop(dependencies, axis=1)
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
         return factor_cash_flow
 
     @staticmethod
@@ -388,7 +402,7 @@ class FactorCashFlow(FactorBase):
             (management.total_current_assets.values - management.inventories.values)
             / management.total_current_liability.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -398,6 +412,7 @@ class FactorCashFlow(FactorBase):
         """
         超速动比率
         超速动比率 = （货币资金+交易性金融资产+应收票据+应收账款+其他应收款）/流动负债合计
+        :param dependencies:
         :param tp_management:
         :param factor_management:
         :return:
@@ -413,7 +428,7 @@ class FactorCashFlow(FactorBase):
              management.other_receivable.values) /
             management.total_current_liability.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -447,7 +462,7 @@ class FactorCashFlow(FactorBase):
             management.ta.values / management.ibd.values)
         dependencies.extend(['ta', 'ibd'])
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
     @staticmethod
@@ -483,40 +498,40 @@ class FactorCashFlow(FactorBase):
             management.ta.values / management.nd.values)
         dependencies.extend(['ta', 'nd'])
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="symbol")
+        factor_management = pd.merge(factor_management, management, on="security_code")
         return factor_management
 
 
-def calculate(trade_date, cash_flow_dic, cash_flow):  # 计算对应因子
+def calculate(trade_date, tp_solvency, ttm_solvency):  # 计算对应因子
+
+    solvency = Solvency('factor_solvency')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+
     print(trade_date)
     # 读取目前涉及到的因子
-    tp_cash_flow = cash_flow_dic['tp_cash_flow']
-    ttm_factor_sets = cash_flow_dic['ttm_factor_sets']
-
-    factor_cash_flow = pd.DataFrame()
-    factor_cash_flow['symbol'] = tp_cash_flow.index
+    factor_solvency = pd.DataFrame()
+    factor_solvency['security_code'] = tp_solvency.index
 
     # 非TTM计算
-    factor_cash_flow = cash_flow.nocf_to_operating_ni_latest(tp_cash_flow, factor_cash_flow)
-    factor_cash_flow = cash_flow.cash_rate_of_sales_latest(tp_cash_flow, factor_cash_flow)
-    factor_cash_flow = cash_flow.sales_service_cash_to_or_latest(tp_cash_flow, factor_cash_flow)
+    factor_solvency = solvency.nocf_to_operating_ni_latest(tp_cash_flow, factor_cash_flow)
+    factor_solvency = solvency.cash_rate_of_sales_latest(tp_cash_flow, factor_cash_flow)
+    factor_solvency = solvency.sales_service_cash_to_or_latest(tp_cash_flow, factor_cash_flow)
 
     # TTM计算
-    factor_cash_flow = cash_flow.nocf_to_t_liability_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.nocf_to_interest_bear_debt_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.nocf_to_net_debt_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.sale_service_cash_to_or_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.cash_rate_of_sales_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.nocf_to_operating_ni_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.oper_cash_in_to_current_liability_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.cash_to_current_liability_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.cfo_to_ev_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.acca_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.net_profit_cash_cover_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow = cash_flow.oper_cash_in_to_asset_ttm(ttm_factor_sets, factor_cash_flow)
-    factor_cash_flow['id'] = factor_cash_flow['symbol'] + str(trade_date)
-    factor_cash_flow['trade_date'] = str(trade_date)
-    cash_flow._storage_data(factor_cash_flow, trade_date)
+    factor_solvency = solvency.nocf_to_t_liability_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.nocf_to_interest_bear_debt_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.nocf_to_net_debt_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.sale_service_cash_to_or_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.cash_rate_of_sales_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.nocf_to_operating_ni_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.oper_cash_in_to_current_liability_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.cash_to_current_liability_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.cfo_to_ev_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.acca_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.net_profit_cash_cover_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency = solvency.oper_cash_in_to_asset_ttm(ttm_factor_sets, factor_cash_flow)
+    factor_solvency['id'] = factor_solvency['security_code'] + str(trade_date)
+    factor_solvency['trade_date'] = str(trade_date)
+    # solvency._storage_data(factor_cash_flow, trade_date)
 
 
 # @app.task()
@@ -524,14 +539,12 @@ def factor_calculate(**kwargs):
     print("cash_flow_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
-    cash_flow = FactorCashFlow('factor_cash_flow')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
     content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
-    tp_cash_flow = json_normalize(json.loads(str(content1, encoding='utf8')))
-    ttm_factor_sets = json_normalize(json.loads(str(content2, encoding='utf8')))
-    tp_cash_flow.set_index('symbol', inplace=True)
-    ttm_factor_sets.set_index('symbol', inplace=True)
-    print("len_tp_cash_flow_data {}".format(len(tp_cash_flow)))
-    print("len_ttm_cash_flow_data {}".format(len(ttm_factor_sets)))
-    total_cash_flow_data = {'tp_cash_flow': tp_cash_flow, 'ttm_factor_sets': ttm_factor_sets}
-    calculate(date_index, total_cash_flow_data, cash_flow)
+    tp_solvency = json_normalize(json.loads(str(content1, encoding='utf8')))
+    ttm_solvency = json_normalize(json.loads(str(content2, encoding='utf8')))
+    tp_solvency.set_index('security_code', inplace=True)
+    ttm_solvency.set_index('security_code', inplace=True)
+    print("len_tp_cash_flow_data {}".format(len(tp_solvency)))
+    print("len_ttm_cash_flow_data {}".format(len(ttm_solvency)))
+    calculate(date_index, tp_solvency, ttm_solvency)

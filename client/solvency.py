@@ -4,8 +4,8 @@
 """
 @version: ??
 @author: li
-@file: cash_flow.py
-@time: 2019-09-02 10:51
+@file: solvency.py
+@time: 2019-09-04 17:28
 """
 
 import sys
@@ -62,8 +62,44 @@ def get_basic_data(trade_date):
     :return:
     """
     engine = sqlEngine()
-    maplist = {'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
-               'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
+    maplist = {
+        # cash flow
+        'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
+
+
+        # income
+
+
+
+        # balance
+        'TOTLIAB': 'total_liability',  # 负债合计
+        'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
+        'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
+        '':'inventories',  # 存货
+        '':'cash_equivalents',  # 货币资金
+        '':'trading_assets',  # 交易性金融资产
+        '':'bill_receivable',  # 应收票据
+        '':'account_receivable',  # 应收账款
+        '':'other_receivable',  # 其他应收款
+        '':'equities_parent_company_owners',
+        '':'intangible_assets',
+        '':'development_expenditure',
+        '':'good_will',
+        '':'long_deferred_expense',
+        '':'deferred_tax_assets',
+        '':'shortterm_loan',
+        '':'non_current_liability_in_one_year',
+        '':'longterm_loan',
+        '':'bonds_payable',
+        '':'interest_payable',
+
+
+
+        # indicator
+        'net_liability': '',  # 净负债
+
+
+        'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
 
                'BIZINCO': 'operating_revenue',  # 营业收入
                'BIZTOTINCO': 'total_operating_revenue',    # 营业总收入
@@ -71,12 +107,8 @@ def get_basic_data(trade_date):
                'NETPROFIT':'net_profit',   # 净利润
                'PARENETP':'np_parent_company_owners',    # 归属于母公司所有者的净利润
 
-               'TOTLIAB': 'total_liability',  # 负债合计
                'SHORTTERMBORR':'shortterm_loan',  # 短期借款
                'LONGBORR':'longterm_loan',  # 长期借款
-               'TOTALCURRLIAB':'total_current_liability',   # 流动负债合计
-               'net_liability':'',  # 净负债
-               'TOTCURRASSET':'total_current_assets',  # 流动资产合计
                'TOTASSET':'total_assets',      # 资产总计
                'FINALCASHBALA':'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
                }

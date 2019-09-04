@@ -145,9 +145,9 @@ class RevenueQuality(FactorBase):
 
 def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity):
     # 计算对应因子
-    tp_revenue_quanlity = tp_revenue_quanlity.set_index('tp_revenue_quanlity')
-    ttm_revenue_quanlity = ttm_revenue_quanlity.set_index('tp_revenue_quanlity')
-    revenue_quality = RevenueQuality('factor_constrain')  # 注意, 这里的name要与client中新建table时的name一致, 不然会报错
+    tp_revenue_quanlity = tp_revenue_quanlity.set_index('security_code')
+    ttm_revenue_quanlity = ttm_revenue_quanlity.set_index('security_code')
+    revenue_quality = RevenueQuality('factor_revenue')  # 注意, 这里的name要与client中新建table时的name一致, 不然会报错
 
     factor_revenue = pd.DataFrame()
     factor_revenue['security_code'] = tp_revenue_quanlity.index
@@ -160,6 +160,7 @@ def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity):
     factor_revenue = revenue_quality.net_non_oi_to_tp_ttm(ttm_revenue_quanlity, factor_revenue)
     factor_revenue = revenue_quality.operating_ni_to_tp_ttm(ttm_revenue_quanlity, factor_revenue)
     factor_revenue = revenue_quality.oper_cash_in_to_current_liability_ttm(ttm_revenue_quanlity, factor_revenue)
+    factor_revenue = factor_revenue.reset_index()
 
     factor_revenue['id'] = factor_revenue['security_code'] + str(trade_date)
     factor_revenue['trade_date'] = str(trade_date)

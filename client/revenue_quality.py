@@ -167,10 +167,9 @@ def prepare_calculate_remote(trade_date):
     else:
         tic = time.time()
         session = str(int(time.time() * 1000000 + datetime.now().microsecond))
-        cache_data.set_cache(session + str(trade_date) + "1", trade_date, tp_earning.to_json(orient='records'))
-        cache_data.set_cache(session + str(trade_date) + "2", trade_date, ttm_earning_5y.to_json(orient='records'))
-        cache_data.set_cache(session + str(trade_date) + "3", trade_date, ttm_earning.to_json(orient='records'))
-        factor_earning.factor_calculate.delay(date_index=trade_date, session=session)
+        cache_data.set_cache(session + str(trade_date) + "1", trade_date, tp_revenue_quanlity.to_json(orient='records'))
+        cache_data.set_cache(session + str(trade_date) + "2", trade_date, ttm_revenue_quanlity.to_json(orient='records'))
+        factor_revenue_quality.factor_calculate.delay(date_index=trade_date, session=session)
         time6 = time.time()
         print('earning_cal_time:{}'.format(time6 - tic))
 
@@ -201,7 +200,7 @@ if __name__ == '__main__':
     # else:
     #     end_date = args.end_date
     # if args.rebuild:
-    #     processor = factor_earning.FactorEarning('factor_earning')
+    #     processor = factor_revenue_quality.RevenueQuality('factor_revenue')
     #     processor.create_dest_tables()
     #     do_update(args.start_date, end_date, args.count)
     # if args.update:

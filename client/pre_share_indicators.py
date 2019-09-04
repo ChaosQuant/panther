@@ -55,7 +55,7 @@ def get_trade_date(trade_date, n):
         return str(date_time)
 
 
-def get_basic_scale_data(trade_date):
+def get_basic_data(trade_date):
     """
     获取基础数据
     按天获取当天交易日所有股票的基础数据
@@ -165,7 +165,7 @@ def get_basic_scale_data(trade_date):
 def prepare_calculate_local(trade_date):
     # local
     tic = time.time()
-    valuation_sets = get_basic_scale_data(trade_date)
+    valuation_sets = get_basic_data(trade_date)
     print('len_of_valation: %s' % len(valuation_sets))
     print(valuation_sets.head())
     if len(valuation_sets) <= 0:
@@ -179,7 +179,7 @@ def prepare_calculate_local(trade_date):
 
 def prepare_calculate_remote(trade_date):
     # remote
-    valuation_sets = get_basic_scale_data(trade_date)
+    valuation_sets = get_basic_data(trade_date)
     if len(valuation_sets) <= 0:
         print("%s has no data" % trade_date)
         return
