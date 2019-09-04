@@ -39,7 +39,7 @@ class PerShareIndicators(FactorBase):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
                     `id` varchar(32) NOT NULL,
-                    `symbol` varchar(24) NOT NULL,
+                    `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `EPS` decimal(19,4),
                     `DilutedEPSTTM` decimal(19,4),
@@ -61,10 +61,9 @@ class PerShareIndicators(FactorBase):
                     `CFPSTTM` decimal(19,4),
                     `EnterpriseFCFPS` decimal(19,4),
                     `ShareholderFCFPS` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`symbol`)
+                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(PerShareIndicators, self)._create_tables(create_sql, drop_sql)
-
 
     @staticmethod
     def capital_surplus_fund_ps(tp_share_indicators, factor_share_indicators, dependencies=['capital_reserve_fund', 'capitalization']):
@@ -75,7 +74,6 @@ class PerShareIndicators(FactorBase):
         :param factor_share_indicators:
         :return:
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['CapticalSurplusPS'] = share_indicators[
@@ -84,67 +82,29 @@ class PerShareIndicators(FactorBase):
             axis=1)
 
         # share_indicators = share_indicators.drop(columns=['capital_reserve_fund'], axis=1)
-        share_indicators = share_indicators[['symbol', 'CapticalSurplusPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
+        # share_indicators = share_indicators[['security_code', 'CapticalSurplusPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['CapticalSurplusPS'] = share_indicators['CapticalSurplusPS']
+
         return factor_share_indicators
 
     @staticmethod
     def cash_equivalent_ps(tp_share_indicators, factor_share_indicators, dependencies=['capitalization', 'cash_and_equivalents_at_end']):
         """
-        每股现金及现金等价物余额
+        每股现金及现金等价物余额 = 期末现金及现金等价物余额 / 总股本
         :param dependencies:
         :param tp_share_indicators:
         :param factor_share_indicators:
         :return:
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[1] / x[0] if x[0] and x[0] != 0 else None)
-        share_indicators['CashEquPS'] = share_indicators[
-            ['capitalization', 'cash_and_equivalents_at_end']].apply(fun, axis=1)
+        share_indicators['CashEquPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
         # share_indicators = share_indicators.drop(columns=['cash_and_equivalents_at_end'], axis=1)
-        share_indicators = share_indicators[['symbol', 'CashEquPS']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def cash_flow_ps(tp_share_indicators, factor_share_indicators, dependencies=['n_change_in_cash_ttm', 'capitalization']):
-        """
-        每股现金流量净额
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['CFPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['n_change_in_cash_ttm'], axis=1)
-        share_indicators = share_indicators[['symbol', 'CFPSTTM']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def diluted_eps(tp_share_indicators, factor_share_indicators, dependencies=['diluted_eps']):
-        """
-        稀释每股收益
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators['DilutedEPSTTM'] = share_indicators['diluted_eps']
-        # share_indicators = share_indicators.drop(columns=['diluted_eps'], axis=1)
-        share_indicators = share_indicators[['symbol', 'DilutedEPSTTM']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
+        # share_indicators = share_indicators[['security_code', 'CashEquPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['CashEquPS'] = share_indicators['CashEquPS']
         return factor_share_indicators
 
     @staticmethod
@@ -156,13 +116,12 @@ class PerShareIndicators(FactorBase):
         :param factor_share_indicators:
         :return:
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         share_indicators['DivPS'] = share_indicators['dividend_receivable']
         # share_indicators = share_indicators.drop(columns=['dividend_receivable'], axis=1)
-        share_indicators = share_indicators[['symbol', 'DivPS']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
+        # share_indicators = share_indicators[['security_code', 'DivPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['DivPS'] = share_indicators['DivPS']
         return factor_share_indicators
 
     @staticmethod
@@ -174,33 +133,12 @@ class PerShareIndicators(FactorBase):
         :param factor_share_indicators:
         :return:
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         share_indicators['EPS'] = share_indicators['basic_eps']
         # share_indicators = share_indicators.drop(columns=['basic_eps'], axis=1)
-        share_indicators = share_indicators[['symbol', 'EPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def eps_ttm(tp_share_indicators, factor_share_indicators, dependencies=['np_parent_company_owners_ttm', 'capitalization']):
-        """
-        每股收益 TTM
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else 0)
-        share_indicators['EPSTTM'] = share_indicators[['np_parent_company_owners_ttm', 'capitalization']].apply(fun,
-                                                                                                                axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['np_parent_company_owners_ttm'], axis=1)
-        share_indicators = share_indicators[['symbol', 'EPSTTM']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
+        # share_indicators = share_indicators[['security_code', 'EPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['EPS'] = share_indicators['EPS']
         return factor_share_indicators
 
     @staticmethod
@@ -213,12 +151,12 @@ class PerShareIndicators(FactorBase):
         :param factor_share_indicators:
         :return:
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         share_indicators['ShareholderFCFPS'] = share_indicators['shareholder_fcfps']
         # share_indicators = share_indicators.drop(columns=['shareholder_fcfps'], axis=1)
-        share_indicators = share_indicators[['symbol', 'ShareholderFCFPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
+        # share_indicators = share_indicators[['security_code', 'ShareholderFCFPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['ShareholderFCFPS'] = share_indicators['ShareholderFCFPS']
         return factor_share_indicators
 
     @staticmethod
@@ -231,112 +169,33 @@ class PerShareIndicators(FactorBase):
         :param factor_share_indicators:
         :return:
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         share_indicators['EnterpriseFCFPS'] = share_indicators['enterprise_fcfps']
         # share_indicators = share_indicators.drop(columns=['enterprise_fcfps'], axis=1)
-        share_indicators = share_indicators[['symbol', 'EnterpriseFCFPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
+        # share_indicators = share_indicators[['security_code', 'EnterpriseFCFPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['EnterpriseFCFPS'] = share_indicators['EnterpriseFCFPS']
+
         return factor_share_indicators
 
     @staticmethod
     def net_asset_ps(tp_share_indicators, factor_share_indicators, dependencies=['total_owner_equities', 'capitalization']):
         """
-        每股净资产
+        每股净资产 = 归属于母公司的所有者权益 / 总股本
         :param dependencies:
         :param tp_share_indicators:
         :param factor_share_indicators:
         :return:
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['NetAssetPS'] = share_indicators[['total_owner_equities', 'capitalization']].apply(fun,
-                                                                                                                   axis=1)
+        share_indicators['NetAssetPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
         # share_indicators = share_indicators.drop(columns=['total_owner_equities'], axis=1)
-        share_indicators = share_indicators[['symbol', 'NetAssetPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
+        # share_indicators = share_indicators[['security_code', 'NetAssetPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['NetAssetPS'] = share_indicators['NetAssetPS']
 
-    @staticmethod
-    def oper_cash_flow_ps(tp_share_indicators, factor_share_indicators, dependencies=['net_operate_cash_flow_ttm', 'capitalization']):
-        """
-        每股经营活动产生的现金流量净额
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['OptCFPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['net_operate_cash_flow_ttm'], axis=1)
-        share_indicators = share_indicators[['symbol', 'OptCFPSTTM']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def operating_profit_ps(tp_share_indicators, factor_share_indicators, dependencies=['operating_profit_ttm', 'capitalization']):
-        """
-        每股营业利润
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['OptProfitPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['operating_profit_ttm'], axis=1)
-        share_indicators = share_indicators[['symbol', 'OptProfitPSTTM']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def operating_profit_ps_latest(tp_share_indicators, factor_share_indicators, dependencies=['operating_profit', 'capitalization']):
-        """
-        每股营业利润（最新）
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['OptProfitPS'] = share_indicators[['operating_profit', 'capitalization']].apply(fun, axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['operating_profit'], axis=1)
-        share_indicators = share_indicators[['symbol', 'OptProfitPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def operating_revenue_ps(tp_share_indicators, factor_share_indicators, dependencies=['operating_revenue_ttm', 'capitalization']):
-        """
-        每股营业收入
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['OptRevPSTTM'] = share_indicators[dependencies].apply(
-            fun,
-            axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['operating_revenue_ttm'], axis=1)
-        share_indicators = share_indicators[['symbol', 'OptRevPSTTM']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
         return factor_share_indicators
 
     @staticmethod
@@ -354,27 +213,10 @@ class PerShareIndicators(FactorBase):
         share_indicators['OptRevPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
         # share_indicators = share_indicators.drop(columns=['operating_revenue'], axis=1)
-        share_indicators = share_indicators[['symbol', 'OptRevPS']]
+        # share_indicators = share_indicators[['security_code', 'OptRevPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['OptRevPS'] = share_indicators['OptRevPS']
 
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def retained_earnings_ps(tp_share_indicators, factor_share_indicators, dependencies=['SurplusReservePS', 'UndividedProfitPS']):
-        """
-        每股留存收益
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators['RetainedEarningsPS'] = share_indicators['UndividedProfitPS'] + share_indicators['SurplusReservePS']
-
-        # share_indicators = share_indicators.drop(columns=['UndividedProfitPS', 'SurplusReservePS'], axis=1)
-        share_indicators = share_indicators[['symbol', 'RetainedEarningsPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
         return factor_share_indicators
 
     @staticmethod
@@ -389,12 +231,219 @@ class PerShareIndicators(FactorBase):
 
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['SurplusReservePS'] = share_indicators[['surplus_reserve_fund', 'capitalization']].apply(fun, axis=1)
+        share_indicators['SurplusReservePS'] = share_indicators[dependencies].apply(fun, axis=1)
 
         # share_indicators = share_indicators.drop(columns=['surplus_reserve_fund'], axis=1)
-        share_indicators = share_indicators[['symbol', 'SurplusReservePS']]
+        # share_indicators = share_indicators[['security_code', 'SurplusReservePS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['SurplusReservePS'] = share_indicators['SurplusReservePS']
 
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
+        return factor_share_indicators
+
+    @staticmethod
+    def operating_profit_ps_latest(tp_share_indicators, factor_share_indicators, dependencies=['operating_profit', 'capitalization']):
+        """
+        每股营业利润（最新）
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['OptProfitPS'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['operating_profit'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'OptProfitPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['OptProfitPS'] = share_indicators['OptProfitPS']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def retained_earnings_ps(tp_share_indicators, factor_share_indicators, dependencies=['SurplusReservePS', 'UndividedProfitPS']):
+        """
+        每股留存收益
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        share_indicators['RetainedEarningsPS'] = share_indicators['UndividedProfitPS'] + share_indicators[
+            'SurplusReservePS']
+
+        # share_indicators = share_indicators.drop(columns=['UndividedProfitPS', 'SurplusReservePS'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'RetainedEarningsPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['RetainedEarningsPS'] = share_indicators['RetainedEarningsPS']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def tor_ps_latest(tp_share_indicators, factor_share_indicators, dependencies=['total_operating_revenue', 'capitalization']):
+        """
+        每股营业总收入 = 营业总收入 / 总股本
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['TotalRevPS'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['total_operating_revenue'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'TotalRevPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['TotalRevPS'] = share_indicators['TotalRevPS']
+        return factor_share_indicators
+
+    @staticmethod
+    def undivided_pro_fit_ps(tp_share_indicators, factor_share_indicators, dependencies=['retained_profit', 'capitalization']):
+        """
+        每股未分配利润
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['UndividedProfitPS'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['retained_profit'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'UndividedProfitPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['UndividedProfitPS'] = share_indicators['UndividedProfitPS']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def cash_flow_ps(tp_share_indicators, factor_share_indicators, dependencies=['cash_equivalent_increase_ttm', 'capitalization']):
+        """
+        每股现金流量净额 = 现金及现金等价物净增加额TTM / 总股本
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['CFPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['n_change_in_cash_ttm'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'CFPSTTM']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['CFPSTTM'] = share_indicators['CFPSTTM']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def diluted_eps(tp_share_indicators, factor_share_indicators, dependencies=['diluted_eps']):
+        """
+        稀释每股收益
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        share_indicators['DilutedEPSTTM'] = share_indicators['diluted_eps']
+        # share_indicators = share_indicators.drop(columns=['diluted_eps'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'DilutedEPSTTM']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['DilutedEPSTTM'] = share_indicators['DilutedEPSTTM']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def eps_ttm(tp_share_indicators, factor_share_indicators, dependencies=['np_parent_company_owners_ttm', 'capitalization']):
+        """
+        每股收益 TTM = 归属于母公司所有者的净利润TTM / 总股本
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else 0)
+        share_indicators['EPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['np_parent_company_owners_ttm'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'EPSTTM']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['EPSTTM'] = share_indicators['EPSTTM']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def oper_cash_flow_ps(tp_share_indicators, factor_share_indicators, dependencies=['net_operate_cash_flow_ttm', 'capitalization']):
+        """
+        每股经营活动产生的现金流量净额
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['OptCFPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['net_operate_cash_flow_ttm'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'OptCFPSTTM']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['OptCFPSTTM'] = share_indicators['OptCFPSTTM']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def operating_profit_ps(tp_share_indicators, factor_share_indicators, dependencies=['operating_profit_ttm', 'capitalization']):
+        """
+        每股营业利润
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['OptProfitPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['operating_profit_ttm'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'OptProfitPSTTM']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['OptProfitPSTTM'] = share_indicators['OptProfitPSTTM']
+
+        return factor_share_indicators
+
+    @staticmethod
+    def operating_revenue_ps(tp_share_indicators, factor_share_indicators, dependencies=['operating_revenue_ttm', 'capitalization']):
+        """
+        每股营业收入TTM
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['OptRevPSTTM'] = share_indicators[dependencies].apply(
+            fun,
+            axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['operating_revenue_ttm'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'OptRevPSTTM']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['OptRevPSTTM'] = share_indicators['OptRevPSTTM']
+
         return factor_share_indicators
 
     @staticmethod
@@ -412,68 +461,29 @@ class PerShareIndicators(FactorBase):
         share_indicators['TotalRevPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
         # share_indicators = share_indicators.drop(columns=['total_operating_revenue_ttm'], axis=1)
-        share_indicators = share_indicators[['symbol', 'TotalRevPSTTM']]
+        # share_indicators = share_indicators[['security_code', 'TotalRevPSTTM']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['TotalRevPSTTM'] = share_indicators['TotalRevPSTTM']
 
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def tor_ps_latest(tp_share_indicators, factor_share_indicators, dependencies=['total_operating_revenue', 'capitalization']):
-        """
-        每股营业总收入
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['TotalRevPS'] = share_indicators[['total_operating_revenue', 'capitalization']].apply(fun, axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['total_operating_revenue'], axis=1)
-        share_indicators = share_indicators[['symbol', 'TotalRevPS']]
-
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
-        return factor_share_indicators
-
-    @staticmethod
-    def undivided_pro_fit_ps(tp_share_indicators, factor_share_indicators, dependencies=['retained_profit', 'capitalization']):
-        """
-        每股未分配利润
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['UndividedProfitPS'] = share_indicators[
-            ['retained_profit', 'capitalization']].apply(
-            fun,
-            axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['retained_profit'], axis=1)
-        share_indicators = share_indicators[['symbol', 'UndividedProfitPS']]
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='symbol')
         return factor_share_indicators
 
 
-def calculate(trade_date, valuation_sets, per_share):
+def calculate(trade_date, valuation_sets):
     """
     规模
-    :param per_share: 规模类
     :param valuation_sets: 基础数据
     :param trade_date: 交易日
     :return:
     """
+    valuation_sets = valuation_sets.set_index('security_code', inplace=True)
     if len(valuation_sets) <= 0:
         print("%s has no data" % trade_date)
         return
 
+    per_share = PerShareIndicators('factor_per_share')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     factor_share_indicators = pd.DataFrame()
-    factor_share_indicators['symbol'] = valuation_sets.index
+    factor_share_indicators['security_code'] = valuation_sets.index
+    factor_share_indicators = factor_share_indicators.set_index('security_code')
 
     # psindu
     factor_share_indicators = per_share.eps(valuation_sets, factor_share_indicators)
@@ -495,7 +505,7 @@ def calculate(trade_date, valuation_sets, per_share):
     factor_share_indicators = per_share.oper_cash_flow_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
     factor_share_indicators = per_share.cash_flow_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
 
-    # factor_share_indicators = factor_share_indicators[['symbol',
+    # factor_share_indicators = factor_share_indicators[['security_code',
     #                                                    'EPS',
     #                                                    'DilutedEPSTTM',
     #                                                    'CashEquPS',
@@ -517,7 +527,7 @@ def calculate(trade_date, valuation_sets, per_share):
     #                                                    'EnterpriseFCFPS',
     #                                                    'ShareholderFCFPS']]
 
-    factor_share_indicators = factor_share_indicators[['symbol',
+    factor_share_indicators = factor_share_indicators[['security_code',
                                                        'EPS',
                                                        'DilutedEPSTTM',
                                                        'CashEquPS',
@@ -537,9 +547,9 @@ def calculate(trade_date, valuation_sets, per_share):
                                                        'OptCFPSTTM',
                                                        'CFPSTTM']]
 
-    factor_share_indicators['id'] = factor_share_indicators['symbol'] + str(trade_date)
+    factor_share_indicators['id'] = factor_share_indicators['security_code'] + str(trade_date)
     factor_share_indicators['trade_date'] = str(trade_date)
-    per_share._storage_data(factor_share_indicators, trade_date)
+    # per_share._storage_data(factor_share_indicators, trade_date)
 
 
 @app.task()
@@ -547,8 +557,7 @@ def factor_calculate(**kwargs):
     print("per_share_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
-    per_share = PerShareIndicators('factor_per_share')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     content = cache_data.get_cache(session + str(date_index), date_index)
     total_pre_share_data = json_normalize(json.loads(str(content, encoding='utf8')))
     print("len_total_per_share_data {}".format(len(total_pre_share_data)))
-    calculate(date_index, total_pre_share_data, per_share)
+    calculate(date_index, total_pre_share_data)
