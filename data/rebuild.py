@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import importlib,pdb
+import importlib,pdb,inspect
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
@@ -35,13 +35,17 @@ class Rebuild(object):
         session.execute(update_sql)
     
     def _update_factor_detail(self, class_name, class_method, func_sets, session):
-        delete_sql = ''
         update_sql = ''
+        delete_sql = """delete from `{0}` where factor_type='{1}'""".format('factor_detail', class_name)
+        session.execute(delete_sql)
         for func in func_sets:
-            delete_sql = """delete from `{0}` where factor_type='{1}'""".format('factor_detail', class_name)
-            session.execute(delete_sql)
+            try:
+                desc = str(str(getattr(class_method,func).__doc__.split('\n')[-2]).split('return:')[-1])
+                desc = desc.replace(':','：')
+            except:
+                desc = None
             update_sql ="""insert into `{0}` (`factor_type`,`factor_name`,`description`) values('{1}','{2}','{3}');""".format(
-            'factor_detail', class_name, str(func), 'desc')
+            'factor_detail', class_name, str(func), desc)
             session.execute(update_sql)
         
     def _build_table(self, class_name, func_sets, session):
