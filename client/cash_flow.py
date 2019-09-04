@@ -143,7 +143,7 @@ def get_basic_cash_flow(trade_date):
                                                   'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
                                                   'LONGBORR': 'longterm_loan',  # 长期借款
                                                   'TOTALCURRLIAB': 'total_current_liability',   # 流动负债合计
-                                                  # 'net_liability':'',  # 净负债
+                                                  # 'NDEBT':'net_liability',  # 净负债
                                                   'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
                                                   'TOTASSET': 'total_assets',      # 资产总计
                                                   'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
