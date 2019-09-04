@@ -54,7 +54,13 @@ class Alpha191(object):
     
     # (-1*CORR(RANK(DELTA(LOG(VOLUME),1)),RANK(((CLOSE-OPEN)/OPEN)),6)
     def alpha_1(self, data, param1=1, param2=6, dependencies=['close_price','open_price',
-                                                                        'turnover_vol'], max_window=7):
+                                                'turnover_vol'], max_window=7):
+        '''
+        This is alpha_1
+        :param param1: int
+        :param param2: int
+        :return: (-1*CORR(RANK(DELTA(LOG(VOLUME),1)),RANK(((CLOSE-OPEN)/OPEN)),6)
+        '''
         vol = (np.log(data['turnover_vol']).diff(param1)).rank(axis=1, pct=True)
         ret = (data['close_price'] / data['open_price'] - 1.0).rank(axis=1, pct=True)
         vol = vol.tail(param2)
@@ -65,6 +71,13 @@ class Alpha191(object):
     # -1*delta(((close-low)-(high-close))/(high-low),1)
     def alpha_2(self, data, param1=2, param2=1, param3=-1, dependencies=['close_price','lowest_price',
                                                                          'highest_price'], max_window=2):
+        '''
+        This is alpha_1
+        :param param1: int
+        :param param2: int
+        :param param3: int
+        :return: -1*delta(((close-low)-(high-close))/(high-low),1)
+        '''
         win_ratio = (param1*data['close_price']-data['lowest_price']-data['highest_price'])\
                                 /(data['highest_price']-data['lowest_price'])
         return win_ratio.diff(param2).iloc[-1] * (param3)
@@ -73,6 +86,12 @@ class Alpha191(object):
     #-1*SUM((CLOSE=DELAY(CLOSE,1)?0:CLOSE-(CLOSE>DELAY(CLOSE,1)?MIN(LOW,DELAY(CLOSE,1)):MAX(HIGH,DELAY(CLOSE,1)))),6)
     # 这里SUM应该为TSSUM
     def alpha_3(self, data, param1=-1, dependencies=['close_price','lowest_price','highest_price'], max_window=6):
+        
+        '''
+        This is alpha_1
+        :param param1: int
+        :return: -1*SUM((CLOSE=DELAY(CLOSE,1)?0:CLOSE-(CLOSE>DELAY(CLOSE,1)?MIN(LOW,DELAY(CLOSE,1)):MAX(HIGH,DELAY(CLOSE,1)))),6)
+        '''
         alpha = pd.DataFrame(np.zeros(data['close_price'].values.shape), 
                              index=data['close_price'].index, 
                              columns=data['close_price'].columns)
@@ -86,7 +105,18 @@ class Alpha191(object):
     
     # (((SUM(CLOSE,8)/8)+STD(CLOSE,8))<(SUM(CLOSE,2)/2))?-1:(SUM(CLOSE,2)/2<(SUM(CLOSE,8)/8-STD(CLOSE,8))?1:(1<=(VOLUME/MEAN(VOLUME,20))?1:-1))
     def alpha_4(self, data, param1=8, param2=8, param3=2, param4=2, param5=8, param6=8, param7=20,
-                dependencies=['close_price','turnover_vol'], max_window=20):
+                dependencies=['close_price','turnover_vol'], max_window=20):        
+        '''
+        This is alpha_1
+        :param param1: int
+        :param param2: int
+        :param param3: int
+        :param param4: int
+        :param param5: int
+        :param param6: int
+        :param param7: int
+        :return: (((SUM(CLOSE,8)/8)+STD(CLOSE,8))<(SUM(CLOSE,2)/2))?-1:(SUM(CLOSE,2)/2<(SUM(CLOSE,8)/8-STD(CLOSE,8))?1:(1<=(VOLUME/MEAN(VOLUME,20))?1:-1))
+        '''
     # 注:取值排序有随机性
         condition1 = data['close_price'].rolling(center=False, window=param1).std() + data['close_price'].rolling(
             center=False, window=param2).mean() < data['close_price'].rolling(center=False, window=param3).mean()
@@ -118,6 +148,15 @@ class Alpha191(object):
     # -1*RANK(SIGN(DELTA(OPEN*0.85+HIGH*0.15,4)))
     def alpha_6(self, data, param1=0.85, param2=0.15, param3=4, param4=-1,
                 dependencies=['open_price', 'highest_price'], max_window=5):
+        
+        '''
+        This is alpha_1
+        :param param1: double
+        :param param2: double
+        :param param3: double
+        :param param4: double
+        :return: -1*RANK(SIGN(DELTA(OPEN*0.85+HIGH*0.15,4)))
+        '''
         # 注:取值排序有随机性
         signs = np.sign((data['open_price'] * param1 + data['highest_price'] * param2).diff(param3))
         alpha = (signs.rank(axis=1, pct=True)).iloc[-1] * (param4)
@@ -126,6 +165,14 @@ class Alpha191(object):
     # (RANK(MAX(VWAP-CLOSE,3))+RANK(MIN(VWAP-CLOSE,3)))*RANK(DELTA(VOLUME,3))
     def alpha_7(self, data, param1=3, param2=3, param3=3, 
                 dependencies=['turnover_vol', 'vwap', 'close_price'], max_window=4):
+        '''
+        This is alpha_1
+        :param param1: double
+        :param param2: double
+        :param param3: double
+        :return: (RANK(MAX(VWAP-CLOSE,3))+RANK(MIN(VWAP-CLOSE,3)))*RANK(DELTA(VOLUME,3))
+        '''
+            
         # 感觉MAX应该为TSMAX
         part1 = (data['vwap'] - data['close_price']).rolling(window=param1,min_periods=param1).max().rank(axis=1, pct=True)
         part2 = (data['vwap'] - data['close_price']).rolling(window=param2,min_periods=param2).min().rank(axis=1, pct=True)
@@ -136,6 +183,15 @@ class Alpha191(object):
     # -1*RANK(DELTA((HIGH+LOW)/10+VWAP*0.8,4))
     def alpha_8(self, data,param1=0.1, param2=0.8,param3=4,param4=-1,
                 dependencies=['turnover_vol', 'vwap', 'highest_price', 'lowest_price'], max_window=5):
+        '''
+        This is alpha_1
+        :param param1: double
+        :param param2: double
+        :param param3: double
+        :param param4: double
+        :return: -1*RANK(DELTA((HIGH+LOW)/10+VWAP*0.8,4))
+        '''
+            
         # 受股价单价影响,反转
         ma_price = data['lowest_price']*param1 + data['lowest_price']*param1 + data['vwap']*param2
         alpha = ma_price.diff(param3).rank(axis=1, pct=True, na_option='keep').iloc[-1] * (param4)
@@ -144,6 +200,16 @@ class Alpha191(object):
     # SMA(((HIGH+LOW)/2-(DELAY(HIGH,1)+DELAY(LOW,1))/2)*(HIGH-LOW)/VOLUME,7,2)
     def alpha_9(self, data, param1=0.5, param2=1, param3=0.5, param4=7, param5=2,
                 dependencies=['highest_price', 'lowest_price', 'turnover_vol'], max_window=8):
+        
+        '''
+        This is alpha_1
+        :param param1: double
+        :param param2: double
+        :param param3: double
+        :param param4: double
+        :param param5: double
+        :return:SMA(((HIGH+LOW)/2-(DELAY(HIGH,1)+DELAY(LOW,1))/2)*(HIGH-LOW)/VOLUME,7,2)
+        '''
         part1 = (data['highest_price']+data['lowest_price'])*param1-(data['highest_price'].shift(param2)+\
                                                                     data['lowest_price'].shift(param2))*param3
         part2 = part1 * (data['highest_price']-data['lowest_price']) / data['turnover_vol']
@@ -154,6 +220,14 @@ class Alpha191(object):
     def alpha_10(self, data, param1=20, param2=2, param3=5,
                  dependencies=['close_price'], max_window=25):
     # 没法解释,感觉MAX应该为TSMAX
+        '''
+        This is alpha_1
+        :param param1: double
+        :param param2: double
+        :param param3: double
+        :return:RANK(MAX(((RET<0)?STD(RET,20):CLOSE)^2,5))
+        '''
+        
         ret = data['close_price'].pct_change(periods=1)
         part1 = ret.rolling(window=param1, min_periods=param1).std()
         condition = ret >= 0.0
@@ -161,6 +235,7 @@ class Alpha191(object):
         alpha = (part1 ** param2).rolling(window=param3,min_periods=param3).max().rank(axis=1, pct=True)
         return alpha.iloc[-1]
     
+        
     # SUM计算问题 fix me
     # SUM(((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-LOW).*VOLUME,6)
     def alpha_11(self, data, param1=2, dependencies=['close_price','lowest_price','highest_price','turnover_vol'], max_window=6):

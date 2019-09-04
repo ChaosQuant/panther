@@ -39,7 +39,7 @@ class FetchEngine(object):
         
 class FetchRLEngine(FetchEngine):
     def __init__(self):
-        super(FetchRLEngine, self).__init__('rl','mysql+mysqlconnector://123@127.0.0.1/vision')
+        super(FetchRLEngine, self).__init__('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision')
     
     def market(self, begin_date, end_date, freq = None):
         table = importlib.import_module('data.rl_model').Market
@@ -51,7 +51,7 @@ class FetchRLEngine(FetchEngine):
     
 class FetchDXEngine(FetchEngine):
     def __init__(self):
-        super(FetchDXEngine, self).__init__('dx','postgresql+psycopg2://123@127.0.0.1/alpha')
+        super(FetchDXEngine, self).__init__('dx','postgresql+psycopg2://alpha:alpha@180.166.26.82:8889/alpha')
      
     def market(self, begin_date, end_date, freq = None):
         table = importlib.import_module('data.dx_model').Market
