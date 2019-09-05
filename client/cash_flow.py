@@ -86,15 +86,13 @@ def get_basic_data(trade_date):
     cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
                                                                      [CashFlowReport.MANANETR,  # 经营活动现金流量净额
                                                                       CashFlowReport.LABORGETCASH,  # 销售商品、提供劳务收到的现金
-                                                                      ],
-                                                                     dates=[trade_date]).drop(columns, axis=1)
+                                                                      ], dates=[trade_date]).drop(columns, axis=1)
 
     income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                   [IncomeReport.BIZINCO,  # 营业收入
                                                                    IncomeReport.BIZTOTCOST,  # 营业总成本
                                                                    IncomeReport.BIZTOTINCO,  # 营业总收入
-                                                                   ],
-                                                                  dates=[trade_date]).drop(columns, axis=1)
+                                                                   ], dates=[trade_date]).drop(columns, axis=1)
 
     tp_cash_flow = pd.merge(cash_flow_sets, income_sets, on="security_code")
 

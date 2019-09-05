@@ -59,7 +59,6 @@ def get_basic_data(trade_date):
     maplist = {
         # cash flow
         'BIZNETCFLOW': 'net_operate_cash_flow',  # 经营活动产生的现金流量净额
-
         # income
         'TOTPROFIT': 'total_profit',  # 利润总额
         'NONOREVE': 'non_operating_revenue',  # 营业外收入

@@ -595,7 +595,7 @@ def calculate(trade_date, tp_solvency, ttm_solvency, mrq_solvency):  # 计算对
     factor_solvency = solvency.nocf_to_net_debt_ttm(mrq_solvency, factor_solvency)
     factor_solvency = solvency.oper_cash_in_to_current_liability_ttm(mrq_solvency, factor_solvency)
     factor_solvency = solvency.cash_to_current_liability_ttm(mrq_solvency, factor_solvency)
-
+    factor_solvency = factor_solvency.reset_index()
     factor_solvency['id'] = factor_solvency['security_code'] + str(trade_date)
     factor_solvency['trade_date'] = str(trade_date)
     # solvency._storage_data(factor_cash_flow, trade_date)
