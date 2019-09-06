@@ -32,6 +32,8 @@ hh_db_database = 'dnds'
 hh_db_user = 'reader'
 hh_db_pwd = 'reader'
 
+DB_URL = 'mysql+mysqlconnector://jupyter_read:jupyter_read_2019@db1.irongliang.com:3306/vision'
+
 destination_db_host = '10.15.97.128'
 destination_db_port = '3306'
 destination_db_database = 'factors'

@@ -68,7 +68,7 @@ def get_basic_data(trade_date):
                'CASHNETI': 'cash_equivalent_increase',  # 现金及现金等价物净增加额
 
                'DILUTEDEPS': 'diluted_eps',   # 稀释每股收益
-               # 'NETPROFIT': 'net_profit',  # 净利润
+               'NETPROFIT': 'net_profit',  # 净利润1
                'BIZINCO': 'operating_revenue',  # 营业收入
                'PERPROFIT':'operating_profit',  # 营业利润
                'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入

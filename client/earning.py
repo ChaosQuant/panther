@@ -64,8 +64,8 @@ def get_basic_data(trade_date):
         'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
         'BIZTOTCOST': 'total_operating_cost',  # 营业总成本
         'ASSOINVEPROF':'invest_income_associates',  # 对联营企业和合营企业的投资收益
-        '':'non_operating_revenue',  # 营业外收入
-        '':'non_operating_expense',  # 营业外支出
+        'NONOREVE':'non_operating_revenue',  # 营业外收入1
+        'NONOEXPE':'non_operating_expense',  # 营业外支出1
         'TOTPROFIT':'total_profit',  # 利润总额
         'NETPROFIT':'net_profit',   # 净利润
         'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润
@@ -76,7 +76,7 @@ def get_basic_data(trade_date):
         'PERPROFIT':'operating_profit',  # 营业利润
         'MANAEXPE':'administration_expense',  # 管理费用
         'SALESEXPE':'sale_expense',  # 销售费用
-        '':'operating_tax_surcharges',  # 营业税金及附加
+        'BIZTAX':'operating_tax_surcharges',  # 营业税金及附加1
 
         # balance
         'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
@@ -84,10 +84,10 @@ def get_basic_data(trade_date):
         'TOTASSET': 'total_assets',  # 资产总计
 
         # indicator
-        '':'adjusted_profit',  # 扣除非经常损益后的净利润
+        'NETPROFITCUT':'adjusted_profit',  # 扣除非经常损益后的净利润1
 
         # valuation
-        '':'circulating_market_cap'  # 流通市值
+        '':'circulating_market_cap'  # 流通市值1
         }
 
     trade_date_pre_year = get_trade_date(trade_date, 1)
@@ -105,7 +105,7 @@ def get_basic_data(trade_date):
                                                                       CashFlowReport.FINALCASHBALA,
                                                                       ],
                                                                      dates=[trade_date]).drop(columns, axis=1)
-    cash_flow_sets = cash_flow_sets.rename(columns={'LABORGETCASH': 'goods_sale_and_service_render_cash',  # 销售商品、提供劳务收到的现金
+    cash_flow_sets = cash_flow_sets.rename(columns={'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
                                                     'FINALCASHBALA':'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
                                                     })
 
@@ -122,7 +122,7 @@ def get_basic_data(trade_date):
 
     indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
                                                                      [
-                                                                      # IndicatorReport.adjusted_profit  # 扣除非经常损益后的净利润
+                                                                      IndicatorReport.NETPROFITCUT,  # 扣除非经常损益后的净利润
                                                                       IndicatorReport.MGTEXPRT
                                                                       ],
                                                                      dates=[trade_date]).drop(columns, axis=1)
@@ -209,7 +209,7 @@ def get_basic_data(trade_date):
                                                                         BalanceTTM.PARESHARRIGH,   # 归属于母公司股东权益合计
                                                                         ],
                                                                        dates=[trade_date]).drop(columns, axis=1)
-    balance_ttm_sets = balance_ttm_sets.rename(columns={'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
+    balance_ttm_sets = balance_ttm_sets.rename(columns={'PARESHARRIGH': 'equities_parent_company_owners',   # 归属于母公司股东权益合计
                                                         'RIGHAGGR':'total_owner_equities',  # 所有者权益（或股东权益）合计
                                                         'TOTASSET': 'total_assets',  # 资产总计
                                                         })

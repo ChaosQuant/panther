@@ -116,8 +116,8 @@ def get_basic_data(trade_date):
 
     income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                       [IncomeTTM.TOTPROFIT,
-                                                                       # IncomeTTM.NONOREVE,
-                                                                       # IncomeTTM.NONOEXPE,
+                                                                       IncomeTTM.NONOREVE,
+                                                                       IncomeTTM.NONOEXPE,
                                                                        IncomeTTM.BIZTOTCOST,
                                                                        IncomeTTM.BIZTOTINCO,
                                                                        ],

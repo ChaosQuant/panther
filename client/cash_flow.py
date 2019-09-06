@@ -61,7 +61,6 @@ def get_basic_data(trade_date):
     :param trade_date:
     :return:
     """
-    engine = sqlEngine()
     maplist = {'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
                'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
 
@@ -83,6 +82,7 @@ def get_basic_data(trade_date):
 
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
     # report data
+    engine = sqlEngine()
     cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
                                                                      [CashFlowReport.MANANETR,  # 经营活动现金流量净额
                                                                       CashFlowReport.LABORGETCASH,  # 销售商品、提供劳务收到的现金

@@ -40,7 +40,7 @@ def get_basic_data(trade_date):
         # balance
         'ACCORECE':'accounts_payable',  # 应付账款
         'NOTESRECE': 'bill_receivable',  # 应收票据
-        '':'advance_payment',  # 预付款项
+        '':'advance_payment',  # 预付款项1
         'INVE': 'inventories',  # 存货
         'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
         'FIXEDASSENET': 'fixed_assets',  # 固定资产
