@@ -12,6 +12,7 @@ class Market(Base):
     )
     id = Column(VARCHAR(32), primary_key=True)
     symbol = Column(VARCHAR(24), primary_key=True)
+    #security_code = Column(VARCHAR(24), primary_key=True)
     trade_date = Column(DATE, primary_key=True)
     name = Column(VARCHAR(50))
     pre_close = Column(DECIMAL(15, 6))

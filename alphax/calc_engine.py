@@ -66,7 +66,7 @@ class CalcEngine(object):
             date_indu_df = data[data['trade_date'] == trade_date_list[-1]].set_index('code')[indu_names]
             indu_check_se = date_indu_df.sum(axis=1).sort_values()
             date_indu_df.drop(indu_check_se[indu_check_se < 2].index, inplace=True)
-            indu_dict[date] = date_indu_df.sort_index()
+            indu_dict[pd.Timestamp(date)] = date_indu_df.sort_index()
         total_data = {}
         for col in mkt_df.columns:
             total_data[col] = mkt_df[col].unstack().sort_index()
@@ -93,6 +93,7 @@ class CalcEngine(object):
         
     def process_calc_factor(self, packet_name, class_name, mkt_df, trade_date):
         calc_factor_list = []
+        cpus = multiprocessing.cpu_count()
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         alpha_max_window = 0
         func_sets = self._func_sets(class_method)
@@ -111,7 +112,7 @@ class CalcEngine(object):
                 else:
                     data['indu'] = mkt_df['indu']
             calc_factor_list.append([class_name, packet_name, func, data])
-        with multiprocessing.Pool(processes=4) as p:
+        with multiprocessing.Pool(processes=cpus*2) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
         result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'symbol'})
@@ -154,9 +155,15 @@ class CalcEngine(object):
         pdb.set_trace()
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
+        
+        #result = self.process_calc_factor('alphax.alpha101','Alpha101',mkt_df,trade_date)
+        #storage_engine = StorageEngine(self._url)
+        #storage_engine.update_destdb('alpha101', trade_date, result)
+        
         result = self.process_calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
         storage_engine = StorageEngine(self._url)
         storage_engine.update_destdb('alpha191', trade_date, result)
+        
         
     def remote_run(self, trade_date):
         total_data = self.loadon_data(trade_date)
