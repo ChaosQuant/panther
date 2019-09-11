@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #针对191，101 量价进行通用计算
 import pandas as pd
+import numpy as np
+import multiprocessing
 import pdb,importlib,inspect,time,datetime,json
 from PyFin.api import advanceDateByCalendar
 from data.polymerize import DBPolymerize
@@ -80,12 +82,51 @@ class CalcEngine(object):
         total_data = db_polymerize.fetch_data(begin_date, trade_date,'1b')
         return total_data
     
+    def process_calc(self, params):
+        [class_name, packet_name, func, data] = params
+        class_method = importlib.import_module(packet_name).__getattribute__(class_name)
+        res = getattr(class_method(),func)(data)
+        res = pd.DataFrame(res)
+        res.columns=[func]
+        #res = res.reset_index().sort_values(by='code',ascending=True)
+        return res
+        
+    def process_calc_factor(self, packet_name, class_name, mkt_df, trade_date):
+        calc_factor_list = []
+        class_method = importlib.import_module(packet_name).__getattribute__(class_name)
+        alpha_max_window = 0
+        func_sets = self._func_sets(class_method)
+        start_time = time.time()
+        for func in func_sets:
+            print(func)
+            func_method = getattr(class_method,func)
+            fun_param = inspect.signature(func_method).parameters
+            dependencies = fun_param['dependencies'].default
+            max_window = fun_param['max_window'].default
+            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window - 1))
+            data = {}
+            for dep in dependencies:
+                if dep not in ['indu']:
+                    data[dep] = mkt_df[dep].loc[begin.strftime("%Y-%m-%d"):trade_date]
+                else:
+                    data['indu'] = mkt_df['indu']
+            calc_factor_list.append([class_name, packet_name, func, data])
+        with multiprocessing.Pool(processes=4) as p:
+            res = p.map(self.process_calc, calc_factor_list)
+        print(time.time() - start_time)
+        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'symbol'})
+        result = result.replace([np.inf, -np.inf], np.nan)
+        result['trade_date'] = trade_date
+        return result
+        
     #计算因子
     def calc_factor(self, packet_name, class_name, mkt_df, trade_date):
         result = pd.DataFrame()
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         alpha_max_window = 0
         func_sets = self._func_sets(class_method)
+        
+        start_time = time.time()
         for func in func_sets:
             print(func)
             func_method = getattr(class_method,func)
@@ -106,12 +147,14 @@ class CalcEngine(object):
             result[func] = res[func]
         result['symbol'] = res['code']
         result['trade_date'] = trade_date
+        print(time.time() - start_time)
         return result
     
     def local_run(self, trade_date):
+        pdb.set_trace()
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
-        result = self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
+        result = self.process_calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
         storage_engine = StorageEngine(self._url)
         storage_engine.update_destdb('alpha191', trade_date, result)
         
