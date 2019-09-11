@@ -206,6 +206,50 @@ class FactorCashFlow(FactorBase):
         factor_cash_flow['SaleServCashToOptReTTM'] = cash_flow['SaleServCashToOptReTTM']
         return factor_cash_flow
 
+    @staticmethod
+    def ctop(tp_historical_value, factor_historical_value, dependencies=['pcd', 'sbd', 'circulating_market_cap', 'market_cap']):
+        """
+        现金流市值比 = 每股派现 * 分红前总股本/总市值
+        :param tp_historical_value:
+        :param factor_historical_value:
+        :param dependencies:
+        :return:
+        """
+
+        historical_value = tp_historical_value.loc[:, dependencies]
+
+        fun = lambda x: x[0] * x[1] / x[2] if x[2] is not None and x[2] != 0 else (x[0] * x[1] / x[3] if x[3] is not None and x[3] != 0 else None)
+
+        historical_value['historical_value_ctop_latest'] = historical_value[dependencies].apply(fun, axis=1)
+
+        historical_value = historical_value.drop(columns=['pcd', 'sbd', 'circulating_market_cap', 'market_cap'], axis=1)
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        return factor_historical_value
+
+
+    @staticmethod
+    def ctop5(tp_historical_value, factor_historical_value, dependencies=['pcd', 'sbd', 'circulating_market_cap_5', 'market_cap_5']):
+        """
+        5 年平均现金流市值比  = 近5年每股派现 * 分红前总股本/近5年总市值
+        :param tp_historical_value:
+        :param factor_historical_value:
+        :param dependencies:
+        :return:
+        """
+        historical_value = tp_historical_value.loc[:, dependencies]
+
+        fun = lambda x: x[0] * x[1] / x[2] if x[2] is not None and x[2] != 0 else (
+            x[0] * x[1] / x[3] if x[3] is not None and x[3] != 0 else None)
+
+        historical_value['historical_value_ctop5_latest'] = historical_value[dependencies].apply(fun, axis=1)
+
+        historical_value = historical_value.drop(columns=['pcd', 'sbd', 'circulating_market_cap_5', 'market_cap_5'],
+                                                 axis=1)
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        return factor_historical_value
+
+
+
 '''
 `OptCFToNITTM`
 `NOCFTOOPftTTM`

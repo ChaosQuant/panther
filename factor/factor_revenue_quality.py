@@ -142,6 +142,25 @@ class RevenueQuality(FactorBase):
         revenue_quality = pd.merge(revenue_quality, cash_flow, on="security_code")
         return revenue_quality
 
+    @staticmethod
+    def etp5(tp_historical_value, factor_historical_value, dependencies=['net_profit_5', 'circulating_market_cap_5', 'market_cap_5']):
+        """
+        5年平均收益市值比 = 近5年净利润 / 近5年总市值 TTM
+        :param tp_historical_value:
+        :param factor_historical_value:
+        :param dependencies:
+        :return:
+        """
+        historical_value = tp_historical_value.loc[:, dependencies]
+
+        fun = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else (x[0] / x[2] if x[2] is not None and x[2] !=0 else None)
+
+        historical_value['historical_value_etp5_ttm'] = historical_value[dependencies].apply(fun, axis=1)
+        # historical_value = historical_value.drop(columns=['net_profit_5', 'circulating_market_cap_5', 'market_cap_5'], axis=1)
+        # factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value['historical_value_etp5_ttm'] = historical_value['historical_value_etp5_ttm']
+        return factor_historical_value
+
 
 def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity):
     # 计算对应因子
