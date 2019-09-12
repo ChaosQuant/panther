@@ -88,7 +88,7 @@ def get_basic_data(trade_date):
         'GOODWILL': 'good_will',  # 商誉
         'LOGPREPEXPE': 'long_deferred_expense',  # 长期待摊费用
         'DEFETAXASSET': 'deferred_tax_assets',  # 递延所得税资产
-        '':'non_current_liability_in_one_year', # 一年内到期的非流动负债
+        'DUENONCLIAB':'non_current_liability_in_one_year', # 一年内到期的非流动负债
         'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
         'LONGBORR': 'longterm_loan',  # 长期借款
         'BDSPAYA': 'bonds_payable',  # 应付债券
@@ -118,7 +118,7 @@ def get_basic_data(trade_date):
                                                                     BalanceMRQ.FIXEDASSENET,
                                                                     BalanceMRQ.PARESHARRIGH,
                                                                     BalanceMRQ.SHORTTERMBORR,
-                                                                    # BalanceMRQ.non_current_liability_in_one_year,
+                                                                    # BalanceMRQ.DUENONCLIAB,
                                                                     BalanceMRQ.LONGBORR,
                                                                     BalanceMRQ.BDSPAYA,
                                                                     BalanceMRQ.INTEPAYA,
@@ -136,7 +136,6 @@ def get_basic_data(trade_date):
                                                                     BalanceMRQ.ACCORECE,
                                                                     BalanceMRQ.OTHERRECE,
                                                                     ], dates=[trade_date]).drop(columns, axis=1)
-    print('balance_mrq_sets')
 
     balance_mrq_sets = balance_mrq_sets.rename(columns={
         'TOTLIAB': 'total_liability',  # 负债合计
@@ -155,7 +154,7 @@ def get_basic_data(trade_date):
         'GOODWILL': 'good_will',  # 商誉
         'LOGPREPEXPE': 'long_deferred_expense',  # 长期待摊费用
         'DEFETAXASSET': 'deferred_tax_assets',  # 递延所得税资产
-        '': 'non_current_liability_in_one_year',  # 一年内到期的非流动负债
+        'DUENONCLIAB': 'non_current_liability_in_one_year',  # 一年内到期的非流动负债
         'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
         'LONGBORR': 'longterm_loan',  # 长期借款
         'BDSPAYA': 'bonds_payable',  # 应付债券
@@ -166,25 +165,34 @@ def get_basic_data(trade_date):
         'RIGHAGGR': 'total_owner_equities',  # 所有者权益（或股东权益）合计
         'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
     })
-
     cash_flow_mrq_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
                                                                          [CashFlowMRQ.MANANETR,
                                                                           ], dates=[trade_date]).drop(columns, axis=1)
-    cash_flow_mrq_sets = cash_flow_mrq_sets.rename(columns={'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
+    cash_flow_mrq_sets = cash_flow_mrq_sets.rename(columns={'MANANETR': 'net_operate_cash_flow_mrq',  # 经营活动现金流量净额
                                                             })
 
     mrq_solvency = pd.merge(cash_flow_mrq_sets, balance_mrq_sets, on='security_code')
 
     # ttm data
+    income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
+                                                                      [IncomeTTM.TOTPROFIT,
+                                                                       IncomeTTM.FINEXPE,
+                                                                       IncomeTTM.INTEINCO,
+                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+
+    income_ttm_sets = income_ttm_sets.rename(columns={'TOTPROFIT':'total_profit',  # 利润总额
+                                                      'FINEXPE':'financial_expense',  # 财务费用
+                                                      'INTEINCO':'interest_income',  # 利息收入
+                                                      })
+
     balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                        [BalanceTTM.TOTALCURRLIAB,
-                                                                        BalanceTTM.DUENONCLIAB,
+                                                                        # BalanceTTM.DUENONCLIAB,
                                                                         ], dates=[trade_date]).drop(columns, axis=1)
     balance_ttm_sets = balance_ttm_sets.rename(columns={
         'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计
         'DUENONCLIAB': 'non_current_liability_in_one_year_ttm',  # 一年内到期的非流动负债
     })
-    print('balance_ttm_sets')
 
     cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                          [CashFlowTTM.MANANETR,       # 经营活动现金流量净额
@@ -194,7 +202,6 @@ def get_basic_data(trade_date):
         'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
         'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
     })
-    print('cash_flow_ttm_sets')
 
     indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                          [IndicatorTTM.NDEBT,
@@ -202,6 +209,7 @@ def get_basic_data(trade_date):
     indicator_ttm_sets = indicator_ttm_sets.rename(columns={'NDEBT': 'net_liability',  # 净负债
                                                             })
     ttm_solvency = pd.merge(balance_ttm_sets, cash_flow_ttm_sets, how='outer', on="security_code")
+    ttm_solvency = pd.merge(ttm_solvency, income_ttm_sets, how='outer', on="security_code")
     ttm_solvency = pd.merge(ttm_solvency, indicator_ttm_sets, how='outer', on="security_code")
 
     column = ['trade_date']
@@ -219,38 +227,32 @@ def get_basic_data(trade_date):
 def prepare_calculate_local(trade_date):
     # 本地计算
     tic = time.time()
-    tp_solvency, ttm_solvency, mrq_solvency = get_basic_data(trade_date)
+    tp_solvency = get_basic_data(trade_date)
     print('len_tp_cash_flow: %s' % len(tp_solvency))
-    print('len_ttm_cash_flow: %s' % len(ttm_solvency))
     print('tp_cash_flow: \n%s' % tp_solvency.head())
-    print('ttm_cash_flow: \n%s' % ttm_solvency.head())
 
-    if len(tp_solvency) <= 0 or len(ttm_solvency) <= 0 or len(mrq_solvency) <= 0:
+    if len(tp_solvency) <= 0:
         print("%s has no data" % trade_date)
         return
     else:
-        factor_solvency.calculate(trade_date, tp_solvency, ttm_solvency, mrq_solvency)
+        factor_solvency.calculate(trade_date, tp_solvency)
     end = time.time()
     print('cash_flow_cal_time:{}'.format(end - tic))
 
 
 def prepare_calculate_remote(trade_date):
     # 远程计算
-    tp_solvency, ttm_solvency, mrq_solvency = get_basic_data(trade_date)
+    tp_solvency = get_basic_data(trade_date)
     print('len_tp_cash_flow: %s' % len(tp_solvency))
-    print('len_ttm_cash_flow: %s' % len(ttm_solvency))
     print('tp_cash_flow: \n%s' % tp_solvency.head())
-    print('ttm_cash_flow: \n%s' % ttm_solvency.head())
 
-    if len(tp_solvency) <= 0 or len(ttm_solvency) <= 0 or len(mrq_solvency) <= 0:
+    if len(tp_solvency) <= 0:
         print("%s has no data" % trade_date)
         return
     else:
         tic = time.time()
         session = str(int(time.time() * 1000000 + datetime.now().microsecond))
         cache_data.set_cache(session + str(trade_date) + "1", trade_date, tp_solvency.to_json(orient='records'))
-        cache_data.set_cache(session + str(trade_date) + "2", trade_date, ttm_solvency.to_json(orient='records'))
-        cache_data.set_cache(session + str(trade_date) + "3", trade_date, mrq_solvency.to_json(orient='records'))
         factor_solvency.factor_calculate(date_index=trade_date, session=session)
         time4 = time.time()
         print('cash_flow_cal_time:{}'.format(time4 - tic))

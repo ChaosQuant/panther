@@ -26,7 +26,7 @@ class Solvency(FactorBase):
     def create_dest_tables(self):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` varchar(32) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `BondsToAsset` decimal(19,4),
@@ -39,6 +39,7 @@ class Solvency(FactorBase):
                     `IntBDToCap` decimal(19,4),
                     `LDebtToWCap` decimal(19,4),
                     `MktLev` decimal(19,4),
+                    `EquityRatio` decimal(19,4),
                     `QuickRatio` decimal(19,4),
                     `TNWorthToIBDebt` decimal(19,4),
                     `SupQuickRatio` decimal(19,4),
@@ -50,7 +51,8 @@ class Solvency(FactorBase):
                     `OptCFToIBDTTM` decimal(19,4),                   
                     `OptCFToNetDebtTTM` decimal(19,4),                   
                     `OptCFToCurrLiabilityTTM` decimal(19,4),                   
-                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
+                    constraint {0} uindex
+                    unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(Solvency, self)._create_tables(create_sql, drop_sql)
 
@@ -150,6 +152,9 @@ class Solvency(FactorBase):
                      dependencies=['total_liability', 'equities_parent_company_owners']):
         """
         权益比率
+        :param tp_solvency:
+        :param factor_solvency:
+        :param dependencies:
         :return:
         """
         management = tp_solvency.loc[:, dependencies]
@@ -185,7 +190,8 @@ class Solvency(FactorBase):
         management['EquityPCToIBDebt'] = np.where(
             CalcTools.is_zero(management.debt.values), 0,
             management.equities_parent_company_owners.values / management.debt.values)
-        dependencies.append('debt')
+
+        dependencies = dependencies + ['debt']
         management = management.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, management, on="security_code")
         return factor_solvency
@@ -212,12 +218,11 @@ class Solvency(FactorBase):
                             + management.non_current_liability_in_one_year
                             + management.longterm_loan
                             + management.bonds_payable
-                            + management.interest_payable
-                            )
+                            + management.interest_payable)
         management['EquityPCToTCap'] = np.where(
             CalcTools.is_zero(management.tc.values), 0,
             management.equities_parent_company_owners.values / management.tc.values)
-        dependencies.append('tc')
+        dependencies = dependencies + ['tc']
         management = management.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, management, on="security_code")
         return factor_solvency
@@ -251,6 +256,7 @@ class Solvency(FactorBase):
             contrarian['interest_bearing_liability'] / (contrarian['fixed_assets'] + contrarian['total_current_assets']
                                                         + contrarian['total_current_liability'])
         )
+        dependencies = dependencies + ['interest_bearing_liability']
         contrarian = contrarian.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, contrarian, on="security_code")
         return factor_solvency
@@ -353,7 +359,7 @@ class Solvency(FactorBase):
         management['TNWorthToIBDebt'] = np.where(
             CalcTools.is_zero(management.ibd.values), 0,
             management.ta.values / management.ibd.values)
-        dependencies.extend(['ta', 'ibd'])
+        dependencies = dependencies + ['ta', 'ibd']
         management = management.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, management, on="security_code")
         return factor_solvency
@@ -424,13 +430,13 @@ class Solvency(FactorBase):
         management['TNWorthToNDebt'] = np.where(
             CalcTools.is_zero(management.nd.values), 0,
             management.ta.values / management.nd.values)
-        dependencies.extend(['ta', 'nd'])
+        dependencies = dependencies + ['ta', 'nd']
         management = management.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, management, on="security_code")
         return factor_solvency
 
     @staticmethod
-    def oper_cash_in_to_current_liability_mrq(tp_solvency, factor_solvency, dependencies=['net_operate_cash_flow',
+    def oper_cash_in_to_current_liability_mrq(tp_solvency, factor_solvency, dependencies=['net_operate_cash_flow_mrq',
                                                                                           'total_current_liability']):
         """
         经营活动产生的现金流量净额（MRQ）/流动负债（MRQ）
@@ -442,7 +448,7 @@ class Solvency(FactorBase):
         cash_flow = tp_solvency.loc[:, dependencies]
         cash_flow['OptCFToCurrLiability'] = np.where(
             CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
-            cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability.values)
+            cash_flow.net_operate_cash_flow_mrq.values / cash_flow.total_current_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
         return factor_solvency
@@ -569,18 +575,17 @@ class Solvency(FactorBase):
         return factor_solvency
 
 
-def calculate(trade_date, tp_solvency, ttm_solvency, mrq_solvency):  # 计算对应因子
+def calculate(trade_date, tp_solvency):  # 计算对应因子
     tp_solvency = tp_solvency.set_index('security_code')
-    ttm_solvency = ttm_solvency.set_index('security_code')
-    mrq_solvency = mrq_solvency.set_index('security_code')
     solvency = Solvency('factor_solvency')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
 
     print(trade_date)
     # 读取目前涉及到的因子
     factor_solvency = pd.DataFrame()
     factor_solvency['security_code'] = tp_solvency.index
+    factor_solvency = factor_solvency.set_index('security_code')
 
-    # 非TTM计算
+    # MRQ计算
     factor_solvency = solvency.bonds_payable_to_asset(tp_solvency, factor_solvency)
     factor_solvency = solvency.blev(tp_solvency, factor_solvency)
     factor_solvency = solvency.current_ratio(tp_solvency, factor_solvency)
@@ -596,19 +601,17 @@ def calculate(trade_date, tp_solvency, ttm_solvency, mrq_solvency):  # 计算对
     factor_solvency = solvency.super_quick_ratio(tp_solvency, factor_solvency)
     factor_solvency = solvency.tangible_a_to_net_debt(tp_solvency, factor_solvency)
 
-    # MRQ计算
-    factor_solvency = solvency.cash_to_current_liability_ttm(mrq_solvency, factor_solvency)
-
     # TTM计算
-    factor_solvency = solvency.interest_cover_ttm(mrq_solvency, factor_solvency)
-    factor_solvency = solvency.nocf_to_t_liability_ttm(mrq_solvency, factor_solvency)
-    factor_solvency = solvency.nocf_to_interest_bear_debt_ttm(mrq_solvency, factor_solvency)
-    factor_solvency = solvency.nocf_to_net_debt_ttm(mrq_solvency, factor_solvency)
-    factor_solvency = solvency.oper_cash_in_to_current_liability_ttm(mrq_solvency, factor_solvency)
-    factor_solvency = solvency.cash_to_current_liability_ttm(mrq_solvency, factor_solvency)
+    factor_solvency = solvency.interest_cover_ttm(tp_solvency, factor_solvency)
+    factor_solvency = solvency.nocf_to_t_liability_ttm(tp_solvency, factor_solvency)
+    factor_solvency = solvency.nocf_to_interest_bear_debt_ttm(tp_solvency, factor_solvency)
+    factor_solvency = solvency.nocf_to_net_debt_ttm(tp_solvency, factor_solvency)
+    factor_solvency = solvency.oper_cash_in_to_current_liability_ttm(tp_solvency, factor_solvency)
+    factor_solvency = solvency.cash_to_current_liability_ttm(tp_solvency, factor_solvency)
     factor_solvency = factor_solvency.reset_index()
     factor_solvency['id'] = factor_solvency['security_code'] + str(trade_date)
     factor_solvency['trade_date'] = str(trade_date)
+    print(factor_solvency.head())
     # solvency._storage_data(factor_cash_flow, trade_date)
 
 
@@ -618,14 +621,7 @@ def factor_calculate(**kwargs):
     date_index = kwargs['date_index']
     session = kwargs['session']
     content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
-    content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
-    content3 = cache_data.get_cache(session + str(date_index) + "3", date_index)
     tp_solvency = json_normalize(json.loads(str(content1, encoding='utf8')))
-    ttm_solvency = json_normalize(json.loads(str(content2, encoding='utf8')))
-    mrq_solvency = json_normalize(json.loads(str(content3, encoding='utf8')))
     tp_solvency.set_index('security_code', inplace=True)
-    ttm_solvency.set_index('security_code', inplace=True)
-    mrq_solvency.set_index('security_code', inplace=True)
     print("len_tp_cash_flow_data {}".format(len(tp_solvency)))
-    print("len_ttm_cash_flow_data {}".format(len(ttm_solvency)))
-    calculate(date_index, tp_solvency, ttm_solvency, mrq_solvency)
+    calculate(date_index, tp_solvency)

@@ -884,12 +884,10 @@ class FactorEarning(FactorBase):
         """
 
         constrains = ttm_earning.loc[:, dependencies]
-        print(constrains.head())
         constrains['cost'] = (constrains.operating_cost +
                               constrains.financial_expense +
                               constrains.sale_expense +
                               constrains.administration_expense)
-        print(constrains.head())
 
         constrains['TotaProfRtTTM'] = np.where(
             CalcTools.is_zero(constrains['cost']), 0,
