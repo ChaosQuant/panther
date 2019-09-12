@@ -143,23 +143,91 @@ class RevenueQuality(FactorBase):
         return revenue_quality
 
     @staticmethod
-    def etp5(tp_historical_value, factor_historical_value, dependencies=['net_profit_5', 'circulating_market_cap_5', 'market_cap_5']):
+    def net_income_to_total_profit_ttm(ttm_revenue_quanlity, revenue_quality, dependencies=['NVALCHGITOTP']):
         """
-        5年平均收益市值比 = 近5年净利润 / 近5年总市值 TTM
-        :param tp_historical_value:
-        :param factor_historical_value:
+        价值变动净收益/利润总额(TTM)
+        :param ttm_revenue_quanlity:
+        :param revenue_quality:
         :param dependencies:
         :return:
         """
-        historical_value = tp_historical_value.loc[:, dependencies]
+        historical_value = ttm_revenue_quanlity.loc[:, dependencies]
+        revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
+        return revenue_quality
+
+    @staticmethod
+    def operating_profit_to_total_profit_ttm(ttm_revenue_quanlity, revenue_quality,
+                                             dependencies=['operating_profit', 'total_profit']):
+        """
+        营业利润/利润总额(TTM)
+        :param ttm_revenue_quanlity:
+        :param revenue_quality:
+        :param dependencies:
+        :return:
+        """
+        historical_value = ttm_revenue_quanlity.loc[:, dependencies]
+
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+
+        historical_value['OPToTPTTM'] = historical_value.apply(func)
+        historical_value = historical_value.drop(dependencies, axis=1)
+        revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
+        return revenue_quality
+
+    @staticmethod
+    def price_to_revenue_ratio_ttm(ttm_revenue_quanlity, revenue_quality,
+                                   dependencies=['net_profit', 'market_cap']):
+        """
+        收益市值比(TTM)
+        :param ttm_revenue_quanlity:
+        :param revenue_quality:
+        :param dependencies:
+        :return:
+        """
+        historical_value = ttm_revenue_quanlity.loc[:, dependencies]
+
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+
+        historical_value['PriceToRevRatioTTM'] = historical_value.apply(func)
+        historical_value = historical_value.drop(dependencies, axis=1)
+        revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
+        return revenue_quality
+
+    @staticmethod
+    def profit_margin_ttm(ttm_revenue_quanlity, revenue_quality,
+                          dependencies=['total_profit', 'operating_revenue']):
+        """
+        利润率（TTM）
+        :param ttm_revenue_quanlity:
+        :param revenue_quality:
+        :param dependencies:
+        :return:
+        """
+        historical_value = ttm_revenue_quanlity.loc[:, dependencies]
+
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+
+        historical_value['PftMarginTTM'] = historical_value.apply(func)
+        historical_value = historical_value.drop(dependencies, axis=1)
+        revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
+        return revenue_quality
+
+    @staticmethod
+    def etp5(ttm_revenue_quanlity, revenue_quality, dependencies=['net_profit_5', 'circulating_market_cap_5', 'market_cap_5']):
+        """
+        5年平均收益市值比 = 近5年净利润 / 近5年总市值 TTM
+        :param ttm_revenue_quanlity:
+        :param revenue_quality:
+        :param dependencies:
+        :return:
+        """
+        historical_value = ttm_revenue_quanlity.loc[:, dependencies]
 
         fun = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else (x[0] / x[2] if x[2] is not None and x[2] !=0 else None)
-
-        historical_value['historical_value_etp5_ttm'] = historical_value[dependencies].apply(fun, axis=1)
-        # historical_value = historical_value.drop(columns=['net_profit_5', 'circulating_market_cap_5', 'market_cap_5'], axis=1)
-        # factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
-        factor_historical_value['historical_value_etp5_ttm'] = historical_value['historical_value_etp5_ttm']
-        return factor_historical_value
+        historical_value['PriceToRevRatioAvg5YTTM'] = historical_value[dependencies].apply(fun, axis=1)
+        historical_value = historical_value.drop(columns=dependencies, axis=1)
+        revenue_quality = pd.merge(revenue_quality, historical_value, on="security_code")
+        return revenue_quality
 
 
 def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity):
@@ -174,15 +242,21 @@ def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity):
     # 非TTM计算
     factor_revenue = revenue_quality.net_non_oi_to_tp_latest(tp_revenue_quanlity, factor_revenue)
     factor_revenue = revenue_quality.operating_ni_to_tp_latest(tp_revenue_quanlity, factor_revenue)
+    factor_revenue = revenue_quality.etp5(tp_revenue_quanlity, factor_revenue)
 
     # TTM计算
     factor_revenue = revenue_quality.net_non_oi_to_tp_ttm(ttm_revenue_quanlity, factor_revenue)
     factor_revenue = revenue_quality.operating_ni_to_tp_ttm(ttm_revenue_quanlity, factor_revenue)
     factor_revenue = revenue_quality.oper_cash_in_to_current_liability_ttm(ttm_revenue_quanlity, factor_revenue)
+    factor_revenue = revenue_quality.operating_profit_to_total_profit_ttm(ttm_revenue_quanlity, factor_revenue)
+    factor_revenue = revenue_quality.price_to_revenue_ratio_ttm(ttm_revenue_quanlity, factor_revenue)
+    factor_revenue = revenue_quality.net_income_to_total_profit_ttm(ttm_revenue_quanlity, factor_revenue)
+
     factor_revenue = factor_revenue.reset_index()
 
     factor_revenue['id'] = factor_revenue['security_code'] + str(trade_date)
     factor_revenue['trade_date'] = str(trade_date)
+    print(factor_revenue.head())
     # factor_revenue._storage_data(factor_revenue, trade_date)
 
 

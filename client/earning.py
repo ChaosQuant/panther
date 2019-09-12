@@ -311,7 +311,6 @@ def get_basic_data(trade_date):
                                                                               trade_date_pre_year_2,
                                                                               trade_date_pre_year_3,
                                                                               trade_date_pre_year_4,
-                                                                              trade_date_pre_year_5,
                                                                               ]).drop(columns, axis=1)
     balance_con_sets = balance_con_sets.groupby(['security_code'])
     balance_con_sets = balance_con_sets.sum()

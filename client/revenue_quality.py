@@ -23,7 +23,8 @@ from client.dbmodel.model import BalanceMRQ, BalanceTTM, BalanceReport
 from client.dbmodel.model import CashFlowMRQ, CashFlowTTM, CashFlowReport
 from client.dbmodel.model import IndicatorReport, IndicatorMRQ, IndicatorTTM
 from client.dbmodel.model import IncomeMRQ, IncomeReport, IncomeTTM
-# from vision.file_unit.valuation import Valuation
+from vision.vision.file_unit.valuation import Valuation
+from vision.vision.db.signletion_engine import *
 
 from client.engines.sqlengine import sqlEngine
 from client.utillities.sync_util import SyncUtil
@@ -65,6 +66,9 @@ def get_basic_data(trade_date):
         'NONOEXPE': 'non_operating_expense',  # 营业外支出
         'BIZTOTCOST': 'total_operating_cost',  # 营业总成本
         'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
+        'PERPROFIT': 'operating_profit', # 营业利润
+        'NETPROFIT': 'net_profit',  # 净利润
+        'BIZINCO': 'operating_revenue',  # 营业收入
         # balance
         'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
         }
@@ -102,8 +106,27 @@ def get_basic_data(trade_date):
     balance_sets = balance_sets.rename(columns={'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
                                                 })
 
+    trade_date_pre_year = get_trade_date(trade_date, 1)
+    trade_date_pre_year_2 = get_trade_date(trade_date, 2)
+    trade_date_pre_year_3 = get_trade_date(trade_date, 3)
+    trade_date_pre_year_4 = get_trade_date(trade_date, 4)
+
+    income_con_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
+                                                                      [IncomeReport.NETPROFIT,
+                                                                       ],
+                                                                         dates=[trade_date,
+                                                                                trade_date_pre_year,
+                                                                                trade_date_pre_year_2,
+                                                                                trade_date_pre_year_3,
+                                                                                trade_date_pre_year_4,
+                                                                                ]).drop(columns, axis=1)
+    income_con_sets = income_con_sets.groupby(['security_code'])
+    income_con_sets = income_con_sets.sum()
+    income_con_sets = income_con_sets.rename(columns={'NETPROFIT': 'net_profit_5'})
+
     tp_revenue_quanlity = pd.merge(cash_flow_sets, income_sets, on='security_code')
     tp_revenue_quanlity = pd.merge(balance_sets, tp_revenue_quanlity, on='security_code')
+    tp_revenue_quanlity = pd.merge(income_con_sets, tp_revenue_quanlity, on='security_code')
 
     # TTM Data
     cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
@@ -120,14 +143,19 @@ def get_basic_data(trade_date):
                                                                        IncomeTTM.NONOEXPE,
                                                                        IncomeTTM.BIZTOTCOST,
                                                                        IncomeTTM.BIZTOTINCO,
-                                                                       ],
-                                                                      dates=[trade_date]).drop(columns, axis=1)
+                                                                       IncomeTTM.PERPROFIT,
+                                                                       IncomeTTM.NETPROFIT,
+                                                                       IncomeTTM.BIZINCO,
+                                                                       ], dates=[trade_date]).drop(columns, axis=1)
     income_ttm_sets = income_ttm_sets.rename(
         columns={'TOTPROFIT': 'total_profit',  # 利润总额
                  'NONOREVE': 'non_operating_revenue',  # 营业外收入
                  'NONOEXPE': 'non_operating_expense',  # 营业外支出
                  'BIZTOTCOST': 'total_operating_cost',  # 营业总成本
                  'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
+                 'PERPROFIT': 'operating_profit',  # 营业利润
+                 'NETPROFIT': 'net_profit',  # 净利润
+                 'BIZINCO': 'operating_revenue',  # 营业收入
                  })
 
     balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
@@ -138,8 +166,38 @@ def get_basic_data(trade_date):
         columns={'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
                  })
 
+    column = ['trade_date']
+    valuation_sets = get_fundamentals(query(Valuation.security_code,
+                                            Valuation.trade_date,
+                                            Valuation.market_cap,)
+                                      .filter(Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
+
+    indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
+                                                                         [IndicatorTTM.NVALCHGITOTP,
+                                                                          ], dates=[trade_date]).drop(columns, axis=1)
+
     ttm_revenue_quanlity = pd.merge(cash_flow_ttm_sets, income_ttm_sets, on='security_code')
     ttm_revenue_quanlity = pd.merge(balance_ttm_sets, ttm_revenue_quanlity, on='security_code')
+    ttm_revenue_quanlity = pd.merge(valuation_sets, ttm_revenue_quanlity, on='security_code')
+    ttm_revenue_quanlity = pd.merge(indicator_ttm_sets, ttm_revenue_quanlity, on='security_code')
+
+    valuation_con_sets = get_fundamentals(query(Valuation.security_code,
+                                                Valuation.trade_date,
+                                                Valuation.market_cap,
+                                                Valuation.circulating_market_cap,
+                                                )
+                                          .filter(Valuation.trade_date.in_([trade_date,
+                                                                        trade_date_pre_year,
+                                                                        trade_date_pre_year_2,
+                                                                        trade_date_pre_year_3,
+                                                                        trade_date_pre_year_4]))).drop(column, axis=1)
+
+    valuation_con_sets = valuation_con_sets.groupby(['security_code'])
+    valuation_con_sets = valuation_con_sets.sum()
+    valuation_con_sets = valuation_con_sets.rename(columns={'market_cap': 'market_cap_5',
+                                                            'circulating_market_cap': 'circulating_market_cap_5'
+                                                            })
+    tp_revenue_quanlity = pd.merge(valuation_con_sets, tp_revenue_quanlity, on='security_code')
 
     return tp_revenue_quanlity, ttm_revenue_quanlity
 
