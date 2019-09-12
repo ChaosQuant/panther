@@ -103,12 +103,19 @@ def get_basic_data(trade_date):
         'NDEBT': 'net_liability',  # 净负债
 
         # valuation
-        'market_cap':'market_cap', # 总市值
+        '':'market_cap', # 总市值
         }
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
 
-    # MRQ data
-    balance_mrq_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
+    # report data
+    cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
+                                                                     [CashFlowReport.MANANETR,  # 经营活动现金流量净额
+                                                                      ], dates=[trade_date]).drop(columns, axis=1)
+    cash_flow_sets = cash_flow_sets.rename(columns={'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
+                                                    })
+    print('cash_flow_sets')
+
+    balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
                                                                    [BalanceMRQ.BDSPAYA,
                                                                     BalanceMRQ.TOTASSET,
                                                                     BalanceMRQ.TOTALNONCLIAB,
@@ -136,9 +143,9 @@ def get_basic_data(trade_date):
                                                                     BalanceMRQ.ACCORECE,
                                                                     BalanceMRQ.OTHERRECE,
                                                                     ], dates=[trade_date]).drop(columns, axis=1)
-    print('balance_mrq_sets')
+    print('balance_sets')
 
-    balance_mrq_sets = balance_mrq_sets.rename(columns={
+    balance_sets = balance_sets.rename(columns={
         'TOTLIAB': 'total_liability',  # 负债合计
         'TOTASSET': 'total_assets',  # 资产总计
         'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
@@ -167,22 +174,49 @@ def get_basic_data(trade_date):
         'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
     })
 
+    tp_solvency = pd.merge(cash_flow_sets, balance_sets, on='security_code')
+
+    # MRQ data
     cash_flow_mrq_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
                                                                          [CashFlowMRQ.MANANETR,
                                                                           ], dates=[trade_date]).drop(columns, axis=1)
     cash_flow_mrq_sets = cash_flow_mrq_sets.rename(columns={'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
                                                             })
 
+    balance_mrq_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
+                                                                       [BalanceMRQ.TOTALCURRLIAB
+                                                                        ], dates=[trade_date]).drop(columns, axis=1)
+
+    balance_mrq_sets = balance_mrq_sets.rename(columns={'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
+                                                        })
+
+    print('mrq')
     mrq_solvency = pd.merge(cash_flow_mrq_sets, balance_mrq_sets, on='security_code')
+
+
+
 
     # ttm data
     balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
-                                                                       [BalanceTTM.TOTALCURRLIAB,
-                                                                        BalanceTTM.DUENONCLIAB,
+                                                                       [BalanceTTM.TOTCURRASSET,      # 流动资产合计
+                                                                        BalanceTTM.TOTLIAB,
+                                                                        BalanceTTM.TOTALCURRLIAB,
+                                                                        BalanceTTM.INTEPAYA,
+                                                                        BalanceTTM.BDSPAYA,
+                                                                        BalanceTTM.LONGBORR,
+                                                                        BalanceTTM.SHORTTERMBORR,
+                                                                        # BalanceTTM.non_current_liability_in_one_year
                                                                         ], dates=[trade_date]).drop(columns, axis=1)
+
     balance_ttm_sets = balance_ttm_sets.rename(columns={
-        'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计
-        'DUENONCLIAB': 'non_current_liability_in_one_year_ttm',  # 一年内到期的非流动负债
+        'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
+        'TOTLIAB': 'total_liability',  # 负债合计
+        'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
+        '': 'non_current_liability_in_one_year',  # 一年内到期的非流动负债
+        'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
+        'LONGBORR': 'longterm_loan',  # 长期借款
+        'BDSPAYA': 'bonds_payable',  # 应付债券
+        'INTEPAYA': 'interest_payable',  # 应付利息
     })
     print('balance_ttm_sets')
 
@@ -196,13 +230,31 @@ def get_basic_data(trade_date):
     })
     print('cash_flow_ttm_sets')
 
+    income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
+                                                                      [IncomeTTM.TOTPROFIT,
+                                                                       IncomeTTM.FINEXPE,
+                                                                       IncomeTTM.INTEINCO,
+                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+    income_ttm_sets = income_ttm_sets.rename(columns={
+        'TOTPROFIT': 'total_profit',  # 利润总额
+        'FINEXPE': 'financial_expense',  # 财务费用
+        'INTEINCO': 'interest_income',  # 利息收入
+    })
+    print('income_ttm_sets')
+
+    # 有bug， 如果没有数据， drop会出错
     indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                          [IndicatorTTM.NDEBT,
                                                                           ], dates=[trade_date]).drop(columns, axis=1)
-    indicator_ttm_sets = indicator_ttm_sets.rename(columns={'NDEBT': 'net_liability',  # 净负债
-                                                            })
-    ttm_solvency = pd.merge(balance_ttm_sets, cash_flow_ttm_sets, how='outer', on="security_code")
-    ttm_solvency = pd.merge(ttm_solvency, indicator_ttm_sets, how='outer', on="security_code")
+    indicator_ttm_sets = indicator_ttm_sets.rename(columns={
+        'NDEBT': 'net_liability',  # 净负债
+    })
+
+    print(indicator_ttm_sets)
+    print('indicator_ttm_sets')
+    ttm_solvency = pd.merge(balance_ttm_sets, cash_flow_ttm_sets, on="security_code")
+    ttm_solvency = pd.merge(income_ttm_sets, ttm_solvency, on="security_code")
+    ttm_solvency = pd.merge(indicator_ttm_sets, ttm_solvency, on="security_code")
 
     column = ['trade_date']
     valuation_sets = get_fundamentals(query(Valuation.security_code,
@@ -210,10 +262,11 @@ def get_basic_data(trade_date):
                                             Valuation.market_cap,)
                                       .filter(Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
 
-    tp_solvency = pd.merge(ttm_solvency, valuation_sets, how='outer', on='security_code')
-    tp_solvency = pd.merge(tp_solvency, mrq_solvency, how='outer', on='security_code')
+    tp_solvency = pd.merge(tp_solvency, valuation_sets, how='outer', on='security_code')
 
-    return tp_solvency
+
+
+    return tp_solvency, ttm_solvency, mrq_solvency
 
 
 def prepare_calculate_local(trade_date):

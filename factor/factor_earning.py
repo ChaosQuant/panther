@@ -38,32 +38,42 @@ class FactorEarning(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` varchar(32) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
-                    `net_profit_ratio` decimal(19,4),
-                    `operating_profit_ratio` decimal(19,4),
-                    `np_to_tor` decimal(19,4),
-                    `operating_profit_to_tor` decimal(19,4),
-                    `gross_income_ratio`  decimal(19,4),
-                    `ebit_to_tor_ttm` decimal(19,4),
-                    `roa` decimal(19,4),
-                    `roa5` decimal(19,4),
-                    `roe` decimal(19,4),
-                    `roe5` decimal(19,4),
-                    `roe_diluted` decimal(19,4),
-                    `roe_avg` decimal(19,4),
-                    `roe_cut` decimal(19,4),
-                    `roa_ebit_ttm` decimal(19,4),
-                    `operating_ni_to_tp_ttm` decimal(19,4),
-                    `operating_ni_to_tp_latest` decimal(19,4),
-                    `invest_r_associates_to_tp_ttm` decimal(19,4),
-                    `invest_r_associates_to_tp_latest` decimal(19,4),
-                    `npcut_to_np` decimal(19,4),
-                    `interest_cover_ttm` decimal(19,4),
-                    `net_non_oi_to_tp_ttm` decimal(19,4),
-                    `net_non_oi_to_tp_latest` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
+                    `ROA5YChg` decimal(19,4),
+                    `ROE5Y` decimal(19,4),
+                    `NPCutToNP` decimal(19,4),
+                    `ROE` decimal(19,4),
+                    `ROEAvg`  decimal(19,4),
+                    `ROEcut` decimal(19,4),
+                    `NetPft5YAvgChgTTM` decimal(19,4),
+                    `Sales5YChgTTM` decimal(19,4),
+                    `AdminExpTTM` decimal(19,4),
+                    `BerryRtTTM` decimal(19,4),
+                    `CFARatioMinusROATTM` decimal(19,4),
+                    `SalesCostTTM` decimal(19,4),
+                    `EBITToTORevTTM` decimal(19,4),
+                    `PeridCostTTM` decimal(19,4),
+                    `FinExpTTM` decimal(19,4),
+                    `ImpLossToTOITTM` decimal(19,4),
+                    `OIAToOITTM` decimal(19,4),
+                    `ROAexTTM` decimal(19,4),
+                    `NetNonOiToTP` decimal(19,4),
+                    `NetProfitRtTTM` decimal(19,4),
+                    `NPToTORevTTM` decimal(19,4),
+                    `OperExpRtTTM` decimal(19,4),
+                    `OptProfitRtTTM` decimal(19,4),
+                    `ROCTTM` decimal(19,4),
+                    `ROTATTM` decimal(19,4),
+                    `ROETTM` decimal(19,4),
+                    `ROICTTM` decimal(19,4),
+                    `OwnROETTM` decimal(19,4),
+                    `SalesGrossMarginTTM` decimal(19,4),
+                    `TaxRTTM` decimal(19,4),
+                    `TotaProfRtTTM` decimal(19,4),
+                    constraint {0} uindex
+                    unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(FactorEarning, self)._create_tables(create_sql, drop_sql)
 
@@ -157,15 +167,148 @@ class FactorEarning(FactorBase):
         historical_growth['mean'] = historical_growth[dependencies].fillna('nan').mean(axis=1)
 
         fun1 = lambda x: x[0] / abs(x[1]) if x[1] != 0 and x[1] is not None and x[0] is not None else None
-        historical_growth['NetPft5YAvgChgTTM'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
+        historical_growth['NetPft5YAvgChg'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
 
         # historical_growth = historical_growth.drop(
         #     columns=['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2', 'net_profit_pre_year_3',
         #              'net_profit_pre_year_4', 'coefficient', 'mean'], axis=1)
 
-        historical_growth = historical_growth[['security_code', 'NetPft5YAvgChgTTM']]
+        historical_growth = historical_growth[['security_code', 'NetPft5YAvgChg']]
         factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
 
+        return factor_earning
+
+    @staticmethod
+    def roa5(ttm_earning_5y, factor_earning, dependencies=['net_profit', 'total_assets']):
+        """
+        5年资产回报率
+        5年权益回报率=净利润/总资产
+        :param dependencies:
+        :param ttm_earning_5y:
+        :param factor_earning:
+        :return:
+        """
+        earning = ttm_earning_5y.loc[:, dependencies]
+        earning['ROA5YChg'] = np.where(
+            CalcTools.is_zero(earning.total_assets.values), 0,
+            earning.net_profit.values / earning.total_assets.values / 4)
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def roe5(ttm_earning_5y, factor_earning, dependencies=['net_profit', 'total_owner_equities']):
+        """
+        5年平均权益回报率
+        :param dependencies:
+        :param ttm_earning_5y:
+        :param factor_earning:
+        :return:
+        """
+        earning = ttm_earning_5y.loc[:, dependencies]
+        earning['ROE5Y'] = np.where(
+            CalcTools.is_zero(earning.total_owner_equities.values), 0,
+            earning.net_profit.values / earning.total_owner_equities.values / 4)
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def npcut_to_np(tp_earning, factor_earning, dependencies=['adjusted_profit', 'net_profit']):
+        """
+        扣除非经常损益后的净利润/净利润
+        :param dependencies:
+        :param tp_earning:
+        :param factor_earning:
+        :return:
+        """
+
+        earning = tp_earning.loc[:, dependencies]
+        earning['NPCutToNP'] = np.where(
+            CalcTools.is_zero(earning.net_profit.values), 0,
+            earning.adjusted_profit.values
+            / earning.net_profit.values)
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def roe_diluted(tp_earning, factor_earning,
+                    dependencies=['np_parent_company_owners', 'equities_parent_company_owners']):
+        """
+        净资产收益率（摊薄）
+        净资产收益率（摊薄）=归属于母公司的净利润/期末归属于母公司的所有者权益
+        :param dependencies:
+        :param tp_earning:
+        :param factor_earning:
+        :return:
+        """
+        earning = tp_earning.loc[:, dependencies]
+        earning['ROE'] = np.where(
+            CalcTools.is_zero(earning.equities_parent_company_owners.values), 0,
+            earning.np_parent_company_owners.values /
+            earning.equities_parent_company_owners.values / 4)
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def roe_avg(tp_earning, factor_earning,
+                dependencies=['np_parent_company_owners', 'equities_parent_company_owners']):
+        """
+        净资产收益率（平均）
+        净资产收益率（平均）=归属于母公司的净利润*2/(期末归属于母公司的所有者权益
+        + 期初归属于母公司的所有者权益）*100%
+        :param dependencies:
+        :param tp_earning:
+        :param factor_earning:
+        :return:
+        """
+
+        earning = tp_earning.loc[:, dependencies]
+        earning['ROEAvg'] = np.where(
+            CalcTools.is_zero(earning.equities_parent_company_owners.values), 0,
+            earning.np_parent_company_owners.values /
+            earning.equities_parent_company_owners.values / 4)
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def roe_cut(tp_earning, factor_earning, dependencies=['adjusted_profit', 'equities_parent_company_owners']):
+        """
+        净资产收益率（扣除/摊薄）
+        :param dependencies:
+        :param tp_earning:
+        :param factor_earning:
+        :return:
+        """
+        earning = tp_earning.loc[:, dependencies]
+        earning['ROEcut'] = np.where(
+            CalcTools.is_zero(earning.equities_parent_company_owners.values), 0,
+            earning.adjusted_profit.values /
+            earning.equities_parent_company_owners.values / 4)
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def invest_r_associates_to_tp_latest(tp_earning, factor_earning, dependencies=['invest_income_associates', 'total_profit']):
+        """
+        对联营和营公司投资收益/利润总额
+        :param dependencies:
+        :param tp_earning:
+        :param factor_earning:
+        :return:
+        """
+
+        earning = tp_earning.loc[:, dependencies]
+        earning['invest_r_associates_to_tp_latest'] = np.where(
+            CalcTools.is_zero(earning.total_profit.values), 0,
+            earning.invest_income_associates.values
+            / earning.total_profit.values)
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -209,27 +352,28 @@ class FactorEarning(FactorBase):
         fun1 = lambda x: x[0] / abs(x[1]) if x[1] != 0 and x[1] is not None and x[0] is not None else None
         historical_growth['NetPft5YAvgChgTTM'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
 
-        historical_growth = historical_growth[['security_code', 'NetPft5YAvgChgTTM']]
+        # historical_growth = historical_growth[['security_code', 'NetPft5YAvgChgTTM']]
+        historical_growth = historical_growth.drop(dependencies, axis=1)
         factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
 
         return factor_earning
 
     @staticmethod
-    def historical_sgro_ttm(tp_earning, factor_earning, dependencies=['operating_revenue',
-                                                                      'operating_revenue_pre_year_1',
-                                                                      'operating_revenue_pre_year_2',
-                                                                      'operating_revenue_pre_year_3',
-                                                                      'operating_revenue_pre_year_4']):
+    def historical_sgro_ttm(ttm_earning, factor_earning, dependencies=['operating_revenue',
+                                                                       'operating_revenue_pre_year_1',
+                                                                       'operating_revenue_pre_year_2',
+                                                                       'operating_revenue_pre_year_3',
+                                                                       'operating_revenue_pre_year_4']):
         """
         五年营业收入增长率
         :param dependencies:
-        :param tp_earning:
+        :param ttm_earning:
         :param factor_earning:
         :return:
         """
         regr = linear_model.LinearRegression()
         # 读取五年的时间和净利润
-        historical_growth = tp_earning.loc[:, dependencies]
+        historical_growth = ttm_earning.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
 
@@ -266,7 +410,6 @@ class FactorEarning(FactorBase):
 
         return factor_earning
 
-
     @staticmethod
     def roa(ttm_earning, factor_earning, dependencies=['net_profit', 'total_assets']):
         """
@@ -286,41 +429,6 @@ class FactorEarning(FactorBase):
         return factor_earning
 
     @staticmethod
-    def roa5(ttm_earning_5y, factor_earning, dependencies=['net_profit', 'total_assets']):
-        """
-        5年资产回报率
-        5年权益回报率=净利润/总资产
-        :param dependencies:
-        :param ttm_earning_5y:
-        :param factor_earning:
-        :return:
-        """
-        earning = ttm_earning_5y.loc[:, dependencies]
-        earning['roa5'] = np.where(
-            CalcTools.is_zero(earning.total_assets.values), 0,
-            earning.net_profit.values / earning.total_assets.values / 4)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
-
-    @staticmethod
-    def roe5(ttm_earning_5y, factor_earning, dependencies=['net_profit', 'total_owner_equities']):
-        """
-        5年权益回报率
-        :param dependencies:
-        :param ttm_earning_5y:
-        :param factor_earning:
-        :return:
-        """
-        earning = ttm_earning_5y.loc[:, dependencies]
-        earning['roe5'] = np.where(
-            CalcTools.is_zero(earning.total_owner_equities.values), 0,
-            earning.net_profit.values / earning.total_owner_equities.values / 4)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
-
-    @staticmethod
     def admini_expense_rate_ttm(ttm_earning, factor_earning, dependencies=['administration_expense', 'total_operating_revenue']):
         """
         管理费用率
@@ -330,33 +438,71 @@ class FactorEarning(FactorBase):
         :param dependencies:
         :return:
         """
-
-        contrarian = ttm_earning.loc[:, dependencies]
-        contrarian['AdminExpTTM'] = np.where(
-            CalcTools.is_zero(contrarian['total_operating_revenue']), 0,
-            contrarian['administration_expense'] / contrarian['total_operating_revenue']
+        constrains = ttm_earning.loc[:, dependencies]
+        constrains['AdminExpTTM'] = np.where(
+            CalcTools.is_zero(constrains['total_operating_revenue']), 0,
+            constrains['administration_expense'] / constrains['total_operating_revenue']
         )
-        contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
     @staticmethod
-    def sales_cost_ratio_ttm(ttm_earning, factor_earning, dependencies=['operating_cost', 'operating_revenue']):
+    def berry_ratio_ttm(ttm_earning, factor_earning,
+                        dependencies=['operating_revenue',
+                                      'operating_cost',
+                                      'financial_expense',
+                                      'sale_expense',
+                                      'administration_expense'
+                                      ]):
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: (x[0] + x[1]) / (x[2] + x[3] + x[4])\
+            if x[0] is not None and x[1] is not None \
+               and x[2] is not None and x[3] is not None \
+               and x[4] is not None and (x[2] + x[3] + x[4]) != 0 else None
+
+        constrains['BerryRtTTM'] = constrains.apply(func, axis=1)
+        constrains = constrains.drop(columns=dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def cash_flow_asset_ratio_minus_return_on_asset_ttm(ttm_earning, factor_earning,
+                                                        dependencies=['net_finance_cash_flow',
+                                                                      'net_profit',
+                                                                      'total_assets_mrq',
+                                                                      'total_assets_mrq_pre']):
         """
-        # 销售成本率=营业成本(TTM)/营业收入(TTM)
+        现金流资产比-资产回报率（TTM）
+        （筹资活动现金净流量（ITM）-净利润（TTM））*2/（本期资产总计（MRQ）+上年同期产总计（MRQ））*100
         :param ttm_earning:
         :param factor_earning:
         :param dependencies:
         :return:
         """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: (x[0] - x[1]) * 2 / (x[2] + x[3]) if x[2] is not None and x[3] is not None and (x[2] + x[3]) !=0 else None
+        constrains['CFARatioMinusROATTM'] = constrains.apply(func, axis=1)
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
+        return factor_earning
 
-        contrarian = ttm_earning.loc[:, dependencies]
-        contrarian['SalesCostTTM'] = np.where(
-            CalcTools.is_zero(contrarian['operating_revenue']),
-            0, contrarian['operating_cost'] / contrarian['operating_revenue']
+    @staticmethod
+    def sales_cost_ratio_ttm(ttm_earning, factor_earning, dependencies=['operating_cost', 'operating_revenue']):
+        """
+        销售成本率=营业成本(TTM)/营业收入(TTM)
+        :param ttm_earning:
+        :param factor_earning:
+        :param dependencies:
+        :return:
+        """
+        constrains = ttm_earning.loc[:, dependencies]
+        constrains['SalesCostTTM'] = np.where(
+            CalcTools.is_zero(constrains['operating_revenue']),
+            0, constrains['operating_cost'] / constrains['operating_revenue']
         )
-        contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -370,7 +516,7 @@ class FactorEarning(FactorBase):
         :return:
         """
         earning = ttm_earning.loc[:, dependencies]
-        earning['ebit_to_tor_ttm'] = np.where(
+        earning['EBITToTORevTTM'] = np.where(
             CalcTools.is_zero(earning.total_operating_revenue.values), 0,
             (earning.total_profit.values +
              earning.financial_expense.values -
@@ -389,51 +535,104 @@ class FactorEarning(FactorBase):
         :param dependencies:
         :return:
         """
-        contrarian = ttm_earning.loc[:, dependencies]
-        contrarian['PeridCostTTM'] = np.where(
-            CalcTools.is_zero(contrarian['operating_revenue']), 0,
-            (contrarian['financial_expense'] + contrarian['sale_expense'] + contrarian['administration_expense']) / \
-            contrarian['operating_revenue']
+        constrains = ttm_earning.loc[:, dependencies]
+        constrains['PeridCostTTM'] = np.where(
+            CalcTools.is_zero(constrains['operating_revenue']), 0,
+            (constrains['financial_expense'] + constrains['sale_expense'] + constrains['administration_expense']) / \
+            constrains['operating_revenue']
         )
-        contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
     @staticmethod
     def financial_expense_rate_ttm(ttm_earning, factor_earning, dependencies=['financial_expense', 'total_operating_cost']):
         """
-        # 财务费用与营业总收入之比=财务费用(TTM)/营业总收入(TTM)
+        财务费用与营业总收入之比=财务费用(TTM)/营业总收入(TTM)
         :param ttm_earning:
         :param factor_earning:
         :param dependencies:
         :return:
         """
-        contrarian = ttm_earning.loc[:, dependencies]
-        contrarian['FinExpTTM'] = np.where(
-            CalcTools.is_zero(contrarian['total_operating_cost']), 0,
-            contrarian['financial_expense'] / contrarian['total_operating_cost']
+        constrains = ttm_earning.loc[:, dependencies]
+        constrains['FinExpTTM'] = np.where(
+            CalcTools.is_zero(constrains['total_operating_cost']), 0,
+            constrains['financial_expense'] / constrains['total_operating_cost']
         )
-        contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
     @staticmethod
-    def npcut_to_np(tp_earning, factor_earning, dependencies=['adjusted_profit', 'net_profit']):
+    def impairment_loss_to_total_operating_income_ttm(ttm_earning, factor_earning,
+                                                      dependencies=['asset_impairment_loss', 'total_operating_revenue']):
         """
-        扣除非经常损益后的净利润/净利润
-        :param dependencies:
-        :param tp_earning:
+        资产减值损失/营业总收入（TTM)
+        :param ttm_earning:
         :param factor_earning:
+        :param dependencies:
         :return:
         """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+        constrains['ImpLossToTOITTM'] = constrains.apply(func, axis=1)
 
-        earning = tp_earning.loc[:, dependencies]
-        earning['npcut_to_np'] = np.where(
-            CalcTools.is_zero(earning.net_profit.values), 0,
-            earning.adjusted_profit.values
-            / earning.net_profit.values)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        constrains = constrains.drop(columns=dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def shareholders_of_parent_to_operating_income_ttm(ttm_earning, factor_earning,
+                                                       dependencies=['np_parent_company_owners', 'operating_revenue']):
+        """
+        归属母公司股东的净利润/营业收入（TTM)
+        :param ttm_earning:
+        :param factor_earning:
+        :param dependencies:
+        :return:
+        """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+        constrains['OIAToOITTM'] = constrains.apply(func, axis=1)
+
+        constrains = constrains.drop(columns=dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def net_interest_rate_on_total_assets_ttm(ttm_earning, factor_earning,
+                                              dependencies=['np_parent_company_owners', 'total_assets_mrq']):
+        """
+        总资产净利率TTM（不含少数股东损益）
+        :param ttm_earning:
+        :param factor_earning:
+        :param dependencies:
+        :return:
+        """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+        constrains['ROAexTTM'] = constrains.apply(func, axis=1)
+
+        constrains = constrains.drop(columns=dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
+        return factor_earning
+
+    @staticmethod
+    def net_non_operating_income_to_total_profit(ttm_earning, factor_earning,
+                                                 dependencies=['total_operating_cost', 'total_operating_revenue']):
+        """
+        营业总成本/营业总收入（TTM）_PIT
+        :param ttm_earning:
+        :param factor_earning:
+        :param dependencies:
+        :return:
+        """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+        constrains['NetNonOiToTP'] = constrains.apply(func, axis=1)
+
+        constrains = constrains.drop(columns=dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
         return factor_earning
 
     @staticmethod
@@ -447,7 +646,7 @@ class FactorEarning(FactorBase):
         :return:
         """
         earning = ttm_earning.loc[:, dependencies]
-        earning['net_profit_ratio'] = np.where(
+        earning['NetProfitRtTTM'] = np.where(
             CalcTools.is_zero(earning.operating_revenue.values), 0,
             earning.net_profit.values / earning.operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
@@ -465,7 +664,7 @@ class FactorEarning(FactorBase):
         :return:
         """
         earning = ttm_earning.loc[:, dependencies]
-        earning['np_to_tor'] = np.where(
+        earning['NPToTORevTTM'] = np.where(
             CalcTools.is_zero(earning.total_operating_revenue.values), 0,
             earning.net_profit.values / earning.total_operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
@@ -482,13 +681,13 @@ class FactorEarning(FactorBase):
         :param dependencies:
         :return:
         """
-        contrarian = ttm_earning.loc[:, dependencies]
-        contrarian['OperExpRtTTM'] = np.where(
-            CalcTools.is_zero(contrarian['total_operating_cost']), 0,
-            contrarian['sale_expense'] / contrarian['total_operating_revenue']
+        constrains = ttm_earning.loc[:, dependencies]
+        constrains['OperExpRtTTM'] = np.where(
+            CalcTools.is_zero(constrains['total_operating_cost']), 0,
+            constrains['sale_expense'] / constrains['total_operating_revenue']
         )
-        contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
     @staticmethod
@@ -502,7 +701,7 @@ class FactorEarning(FactorBase):
         :return:
         """
         earning = ttm_earning.loc[:, dependencies]
-        earning['operating_profit_ratio'] = np.where(
+        earning['OptProfitRtTTM'] = np.where(
             CalcTools.is_zero(earning.operating_revenue.values), 0,
             earning.operating_profit.values / earning.operating_revenue.values)
         earning = earning.drop(dependencies, axis=1)
@@ -528,6 +727,30 @@ class FactorEarning(FactorBase):
         return factor_earning
 
     @staticmethod
+    def rate_of_return_on_capital_ttm(ttm_earning, factor_earning,
+                                      dependencies=['net_profit',
+                                                    'total_owner_equities_mrq',
+                                                    'longterm_loan_mrq',
+                                                    'total_owner_equities_mrq_pre',
+                                                    'longterm_loan_mrq_pre'
+                                                    ]):
+        """
+        资本报酬率（TTM）
+        净利润（TTM）*2/（本期股东权益（MRQ）+本期长期负债（MRQ）+上年同期股东权益（MRQ）+上年同期长期负债（MRQ））*100
+        :param ttm_earning:
+        :param factor_earning:
+        :param dependencies:
+        :return:
+        """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: x[0] * 2 / (x[1] + x[2] + x[3] + x[4]) \
+            if x[1] is not None and x[2] is not None and x[3] is not None and x[4] is not None and (x[1] + x[2] + x[3] + x[4]) !=0 else None
+        constrains['ROCTTM'] = constrains.apply(func, axis=1)
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
+        return factor_earning
+
+    @staticmethod
     def roa_ebit_ttm(ttm_earning, factor_earning, dependencies=['total_profit', 'financial_expense', 'interest_income', 'total_assets']):
         """
         总资产报酬率
@@ -540,7 +763,7 @@ class FactorEarning(FactorBase):
         """
 
         earning = ttm_earning.loc[:, dependencies]
-        earning['roa_ebit_ttm'] = np.where(
+        earning['ROTATTM'] = np.where(
             CalcTools.is_zero(earning.total_assets.values), 0,
             (earning.total_profit.values +
              earning.financial_expense.values -
@@ -551,64 +774,41 @@ class FactorEarning(FactorBase):
         return factor_earning
 
     @staticmethod
-    def roe_diluted(tp_earning, factor_earning,
-                    dependencies=['np_parent_company_owners', 'equities_parent_company_owners']):
+    def return_on_equity_ttm(ttm_earning, factor_earning,
+                             dependencies=['np_parent_company_owners', 'equities_parent_company_owners_mrq']):
         """
-        净资产收益率（摊薄）
-        净资产收益率（摊薄）=归属于母公司的净利润/期末归属于母公司的所有者权益
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning:
-        :return:
-        """
-        earning = tp_earning.loc[:, dependencies]
-        earning['roe_diluted'] = np.where(
-            CalcTools.is_zero(earning.equities_parent_company_owners.values), 0,
-            earning.np_parent_company_owners.values /
-            earning.equities_parent_company_owners.values / 4)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
-
-    @staticmethod
-    def roe_avg(ttm_earning, factor_earning,
-                dependencies=['np_parent_company_owners', 'equities_parent_company_owners']):
-        """
-        净资产收益率（平均）
-        净资产收益率（平均）=归属于母公司的净利润*2/(期末归属于母公司的所有者权益
-        + 期初归属于母公司的所有者权益）*100%
-        :param dependencies:
+        净资产收益率（TTM）
+        归属于母公司的净利润（TTM）/归属于母公司的股东权益（MRQ）*100%
         :param ttm_earning:
         :param factor_earning:
+        :param dependencies:
         :return:
         """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+        constrains['ROETTM'] = constrains.apply(func, axis=1)
 
-        earning = ttm_earning.loc[:, dependencies]
-        earning['roe_avg'] = np.where(
-            CalcTools.is_zero(earning.equities_parent_company_owners.values), 0,
-            earning.np_parent_company_owners.values /
-            earning.equities_parent_company_owners.values / 4)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        constrains = constrains.drop(columns=dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
         return factor_earning
 
     @staticmethod
-    def roe_cut(tp_earning, factor_earning, dependencies=['adjusted_profit', 'equities_parent_company_owners']):
+    def return_on_invested_capital_ttm(ttm_earning, factor_earning,
+                                       dependencies=['np_parent_company_owners', 'total_assets_mrq']):
         """
-        净资产收益率（扣除/摊薄）
-        :param dependencies:
-        :param tp_earning:
+        投入资本回报率(TTM)
+        归属母公司股东的净利润（TTM）/全部投入资本（MRQ）*100%
+        :param ttm_earning:
         :param factor_earning:
+        :param dependencies:
         :return:
         """
+        constrains = ttm_earning.loc[:, dependencies]
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+        constrains['ROICTTM'] = constrains.apply(func, axis=1)
 
-        earning = tp_earning.loc[:, dependencies]
-        earning['roe_cut'] = np.where(
-            CalcTools.is_zero(earning.equities_parent_company_owners.values), 0,
-            earning.adjusted_profit.values /
-            earning.equities_parent_company_owners.values / 4)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        constrains = constrains.drop(columns=dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
         return factor_earning
 
     @staticmethod
@@ -622,7 +822,7 @@ class FactorEarning(FactorBase):
         :return:
         """
         earning = ttm_earning.loc[:, dependencies]
-        earning['roe'] = np.where(
+        earning['OwnROETTM'] = np.where(
             CalcTools.is_zero(earning.total_owner_equities.values), 0,
             earning.net_profit.values / earning.total_owner_equities.values / 4)
         earning = earning.drop(dependencies, axis=1)
@@ -640,7 +840,7 @@ class FactorEarning(FactorBase):
         :return:
         """
         earning = ttm_earning.loc[:, dependencies]
-        earning['gross_income_ratio'] = np.where(
+        earning['SalesGrossMarginTTM'] = np.where(
             CalcTools.is_zero(earning.operating_revenue.values), 0,
             (earning.operating_revenue.values - earning.operating_cost.values)
             / earning.operating_revenue.values)
@@ -651,47 +851,54 @@ class FactorEarning(FactorBase):
     @staticmethod
     def tax_ratio_ttm(ttm_earning, factor_earning, dependencies=['operating_tax_surcharges', 'operating_revenue']):
         """
-        # 销售税金率=营业税金及附加(TTM)/营业收入(TTM)
+        销售税金率=营业税金及附加(TTM)/营业收入(TTM)
         :param ttm_earning:
         :param factor_earning:
         :param dependencies:
         :return:
         """
 
-        contrarian = ttm_earning.loc[:, dependencies]
-        contrarian['TaxRTTM'] = np.where(
-            CalcTools.is_zero(contrarian['operating_revenue']), 0,
-            contrarian['operating_tax_surcharges'] / contrarian['operating_revenue']
+        constrains = ttm_earning.loc[:, dependencies]
+        constrains['TaxRTTM'] = np.where(
+            CalcTools.is_zero(constrains['operating_revenue']), 0,
+            constrains['operating_tax_surcharges'] / constrains['operating_revenue']
         )
-        contrarian = contrarian.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, contrarian, on="security_code")
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
     @staticmethod
-    def total_profit_cost_ratio_ttm(ttm_management, factor_management,
-                                    dependencies=['total_profit', 'operating_cost', 'financial_expense', 'sale_expense',
+    def total_profit_cost_ratio_ttm(ttm_earning, factor_earning,
+                                    dependencies=['total_profit',
+                                                  'operating_cost',
+                                                  'financial_expense',
+                                                  'sale_expense',
                                                   'administration_expense']):
         """
         成本费用利润率
         成本费用利润率 = 利润总额 / (营业成本+财务费用+销售费用+管理费用）
         :param dependencies:
-        :param ttm_management:
-        :param factor_management:
+        :param ttm_earning:
+        :param factor_earning:
         :return:
         """
 
-        management = ttm_management.loc[:, dependencies]
-        management['cost'] = (management.operating_cost +
-                              management.financial_expense +
-                              management.sale_expense +
-                              management.administration_expense)
-        management['total_profit_cost_ratio_ttm'] = np.where(
-            CalcTools.is_zero(management.cost.values), 0,
-            management.total_profit.values / management.cost.values)
-        dependencies.append('cost')
-        management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
-        return factor_management
+        constrains = ttm_earning.loc[:, dependencies]
+        print(constrains.head())
+        constrains['cost'] = (constrains.operating_cost +
+                              constrains.financial_expense +
+                              constrains.sale_expense +
+                              constrains.administration_expense)
+        print(constrains.head())
+
+        constrains['TotaProfRtTTM'] = np.where(
+            CalcTools.is_zero(constrains['cost']), 0,
+            constrains['total_profit'] / constrains['cost'])
+
+        dependencies = dependencies + ['cost']
+        constrains = constrains.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
+        return factor_earning
 
     @staticmethod
     def invest_r_associates_to_tp_ttm(ttm_earning, factor_earning, dependencies=['invest_income_associates', 'total_profit']):
@@ -712,69 +919,53 @@ class FactorEarning(FactorBase):
         factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
-    @staticmethod
-    def invest_r_associates_to_tp_latest(tp_earning, factor_earning, dependencies=['invest_income_associates', 'total_profit']):
-        """
-        对联营和营公司投资收益/利润总额
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning:
-        :return:
-        """
-
-        earning = tp_earning.loc[:, dependencies]
-        earning['invest_r_associates_to_tp_latest'] = np.where(
-            CalcTools.is_zero(earning.total_profit.values), 0,
-            earning.invest_income_associates.values
-            / earning.total_profit.values)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
-
 
 def calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y):  # 计算对应因子
-    print(trade_date)
-    # tp_earning = earning_sets_dic['tp_earning']
-    # ttm_earning = earning_sets_dic['ttm_earning']
-    # ttm_earning_5y = earning_sets_dic['ttm_earning_5y']
     tp_earning = tp_earning.set_index('security_code')
     ttm_earning = ttm_earning.set_index('security_code')
     ttm_earning_5y = ttm_earning_5y.set_index('security_code')
-
     earning = FactorEarning('factor_earning')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
 
     # 因子计算
     factor_earning = pd.DataFrame()
     factor_earning['security_code'] = tp_earning.index
-
-    factor_earning = earning.net_profit_ratio(ttm_earning, factor_earning)
-    factor_earning = earning.operating_profit_ratio(ttm_earning, factor_earning)
-    factor_earning = earning.np_to_tor(ttm_earning, factor_earning)
-    factor_earning = earning.operating_profit_to_tor(ttm_earning, factor_earning)
-    factor_earning = earning.gross_income_ratio(ttm_earning, factor_earning)
-    factor_earning = earning.ebit_to_tor_ttm(ttm_earning, factor_earning)
-    factor_earning = earning.roa(ttm_earning, factor_earning)
+    factor_earning = factor_earning.set_index('security_code')
     factor_earning = earning.roa5(ttm_earning_5y, factor_earning)
-    factor_earning = earning.roe(ttm_earning, factor_earning)
     factor_earning = earning.roe5(ttm_earning_5y, factor_earning)
-    factor_earning = earning.roe_diluted(tp_earning, factor_earning)
-    factor_earning = earning.roe_avg(ttm_earning, factor_earning)
-    # factor_earning = self.roe_weighted()
-    factor_earning = earning.roe_cut(tp_earning, factor_earning)
-    # factor_earning = self.roe_cut_weighted()
-    # factor_earning = self.roic()
-    # factor_earning = self.roa_ebit()
-    factor_earning = earning.roa_ebit_ttm(ttm_earning, factor_earning)
-    # factor_earning = earning.operating_ni_to_tp_ttm(ttm_earning, factor_earning)
-    # factor_earning = earning.operating_ni_to_tp_latest(tp_earning, factor_earning)
-    factor_earning = earning.invest_r_associates_to_tp_ttm(ttm_earning, factor_earning)
-    factor_earning = earning.invest_r_associates_to_tp_latest(tp_earning, factor_earning)
     factor_earning = earning.npcut_to_np(tp_earning, factor_earning)
-    # factor_earning = earning.interest_cover_ttm(ttm_earning, factor_earning)
-    # factor_earning = self.degm(ttm_earning, ttm_earning_p1y, factor_earning)
-    # factor_earning = earning.net_non_oi_to_tp_ttm(ttm_earning, factor_earning)
-    # factor_earning = earning.net_non_oi_to_tp_latest(tp_earning, factor_earning)
-
+    factor_earning = earning.roe_diluted(tp_earning, factor_earning)
+    factor_earning = earning.roe_avg(tp_earning, factor_earning)
+    factor_earning = earning.roe_cut(tp_earning, factor_earning)
+    # factor_earning = earning.invest_r_associates_to_tp_latest(tp_earning, factor_earning)
+    factor_earning = earning.historical_egro_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.historical_sgro_ttm(ttm_earning, factor_earning)
+    # factor_earning = earning.roa(ttm_earning, factor_earning)
+    factor_earning = earning.admini_expense_rate_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.berry_ratio_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.cash_flow_asset_ratio_minus_return_on_asset_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.sales_cost_ratio_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.ebit_to_tor_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.period_costs_rate_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.financial_expense_rate_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.impairment_loss_to_total_operating_income_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.shareholders_of_parent_to_operating_income_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.net_interest_rate_on_total_assets_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.net_non_operating_income_to_total_profit(ttm_earning, factor_earning)
+    factor_earning = earning.net_profit_ratio(ttm_earning, factor_earning)
+    factor_earning = earning.np_to_tor(ttm_earning, factor_earning)
+    factor_earning = earning.operating_expense_rate_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.operating_profit_ratio(ttm_earning, factor_earning)
+    # factor_earning = earning.operating_profit_to_tor(ttm_earning, factor_earning)
+    factor_earning = earning.rate_of_return_on_capital_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.roa_ebit_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.return_on_equity_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.return_on_invested_capital_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.roe(ttm_earning, factor_earning)
+    factor_earning = earning.gross_income_ratio(ttm_earning, factor_earning)
+    factor_earning = earning.tax_ratio_ttm(ttm_earning, factor_earning)
+    factor_earning = earning.total_profit_cost_ratio_ttm(ttm_earning, factor_earning)
+    # factor_earning = earning.invest_r_associates_to_tp_ttm(ttm_earning, factor_earning)
+    factor_earning = factor_earning.reset_index()
     factor_earning['id'] = factor_earning['security_code'] + str(trade_date)
     factor_earning['trade_date'] = str(trade_date)
     # earning._storage_data(factor_earning, trade_date)

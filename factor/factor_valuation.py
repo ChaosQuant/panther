@@ -81,7 +81,7 @@ class Valuation(FactorBase):
                     `RevToMrktRatioTTM` decimal(19,4),
                     `OptIncToEnterpriseValueTTM` decimal(19,4),
                     constraint {0} uindex
-                    PRIMARY KEY(`trade_date`,`security_code`)
+                    unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(Valuation, self)._create_tables(create_sql, drop_sql)
 
@@ -895,6 +895,7 @@ class Valuation(FactorBase):
 
 def calculate(trade_date, valuation_sets, sw_industry, pe_sets):
     """
+    :param pe_sets:
     :param sw_industry:
     :param valuation_sets:
     :param trade_date:

@@ -85,7 +85,7 @@ def get_basic_history_value_data(trade_date):
         'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润 ttm
         'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入 ttm
         'BIZINCO': 'operating_revenue',  # 营业收入 ttm
-        'TOTPROFIT':'total_profit',  # 利润总额 ttm
+        'TOTPROFIT': 'total_profit',  # 利润总额 ttm
 
         # balance
         'TOTASSET': 'total_assets',  # 资产总计 mrq
@@ -98,12 +98,12 @@ def get_basic_history_value_data(trade_date):
         'NETPROFITCUT': 'net_profit_cut',  # 扣除非经常性损益的净利润 ttm
 
         # valuation
-        '':'pe',
-        '':'pb',
-        '':'ps',
-        '':'pcf',
-        '':'market_cap',  # 总市值
-        '':'circulating_market_cap'
+        'pe': 'pe',
+        'pb': 'pb',
+        'ps': 'ps',
+        'pcf': 'pcf',
+        'market_cap': 'market_cap',  # 总市值
+        'circulating_market_cap': 'circulating_market_cap'
         }
 
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']

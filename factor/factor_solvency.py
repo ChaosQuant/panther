@@ -146,11 +146,19 @@ class Solvency(FactorBase):
         return factor_solvency
 
     @staticmethod
-    def a1():
+    def equity_ratio(tp_solvency, factor_solvency,
+                     dependencies=['total_liability', 'equities_parent_company_owners']):
         """
         权益比率
         :return:
         """
+        management = tp_solvency.loc[:, dependencies]
+
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+        management['EquityRatio'] = management.apply(func, axis=1)
+
+        factor_solvency = pd.merge(management, factor_solvency, how='outer', on='security_code')
+        return factor_solvency
 
     @staticmethod
     def tsep_to_interest_bear_debt(tp_solvency, factor_solvency, dependencies=['equities_parent_company_owners',
@@ -501,7 +509,7 @@ class Solvency(FactorBase):
     @staticmethod
     def nocf_to_interest_bear_debt_ttm(ttm_solvency, factor_solvency, dependencies=['net_operate_cash_flow',
                                                                                     'shortterm_loan',
-                                                                                    'non_current_liability_in_one_year',
+                                                                                    'non_current_liability_in_one_year_ttm',
                                                                                     'longterm_loan',
                                                                                     'bonds_payable',
                                                                                     'interest_payable'
@@ -516,7 +524,7 @@ class Solvency(FactorBase):
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['interest_bearing_liability'] = cash_flow['shortterm_loan'] + \
-                                                  cash_flow['non_current_liability_in_one_year'] + \
+                                                  cash_flow['non_current_liability_in_one_year_ttm'] + \
                                                   cash_flow['longterm_loan'] + \
                                                   cash_flow['bonds_payable'] + cash_flow['interest_payable']
         cash_flow['OptCFToIBDTTM'] = np.where(
@@ -544,7 +552,7 @@ class Solvency(FactorBase):
 
     @staticmethod
     def oper_cash_in_to_current_liability_ttm(ttm_solvency, factor_solvency,
-                                              dependencies=['net_operate_cash_flow', 'total_current_liability']):
+                                              dependencies=['net_operate_cash_flow', 'total_current_liability_ttm']):
         """
         经营活动产生的现金流量净额（TTM）/流动负债（TTM）
         :param dependencies:
@@ -554,14 +562,17 @@ class Solvency(FactorBase):
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['OptCFToCurrLiabilityTTM'] = np.where(
-            CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
-            cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability.values)
+            CalcTools.is_zero(cash_flow.total_current_liability_ttm.values), 0,
+            cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability_ttm.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
         return factor_solvency
 
 
 def calculate(trade_date, tp_solvency, ttm_solvency, mrq_solvency):  # 计算对应因子
+    tp_solvency = tp_solvency.set_index('security_code')
+    ttm_solvency = ttm_solvency.set_index('security_code')
+    mrq_solvency = mrq_solvency.set_index('security_code')
     solvency = Solvency('factor_solvency')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
 
     print(trade_date)

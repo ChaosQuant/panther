@@ -27,6 +27,8 @@ from client.dbmodel.model import IncomeMRQ, IncomeReport, IncomeTTM
 from client.engines.sqlengine import sqlEngine
 from client.utillities.sync_util import SyncUtil
 from ultron.cluster.invoke.cache_data import cache_data
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 
 def get_trade_date(trade_date, n):
@@ -58,7 +60,8 @@ def get_basic_data(trade_date):
     maplist = {
         # cash flow
         'LABORGETCASH': 'goods_sale_and_service_render_cash',  # 销售商品、提供劳务收到的现金
-        'FINALCASHBALA':'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
+        'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
+        'FINNETCFLOW': 'net_finance_cash_flow', # 筹资活动产生的现金流量净
 
         # income
         'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
@@ -77,11 +80,13 @@ def get_basic_data(trade_date):
         'MANAEXPE':'administration_expense',  # 管理费用
         'SALESEXPE':'sale_expense',  # 销售费用
         'BIZTAX':'operating_tax_surcharges',  # 营业税金及附加1
+        'ASSEIMPALOSS':'asset_impairment_loss',  # 资产减值损失
 
         # balance
         'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
         'RIGHAGGR':'total_owner_equities',  # 所有者权益（或股东权益）合计
         'TOTASSET': 'total_assets',  # 资产总计
+        'LONGBORR': 'longterm_loan',  # 长期借款
 
         # indicator
         'NETPROFITCUT':'adjusted_profit',  # 扣除非经常损益后的净利润1
@@ -103,8 +108,7 @@ def get_basic_data(trade_date):
     cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
                                                                      [CashFlowReport.LABORGETCASH,
                                                                       CashFlowReport.FINALCASHBALA,
-                                                                      ],
-                                                                     dates=[trade_date]).drop(columns, axis=1)
+                                                                      ], dates=[trade_date]).drop(columns, axis=1)
     cash_flow_sets = cash_flow_sets.rename(columns={'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
                                                     'FINALCASHBALA':'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
                                                     })
@@ -113,25 +117,33 @@ def get_basic_data(trade_date):
                                                                   [IncomeReport.BIZTOTINCO,
                                                                    IncomeReport.BIZINCO,
                                                                    IncomeReport.PERPROFIT,
-                                                                   ],
-                                                                  dates=[trade_date]).drop(columns, axis=1)
+                                                                   IncomeReport.PARENETP,
+                                                                   ], dates=[trade_date]).drop(columns, axis=1)
     income_sets = income_sets.rename(columns={'NETPROFIT': 'net_profit',   # 净利润
+                                              'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
                                               'BIZINCO': 'operating_revenue',  # 营业收入
                                               'PERPROFIT': 'operating_profit',  # 营业利润
-                                               })
+                                              'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润
+                                              })
 
     indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
                                                                      [
                                                                       IndicatorReport.NETPROFITCUT,  # 扣除非经常损益后的净利润
                                                                       IndicatorReport.MGTEXPRT
-                                                                      ],
-                                                                     dates=[trade_date]).drop(columns, axis=1)
+                                                                      ], dates=[trade_date]).drop(columns, axis=1)
+    indicator_sets = indicator_sets.rename(columns={'NETPROFITCUT': 'adjusted_profit',  # 扣除非经常损益后的净利润
+                                                    })
+
+    balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
+                                                                   [BalanceReport.PARESHARRIGH,
+                                                                    ], dates=[trade_date]).drop(columns, axis=1)
+    balance_sets = balance_sets.rename(columns={'PARESHARRIGH': 'equities_parent_company_owners',   # 归属于母公司股东权益合计
+                                                })
 
     income_sets_pre_year_1 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                              [IncomeReport.BIZINCO,   # 营业收入
                                                                               IncomeReport.NETPROFIT,  # 净利润
-                                                                              ],
-                                                                             dates=[trade_date_pre_year]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date_pre_year]).drop(columns, axis=1)
     income_sets_pre_year_1 = income_sets_pre_year_1.rename(columns={'NETPROFIT': 'net_profit_pre_year_1',   # 净利润
                                                                     'BIZINCO': 'operating_revenue_pre_year_1',  # 营业收入
                                                                     })
@@ -139,8 +151,7 @@ def get_basic_data(trade_date):
     income_sets_pre_year_2 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                              [IncomeReport.BIZINCO,
                                                                               IncomeReport.NETPROFIT,
-                                                                              ],
-                                                                             dates=[trade_date_pre_year_2]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date_pre_year_2]).drop(columns, axis=1)
     income_sets_pre_year_2 = income_sets_pre_year_2.rename(columns={'NETPROFIT': 'net_profit_pre_year_2',   # 净利润
                                                                     'BIZINCO': 'operating_revenue_pre_year_2',  # 营业收入
                                                                     })
@@ -148,8 +159,7 @@ def get_basic_data(trade_date):
     income_sets_pre_year_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                              [IncomeReport.BIZINCO,
                                                                               IncomeReport.NETPROFIT,
-                                                                              ],
-                                                                             dates=[trade_date_pre_year_3]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date_pre_year_3]).drop(columns, axis=1)
     income_sets_pre_year_3 = income_sets_pre_year_3.rename(columns={'NETPROFIT': 'net_profit_pre_year_3',   # 净利润
                                                                     'BIZINCO': 'operating_revenue_pre_year_3',  # 营业收入
                                                                     })
@@ -157,20 +167,48 @@ def get_basic_data(trade_date):
     income_sets_pre_year_4 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                              [IncomeReport.BIZINCO,
                                                                               IncomeReport.NETPROFIT,
-                                                                              ],
-                                                                             dates=[trade_date_pre_year_4]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date_pre_year_4]).drop(columns, axis=1)
     income_sets_pre_year_4 = income_sets_pre_year_4.rename(columns={'NETPROFIT': 'net_profit_pre_year_4',   # 净利润
                                                                     'BIZINCO': 'operating_revenue_pre_year_4',  # 营业收入
                                                                     })
 
-    tp_earning = pd.merge(cash_flow_sets, income_sets,  on='security_code')
-    tp_earning = pd.merge(indicator_sets, tp_earning, on='security_code')
-    tp_earning = pd.merge(income_sets_pre_year_1, tp_earning, on='security_code')
-    tp_earning = pd.merge(income_sets_pre_year_2, tp_earning, on='security_code')
-    tp_earning = pd.merge(income_sets_pre_year_3, tp_earning, on='security_code')
-    tp_earning = pd.merge(income_sets_pre_year_4, tp_earning, on='security_code')
+    tp_earning = pd.merge(cash_flow_sets, income_sets, how='outer',  on='security_code')
+    tp_earning = pd.merge(indicator_sets, tp_earning, how='outer', on='security_code')
+    tp_earning = pd.merge(balance_sets, tp_earning, how='outer', on='security_code')
+    tp_earning = pd.merge(income_sets_pre_year_1, tp_earning, how='outer', on='security_code')
+    tp_earning = pd.merge(income_sets_pre_year_2, tp_earning, how='outer', on='security_code')
+    tp_earning = pd.merge(income_sets_pre_year_3, tp_earning, how='outer', on='security_code')
+    tp_earning = pd.merge(income_sets_pre_year_4, tp_earning, how='outer', on='security_code')
+
+    # MRQ
+    balance_mrq_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
+                                                                       [BalanceMRQ.TOTASSET,  # 资产总计
+                                                                        BalanceMRQ.PARESHARRIGH,  # 归属于母公司股东权益合计
+                                                                        BalanceMRQ.RIGHAGGR,  # 所有者权益（或股东权益）合计
+                                                                        BalanceMRQ.LONGBORR,  # 长期借款
+                                                                        ], dates=[trade_date]).drop(columns, axis=1)
+    balance_mrq_sets = balance_mrq_sets.rename(columns={'TOTASSET': 'total_assets_mrq',
+                                                        'PARESHARRIGH': 'equities_parent_company_owners_mrq',  # 归属于母公司股东权益合计
+                                                        'RIGHAGGR': 'total_owner_equities_mrq',  # 所有者权益（或股东权益）合计
+                                                        'LONGBORR': 'longterm_loan_mrq',  # 长期借款
+                                                        })
+
+    balance_mrq_sets_pre = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
+                                                                           [BalanceMRQ.TOTASSET,  # 资产总计
+                                                                            BalanceMRQ.RIGHAGGR,  # 所有者权益(或股东权益)合计
+                                                                            BalanceMRQ.LONGBORR,  # 长期借款
+                                                                            ], dates=[trade_date]).drop(columns, axis=1)
+    balance_mrq_sets_pre = balance_mrq_sets_pre.rename(columns={'TOTASSET': 'total_assets_mrq_pre',
+                                                                'RIGHAGGR': 'total_owner_equities_mrq_pre',  # 所有者权益（或股东权益）合计
+                                                                'LONGBORR': 'longterm_loan_mrq_pre',  # 长期借款
+                                                                })
 
     # TTM Data
+    cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
+                                                                         [CashFlowTTM.FINNETCFLOW,
+                                                                          ], dates=[trade_date]).drop(columns, axis=1)
+    cash_flow_ttm_sets = cash_flow_ttm_sets.rename(columns={'FINNETCFLOW': 'net_finance_cash_flow'})
+
     income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                       [IncomeTTM.BIZINCO,    # 营业收入
                                                                        IncomeTTM.NETPROFIT,   # 净利润
@@ -185,30 +223,32 @@ def get_basic_data(trade_date):
                                                                        IncomeTTM.PARENETP,   # 归属于母公司所有者的净利润
                                                                        IncomeTTM.BIZCOST,     # 营业成本
                                                                        IncomeTTM.ASSOINVEPROF,  # 对联营企业和合营企业的投资收益
-                                                                       ],
-                                                                      dates=[trade_date]).drop(columns, axis=1)
+                                                                       IncomeTTM.BIZTAX,  # 营业税金及附加
+                                                                       IncomeTTM.ASSEIMPALOSS,  # 资产减值损失
+                                                                       ], dates=[trade_date]).drop(columns, axis=1)
 
-    income_ttm_sets = income_ttm_sets.rename(columns={'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
-                                                      'BIZTOTCOST': 'total_operating_cost',  # 营业总成本
-                                                      'ASSOINVEPROF': 'invest_income_associates',  # 对联营企业和合营企业的投资收益
-                                                      'TOTPROFIT': 'total_profit',  # 利润总额
-                                                      'NETPROFIT': 'net_profit',   # 净利润
-                                                      'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润
-                                                      'BIZINCO': 'operating_revenue',  # 营业收入
-                                                      'INTEINCO': 'interest_income',  # 利息收入
-                                                      'BIZCOST': 'operating_cost',  # 营业成本
-                                                      'FINEXPE': 'financial_expense',  # 财务费用
-                                                      'PERPROFIT': 'operating_profit',  # 营业利润
+    income_ttm_sets = income_ttm_sets.rename(columns={'BIZINCO': 'operating_revenue',  # 营业收入
+                                                      'NETPROFIT': 'net_profit',  # 净利润
                                                       'MANAEXPE': 'administration_expense',  # 管理费用
+                                                      'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
+                                                      'TOTPROFIT': 'total_profit',  # 利润总额
+                                                      'FINEXPE': 'financial_expense',  # 财务费用
+                                                      'INTEINCO': 'interest_income',  # 利息收入
                                                       'SALESEXPE': 'sale_expense',  # 销售费用
+                                                      'BIZTOTCOST': 'total_operating_cost',  # 营业总成本
+                                                      'PERPROFIT': 'operating_profit',  # 营业利润
+                                                      'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润
+                                                      'BIZCOST': 'operating_cost',  # 营业成本
+                                                      'ASSOINVEPROF': 'invest_income_associates',  # 对联营企业和合营企业的投资收益
+                                                      'BIZTAX': 'operating_tax_surcharges',  # 营业税金及附加
+                                                      'ASSEIMPALOSS': 'asset_impairment_loss',  # 资产减值损失
                                                       })
 
     balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                        [BalanceTTM.TOTASSET,  # 资产总计
                                                                         BalanceTTM.RIGHAGGR,  # 所有者权益（或股东权益）合计
                                                                         BalanceTTM.PARESHARRIGH,   # 归属于母公司股东权益合计
-                                                                        ],
-                                                                       dates=[trade_date]).drop(columns, axis=1)
+                                                                        ], dates=[trade_date]).drop(columns, axis=1)
     balance_ttm_sets = balance_ttm_sets.rename(columns={'PARESHARRIGH': 'equities_parent_company_owners',   # 归属于母公司股东权益合计
                                                         'RIGHAGGR':'total_owner_equities',  # 所有者权益（或股东权益）合计
                                                         'TOTASSET': 'total_assets',  # 资产总计
@@ -217,44 +257,50 @@ def get_basic_data(trade_date):
     income_ttm_sets_pre_year_1 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                  [IncomeTTM.BIZINCO,
                                                                                   IncomeTTM.NETPROFIT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year]).drop(columns, axis=1)
-    income_ttm_sets_pre_year_1 = income_ttm_sets_pre_year_1.rename(columns={'BIZINCO': 'operating_revenue',  # 营业收入
-                                                                            'NETPROFIT': 'net_profit',  # 净利润
+                                                                                  ], dates=[trade_date_pre_year]).drop(columns, axis=1)
+    income_ttm_sets_pre_year_1 = income_ttm_sets_pre_year_1.rename(columns={'BIZINCO': 'operating_revenue_pre_year_1',  # 营业收入
+                                                                            'NETPROFIT': 'net_profit_pre_year_1',  # 净利润
                                                                             })
 
     income_ttm_sets_pre_year_2 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                  [IncomeTTM.BIZINCO,
                                                                                   IncomeTTM.NETPROFIT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year_2]).drop(columns, axis=1)
-    income_ttm_sets_pre_year_2 = income_ttm_sets_pre_year_2.rename(columns={'BIZINCO': 'operating_revenue',  # 营业收入
-                                                                            'NETPROFIT': 'net_profit',  # 净利润
+                                                                                  ], dates=[trade_date_pre_year_2]).drop(columns, axis=1)
+    income_ttm_sets_pre_year_2 = income_ttm_sets_pre_year_2.rename(columns={'BIZINCO': 'operating_revenue_pre_year_2',  # 营业收入
+                                                                            'NETPROFIT': 'net_profit_pre_year_2',  # 净利润
                                                                             })
 
     income_ttm_sets_pre_year_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                  [IncomeTTM.BIZINCO,
                                                                                   IncomeTTM.NETPROFIT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year_3]).drop(columns, axis=1)
-    income_ttm_sets_pre_year_3 = income_ttm_sets_pre_year_3.rename(columns={'BIZINCO': 'operating_revenue',  # 营业收入
-                                                                            'NETPROFIT': 'net_profit',  # 净利润
+                                                                                  ], dates=[trade_date_pre_year_3]).drop(columns, axis=1)
+    income_ttm_sets_pre_year_3 = income_ttm_sets_pre_year_3.rename(columns={'BIZINCO': 'operating_revenue_pre_year_3',  # 营业收入
+                                                                            'NETPROFIT': 'net_profit_pre_year_3',  # 净利润
                                                                             })
 
     income_ttm_sets_pre_year_4 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                  [IncomeTTM.BIZINCO,
                                                                                   IncomeTTM.NETPROFIT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year_4]).drop(columns, axis=1)
-    income_ttm_sets_pre_year_4 = income_ttm_sets_pre_year_4.rename(columns={'BIZINCO': 'operating_revenue',  # 营业收入
-                                                                            'NETPROFIT': 'net_profit',  # 净利润
+                                                                                  ], dates=[trade_date_pre_year_4]).drop(columns, axis=1)
+    income_ttm_sets_pre_year_4 = income_ttm_sets_pre_year_4.rename(columns={'BIZINCO': 'operating_revenue_pre_year_4',  # 营业收入
+                                                                            'NETPROFIT': 'net_profit_pre_year_4',  # 净利润
                                                                             })
 
-    ttm_earning = pd.merge(income_ttm_sets, balance_ttm_sets, on='security_code')
-    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_1, on='security_code')
-    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_2, on='security_code')
-    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_3, on='security_code')
-    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_4, on='security_code')
+    # indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
+    #                                                                      [IndicatorTTM.ROIC,   # 投入资本回报率
+    #                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+    #
+    # indicator_ttm_sets = indicator_ttm_sets.rename(columns={'ROIC': '',
+    #                                                         })
+
+    ttm_earning = pd.merge(income_ttm_sets, balance_ttm_sets, how='outer', on='security_code')
+    ttm_earning = pd.merge(ttm_earning, cash_flow_ttm_sets, how='outer', on='security_code')
+    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_1, how='outer', on='security_code')
+    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_2, how='outer', on='security_code')
+    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_3, how='outer', on='security_code')
+    ttm_earning = pd.merge(ttm_earning, income_ttm_sets_pre_year_4, how='outer', on='security_code')
+    ttm_earning = pd.merge(ttm_earning, balance_mrq_sets, how='outer', on='security_code')
+    ttm_earning = pd.merge(ttm_earning, balance_mrq_sets_pre, how='outer', on='security_code')
 
     balance_con_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                        [BalanceTTM.TOTASSET,  # 资产总计
@@ -269,7 +315,7 @@ def get_basic_data(trade_date):
                                                                               ]).drop(columns, axis=1)
     balance_con_sets = balance_con_sets.groupby(['security_code'])
     balance_con_sets = balance_con_sets.sum()
-    balance_con_sets = balance_con_sets.rename(columns={'TOTASSET':'',
+    balance_con_sets = balance_con_sets.rename(columns={'TOTASSET':'total_assets',
                                                         'RIGHAGGR':'total_owner_equities'})
 
     # cash_flow_con_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
@@ -299,7 +345,7 @@ def get_basic_data(trade_date):
     income_con_sets = income_con_sets.groupby(['security_code'])
     income_con_sets = income_con_sets.sum()
     income_con_sets = income_con_sets.rename(columns={'NETPROFIT':'net_profit'}).reset_index()
-    ttm_earning_5y = pd.merge(balance_con_sets, income_con_sets, on='security_code')
+    ttm_earning_5y = pd.merge(balance_con_sets, income_con_sets, how='outer', on='security_code')
 
     return tp_earning, ttm_earning, ttm_earning_5y
 
@@ -307,7 +353,7 @@ def get_basic_data(trade_date):
 def prepare_calculate_local(trade_date):
     # local
     tic = time.time()
-    tp_earning, ttm_earning_5y, ttm_earning = get_basic_data(trade_date)
+    tp_earning, ttm_earning, ttm_earning_5y = get_basic_data(trade_date)
     if len(tp_earning) <= 0 or len(ttm_earning_5y) <= 0 or len(ttm_earning) <= 0:
         print("%s has no data" % trade_date)
         return
@@ -319,7 +365,7 @@ def prepare_calculate_local(trade_date):
 
 def prepare_calculate_remote(trade_date):
     # remote
-    tp_earning, ttm_earning_5y, ttm_earning = get_basic_data(trade_date)
+    tp_earning, ttm_earning, ttm_earning_5y = get_basic_data(trade_date)
     if len(tp_earning) <= 0 or len(ttm_earning_5y) <= 0 or len(ttm_earning) <= 0:
         print("%s has no data" % trade_date)
         return
