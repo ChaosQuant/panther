@@ -11,8 +11,7 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'alphax.alpha191','class':'Alpha191'},
-                                    {'packet':'alphax.alpha101','class':'Alpha101'}]):
+    def __init__(self, name, url, methods=[{'packet':'technical.reversal','class':'Reversal'}]):
         self._name= name
         self._methods = methods
         self._url = url
@@ -60,6 +59,7 @@ class CalcEngine(object):
         for p in mkt_df.columns:
             if p in ['open_price', 'highest_price', 'lowest_price', 'close_price', 'vwap']:
                 mkt_df[p] = mkt_df[p] * mkt_df['factor'] / mkt_df['benchmark_factor']
+        '''
         indu_dict = {}
         indu_names = self._INDU_STYLES + ['COUNTRY']
         for date in trade_date_list:
@@ -67,18 +67,19 @@ class CalcEngine(object):
             indu_check_se = date_indu_df.sum(axis=1).sort_values()
             date_indu_df.drop(indu_check_se[indu_check_se < 2].index, inplace=True)
             indu_dict[pd.Timestamp(date)] = date_indu_df.sort_index()
+        '''
         total_data = {}
         for col in mkt_df.columns:
             total_data[col] = mkt_df[col].unstack().sort_index()
         total_data['returns'] = total_data['close_price'].pct_change()
-        total_data['indu'] = indu_dict
+        #total_data['indu'] = indu_dict
         return total_data
     
     
     def loadon_data(self, trade_date):
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
-        begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows))
+        begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
         total_data = db_polymerize.fetch_data(begin_date, trade_date,'1b')
         return total_data
     
@@ -115,7 +116,7 @@ class CalcEngine(object):
         with multiprocessing.Pool(processes=cpus*2) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
-        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'symbol'})
+        result = pd.concat(res,axis=1).reset_index().rename(columns={'code':'symbol'})
         result = result.replace([np.inf, -np.inf], np.nan)
         result['trade_date'] = trade_date
         return result
@@ -149,20 +150,15 @@ class CalcEngine(object):
         result['symbol'] = res['code']
         result['trade_date'] = trade_date
         print(time.time() - start_time)
-        return result
+        return result.replace([np.inf, -np.inf], np.nan)
     
     def local_run(self, trade_date):
-        pdb.set_trace()
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
         
-        result = self.process_calc_factor('alphax.alpha101','Alpha101',mkt_df,trade_date)
+        result = self.calc_factor('technical.reversal','Reversal',mkt_df,trade_date)
         storage_engine = StorageEngine(self._url)
-        storage_engine.update_destdb('alpha101', trade_date, result)
-        
-        result = self.process_calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
-        storage_engine = StorageEngine(self._url)
-        storage_engine.update_destdb('alpha191', trade_date, result)
+        storage_engine.update_destdb('momentum', trade_date, result)
         
         
     def remote_run(self, trade_date):
