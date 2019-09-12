@@ -156,9 +156,9 @@ class CalcEngine(object):
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
         
-        #result = self.process_calc_factor('alphax.alpha101','Alpha101',mkt_df,trade_date)
-        #storage_engine = StorageEngine(self._url)
-        #storage_engine.update_destdb('alpha101', trade_date, result)
+        result = self.process_calc_factor('alphax.alpha101','Alpha101',mkt_df,trade_date)
+        storage_engine = StorageEngine(self._url)
+        storage_engine.update_destdb('alpha101', trade_date, result)
         
         result = self.process_calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
         storage_engine = StorageEngine(self._url)
