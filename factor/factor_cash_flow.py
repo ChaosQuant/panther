@@ -25,7 +25,7 @@ class FactorCashFlow(FactorBase):
     def create_dest_tables(self):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` varchar(32) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,               
                     `OptOnReToAssetTTM` decimal(19,4),                    
@@ -37,7 +37,8 @@ class FactorCashFlow(FactorBase):
                     `SalesServCashToOR` decimal(19,4),
                     `SaleServCashToOptReTTM` decimal(19,4),
                     `NOCFToOpt` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
+                    constraint {0} uindex
+                    unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(FactorCashFlow, self)._create_tables(create_sql, drop_sql)
 

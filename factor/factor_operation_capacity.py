@@ -36,7 +36,7 @@ class OperationCapacity(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` varchar(32) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `AccPayablesRateTTM` decimal(19,4),
@@ -50,7 +50,8 @@ class OperationCapacity(FactorBase):
                     `InvDaysTTM` decimal(19,4),
                     `OptCycle` decimal(19,4),
                     `TotaAssetRtTTM` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
+                    constraint {0} uindex
+                    unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(OperationCapacity, self)._create_tables(create_sql, drop_sql)
 

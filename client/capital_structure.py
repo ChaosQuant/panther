@@ -86,7 +86,6 @@ def get_management_data(trade_date):
 def prepare_calculate_local(trade_date):
     tic = time.time()
     tp_management = get_management_data(trade_date)
-    print(tp_management.head())
     if len(tp_management) <= 0:
         print("%s has no data" % trade_date)
         return

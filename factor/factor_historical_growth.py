@@ -34,7 +34,7 @@ class Growth(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` varchar(32) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `NetAsset1YChg` decimal(19,4),
@@ -55,39 +55,10 @@ class Growth(FactorBase):
                     `FCF1YChgTTM` decimal(19,4),
                     `ICF1YChgTTM` decimal(19,4),
                     `OCF1YChgTTM` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
+                    constraint {0} uindex
+                    unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(Growth, self)._create_tables(create_sql, drop_sql)
-
-    @staticmethod
-    def degm(ttm_earning, ttm_earning_p1y, factor_earning, dependencies=['operating_revenue', 'operating_cost']):
-        """
-        毛利率增长率，与去年同期相比
-        :param dependencies:
-        :param ttm_earning_p1y:
-        :param ttm_earning:
-        :param factor_earning:
-        :return:
-        """
-
-        earning = ttm_earning.loc[:, dependencies]
-        earning_p1y = ttm_earning_p1y.loc[:, dependencies]
-        earning['gross_income_ratio'] = np.where(
-            CalcTools.is_zero(earning.operating_revenue.values), 0,
-            (earning.operating_revenue.values -
-             earning.operating_cost.values)
-            / earning.operating_revenue.values
-                )
-        earning_p1y['gross_income_ratio'] = np.where(
-            CalcTools.is_zero(earning_p1y.operating_revenue.values), 0,
-            (earning_p1y.operating_revenue.values -
-             earning_p1y.operating_cost.values)
-            / earning_p1y.operating_revenue.values)
-        earning["degm"] = earning["gross_income_ratio"] - earning_p1y["gross_income_ratio"]
-        dependencies.append('gross_income_ratio')
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
 
     @staticmethod
     def historical_net_asset_grow_rate(tp_historical_growth, factor_historical_growth, dependencies=['total_owner_equities', 'total_owner_equities_pre_year']):
@@ -98,7 +69,6 @@ class Growth(FactorBase):
         :param tp_historical_growth:
         :return:
         """
-
         historical_growth = tp_historical_growth.loc[:, dependencies]
 
         if len(historical_growth) <= 0:
@@ -121,7 +91,6 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
-
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
@@ -141,7 +110,6 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
-
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
@@ -162,7 +130,6 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
-
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
@@ -204,7 +171,6 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
-
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
@@ -224,7 +190,6 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
-
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
@@ -246,7 +211,6 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
-
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
@@ -546,6 +510,7 @@ def calculate(trade_date, growth_sets):
 
     factor_historical_growth['id'] = factor_historical_growth['security_code'] + str(trade_date)
     factor_historical_growth['trade_date'] = str(trade_date)
+    print(factor_historical_growth.head())
     # growth._storage_data(factor_historical_growth, trade_date)
 
 

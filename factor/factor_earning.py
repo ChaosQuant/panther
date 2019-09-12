@@ -179,6 +179,37 @@ class FactorEarning(FactorBase):
         return factor_earning
 
     @staticmethod
+    def degm(ttm_earning, ttm_earning_p1y, factor_earning, dependencies=['operating_revenue', 'operating_cost']):
+        """
+        毛利率增长率，与去年同期相比
+        :param dependencies:
+        :param ttm_earning_p1y:
+        :param ttm_earning:
+        :param factor_earning:
+        :return:
+        """
+
+        earning = ttm_earning.loc[:, dependencies]
+        earning_p1y = ttm_earning_p1y.loc[:, dependencies]
+        earning['gross_income_ratio'] = np.where(
+            CalcTools.is_zero(earning.operating_revenue.values), 0,
+            (earning.operating_revenue.values -
+             earning.operating_cost.values)
+            / earning.operating_revenue.values
+                )
+        earning_p1y['gross_income_ratio'] = np.where(
+            CalcTools.is_zero(earning_p1y.operating_revenue.values), 0,
+            (earning_p1y.operating_revenue.values -
+             earning_p1y.operating_cost.values)
+            / earning_p1y.operating_revenue.values)
+
+        earning["DGPR"] = earning["gross_income_ratio"] - earning_p1y["gross_income_ratio"]
+        dependencies.append('gross_income_ratio')
+        earning = earning.drop(dependencies, axis=1)
+        factor_earning = pd.merge(factor_earning, earning, on="security_code")
+        return factor_earning
+
+    @staticmethod
     def roa5(ttm_earning_5y, factor_earning, dependencies=['net_profit', 'total_assets']):
         """
         5年资产回报率

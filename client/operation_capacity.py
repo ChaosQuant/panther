@@ -77,7 +77,7 @@ def get_basic_data(trade_date):
     ttm_balance = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                   [BalanceTTM.ACCORECE,
                                                                    BalanceTTM.NOTESRECE,
-                                                                   # BalanceTTM.advance_payment,
+                                                                   # BalanceTTM.PREP,
                                                                    BalanceTTM.INVE,
                                                                    BalanceTTM.TOTCURRASSET,
                                                                    BalanceTTM.FIXEDASSENET,
@@ -89,7 +89,7 @@ def get_basic_data(trade_date):
     ttm_balance = ttm_balance.rename(columns={
         'ACCORECE': 'accounts_payable',  # 应付账款
         'NOTESRECE': 'bill_receivable',  # 应收票据
-        # '': 'advance_payment',  # 预付款项
+        'PREP': 'advance_payment',  # 预付款项
         'INVE': 'inventories',  # 存货
         'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
         'FIXEDASSENET': 'fixed_assets',  # 固定资产
