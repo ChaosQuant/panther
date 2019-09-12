@@ -154,6 +154,10 @@ def df_indneutralize(df, indu_dict):
 class Alpha101(object):
     def __init__(self):
         __str__ = 'alpha101'
+        self.name = 'Alpha101'
+        self.factor_type1 = 'Features'
+        self.factor_type2 = 'Features'
+        self.desciption = 'price and volumns features'
     
     def alpha_2(self, data, param1=2, param2=6, dependencies=['turnover_vol', 'close_price', 'open_price'], 
                 max_window=10):
@@ -418,7 +422,7 @@ class Alpha101(object):
 
         alpha = df.iloc[-1] + ts_rank_ret.iloc[-1]
         return alpha
-    
+    '''
     def alpha_32(self, data, param1=7, param2=40, param3=5, param4=20,
                  dependencies=['close_price', 'vwap'], max_window=50):
         # # original formula
@@ -436,6 +440,7 @@ class Alpha101(object):
 
         alpha = scale_close_se + param4 * scale_corr_se
         return alpha
+    '''
     
     def alpha_36(self, data, param1=15, param2=6, param3=10, param4=20, param5=50,
                  param6=2.21, param7=0.7, param8=0.73, param9=0.6, param10=-1,
@@ -619,7 +624,7 @@ class Alpha101(object):
         return alpha
     
     def alpha_58(self, data, param1=9, param2=8, param3=7, param4=-1,
-                 dependencies=['vwap', 'turnover_vol'], max_window=25):
+                 dependencies=['vwap', 'turnover_vol','indu'], max_window=25):
         # -1 * ts_rank(decay_linear(correlation(indneutralize(VWAP, indclass), VOLUME, 3.92795), 7.89291), 5.50322)
     
         # indneutralize(VWAP, indclass)
@@ -640,7 +645,7 @@ class Alpha101(object):
         return alpha
 
     def alpha_59(self, data, param1=0.7, param2=0.3, param3=9, param4=12, param5=10, param6=-1,
-                 dependencies=['vwap', 'close_price', 'turnover_vol'], max_window=30):
+                 dependencies=['vwap', 'close_price', 'turnover_vol','indu'], max_window=30):
         # -1 * ts_rank(decay_linear(correlation(indneutralize(((VWAP * 0.728317) + (VWAP * (1 - 0.728317))),
         # indclass), VOLUME, 4.25197), 16.2289), 8.19648)
         # Caution: the original formula is almost same with alpha_58 (
@@ -713,7 +718,7 @@ class Alpha101(object):
         return alpha
     
     def alpha_67(self, data, param1=20, param2=10, param3=5, param4=8, param5=-1,
-                 dependencies=['highest_price', 'vwap', 'turnover_vol'], max_window=30):
+                 dependencies=['highest_price', 'vwap', 'turnover_vol','indu'], max_window=30):
         # -1.0 * rank(HIGH - ts_min(HIGH, 2.14593))^
         # rank(correlation(indneutralize(VWAP, indclass), indneutralize(ADV20, indclass), 6.02936))
 
@@ -732,7 +737,7 @@ class Alpha101(object):
         return alpha
     
     def alpha_69(self, data, param1=3, param2=5, param3=8, param4=-1,
-                 dependencies=['vwap', 'turnover_vol'], max_window=15):
+                 dependencies=['vwap', 'turnover_vol','indu'], max_window=15):
         # -1 * rank(ts_max(delta(indneutralize(VWAP, indclass), 2.72412), 4.79344))^
         # ts_rank(correlation(((CLOSE * 0.490655) + (VWAP * (1 - 0.490655))), ADV20, 4.92416), 9.0615)
 
@@ -840,7 +845,7 @@ class Alpha101(object):
     
     def alpha_76(self, data, param1=5, param2=1, param3=5, param4=8, param5=20, param6=5,
                  param7=20, param8=-1, param9=0.5,
-                 dependencies=['close_price', 'vwap', 'lowest_price', 'turnover_vol'], 
+                 dependencies=['close_price', 'vwap', 'lowest_price', 'turnover_vol','indu'], 
                  max_window=50):
         # -1 * max(rank(decay_linear(delta(VWAP, 1.24383), 11.8259)),
         # ts_rank(decay_linear(ts_rank(correlation(indneutralize(LOW, indclass), ADV81, 8.14941), 19.569), 17.1543), 19.383))
@@ -867,7 +872,7 @@ class Alpha101(object):
     
     def alpha_80(self, data, param1=0.85, param2=0.15, param3=5, param4=4, param5=5,
                  param6=6, param7=6, param8=-1,
-                 dependencies=['open_price', 'highest_price', 'turnover_vol', 'highest_price'], max_window=20):
+                 dependencies=['open_price', 'highest_price', 'turnover_vol', 'highest_price','indu'], max_window=20):
         # -1 * (rank(sign(delta(indneutralize(((OPEN * 0.868128) + (HIGH * (1 - 0.868128))), indclass), 4.04545)))^
         # ts_rank(correlation(HIGH, ADV10, 5.11456), 5.53756))
 
@@ -915,7 +920,7 @@ class Alpha101(object):
         return alpha
 
     def alpha_82(self, data, param1=1, param2=10, param3=16, param4=6, param5=14, param6=-1, param7=0.5,
-                 dependencies=['open_price', 'turnover_vol'], max_window=40):
+                 dependencies=['open_price', 'turnover_vol','indu'], max_window=40):
         # -1 * min(rank(decay_linear(delta(OPEN, 1.46063), 14.8717)),
         # ts_rank(decay_linear(correlation(indneutralize(VOLUME, indclass), ((OPEN * 0.634196) + (OPEN * (1 - 0.634196))), 17.4842), 6.92131), 13.4283))
         # rearranged formula
@@ -983,7 +988,7 @@ class Alpha101(object):
 
     def alpha_87(self, data, param1=2, param2=3, param3=0.37, param4=0.63, param5=12, param6=5,
                  param7=14,
-                 dependencies=['close_price', 'vwap', 'turnover_vol'], max_window=30):
+                 dependencies=['close_price', 'vwap', 'turnover_vol','indu'], max_window=30):
         # -1 * max(rank(decay_linear(delta(((CLOSE * 0.369701) + (VWAP * (1 - 0.369701))), 1.91233), 2.65461)),
         # ts_rank(decay_linear(abs(correlation(indneutralize(ADV81, indclass), CLOSE, 13.4132)), 4.89768), 14.4535))
     
@@ -1035,8 +1040,7 @@ class Alpha101(object):
         return alpha
     
     def alpha_90(self, data, param1=5, param2=4, param3=8, param4=8, param5=6, param6=-1,
-                 dependencies=['close_price', 'lowest_price', 
-                                                  'turnover_vol'], max_window=20):
+                 dependencies=['close_price', 'lowest_price', 'turnover_vol','indu'], max_window=20):
         # -1 *(rank((CLOSE - ts_max(CLOSE, 4.66719)))^
         # ts_rank(correlation(indneutralize(ADV40, indclass), LOW, 5.38375), 3.21856))
     
@@ -1057,7 +1061,7 @@ class Alpha101(object):
     def alpha_91(self, data, param1=5, param2=10, param3=10, param4=3, param5=10, 
                  param6=8, param7=3, param8=-1,
                  dependencies=['close_price', 'turnover_vol', 
-                               'vwap'], max_window=32):
+                               'vwap','indu'], max_window=32):
         # -1 * (ts_rank(decay_linear(decay_linear(correlation(indneutralize(CLOSE, indclass), VOLUME, 9.74928), 16.398), 3.83219), 4.8667) -
         # rank(decay_linear(correlation(VWAP, ADV30, 4.01303), 2.6809)))
 
@@ -1111,7 +1115,7 @@ class Alpha101(object):
     
     def alpha_97(self, data, param1=4, param2=12, param3=0.7, param4=10, param5=17,
                  param6=8, param7=18, param8=5, param9=16, param10=-1,
-                 dependencies=['lowest_price', 'vwap', 'turnover_vol', 'lowest_price'], max_window=45):
+                 dependencies=['lowest_price', 'vwap', 'turnover_vol', 'lowest_price','indu'], max_window=45):
         # -(rank(decay_linear(delta(indneutralize(((LOW * 0.721001) + (VWAP * (1 - 0.721001))), indclass), 3.3705), 20.4523)) -
             # ts_rank(decay_linear(ts_rank(correlation(ts_rank(LOW, 7.87871), ts_rank(ADV60, 17.255), 4.97547), 18.5925), 15.7152), 6.71659))
     

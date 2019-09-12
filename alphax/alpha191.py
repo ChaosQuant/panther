@@ -308,7 +308,7 @@ class Alpha191(object):
     def alpha_20(self, data, param1=6, dependencies=['close_price'], max_window=7):
         # 近6日涨幅
         return (data['close_price'].pct_change(periods=param1) * 100.0).iloc[-1]
-    
+    ''' 
     # REGBETA(MEAN(CLOSE,6),SEQUENCE(6))
     def alpha_21(self, data, param1=6, param2=6, dependencies=['close_price'], max_window=12):
         ma_price = data['close_price'].rolling(window=param1, min_periods=param1).mean()
@@ -317,7 +317,7 @@ class Alpha191(object):
         a = np.vstack([np.array([i for i in range(1, win+1)]), np.ones(win)]).T
         alpha = ma_price.iloc[-param2:].apply(lambda x: np.linalg.lstsq(a, x.values.T)[0][0])
         return alpha
-    
+    '''
     # SMEAN((CLOSE/MEAN(CLOSE,6)-1-DELAY(CLOSE/MEAN(CLOSE,6)-1,3)),12,1)
     def alpha_22(self, data, param1=6, param2=3, param3=12, 
                  dependencies=['close_price'], max_window=21):
@@ -1275,6 +1275,7 @@ class Alpha191(object):
         return part1.iloc[-1] ** part2.iloc[-1]
 
     #@numba.jit
+    '''
     def alpha_116(self, data, param1=20, dependencies=['close_price'], max_window=20):
         # REGBETA(CLOSE,SEQUENCE,20)
         seq = np.array([i for i in range(1, param1+1)])
@@ -1284,6 +1285,7 @@ class Alpha191(object):
         a = np.vstack([seq, np.ones(win)]).T
         alpha = close.apply(lambda x: np.linalg.lstsq(a, x.iloc[-win:].values.T)[0][0])
         return alpha
+     '''
 
 
     def alpha_117(self, data, param1= 32, param2=16, param3=32, 
@@ -1609,7 +1611,7 @@ class Alpha191(object):
         part2 = (sma ** param2).ewm(adjust=False, alpha=float(1) / param4, min_periods=0, ignore_na=False).mean()
         return (part1 / part2).iloc[-1]
 
-
+    '''
     def alpha_147(self, data, param1=12, param2=12, dependencies=['close_price'], max_window=24):
         # REGBETA(MEAN(CLOSE,12),SEQUENCE(12))
         ma_price = data['close_price'].rolling(window=param1, min_periods=param1).mean()
@@ -1617,6 +1619,7 @@ class Alpha191(object):
         a = np.vstack([np.array([i for i in range(1, param2+1)]), np.ones(win)]).T
         alpha = ma_price.iloc[-param2:].apply(lambda x: np.linalg.lstsq(a, x.values.T)[0][0])
         return alpha
+    '''
 
 
     def alpha_148(self, data, param1=60, param2=6, param3=14, param4=-1, param5=9,
@@ -1628,7 +1631,7 @@ class Alpha191(object):
         part2 = (data['open_price'] - data['open_price'].rolling(window=param3, min_periods=param3).min()).rank(axis=1, pct=True)
         return (part2 - part1).iloc[-1] * (param4)
 
-
+    '''
     def alpha_149(self, data, param1=1, param2=252, dependencies=['close_price'], max_window=253):
         # REGBETA(FILTER(RET,BANCHMARK_INDEX_CLOSE<DELAY(BANCHMARK_INDEX_CLOSE,1)),
         # FILTER(BANCHMARK_INDEX_CLOSE/DELAY(BANCHMARK_INDEX_CLOSE,1)-1,BANCHMARK_INDEX_CLOSE<DELAY(BANCHMARK_INDEX_CLOSE,1)),252)
@@ -1639,6 +1642,7 @@ class Alpha191(object):
         a = np.vstack([part2.values, np.ones(win)]).T
         alpha = part1.apply(lambda x: np.linalg.lstsq(a, x.values.T)[0][0])
         return alpha
+    '''
 
 
     def alpha_150(self, data, param1=3, dependencies=['close_price', 'highest_price', 
