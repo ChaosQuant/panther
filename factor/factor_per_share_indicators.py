@@ -37,7 +37,7 @@ class PerShareIndicators(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` varchar(32) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `EPS` decimal(19,4),
@@ -60,7 +60,8 @@ class PerShareIndicators(FactorBase):
                     `CFPSTTM` decimal(19,4),
                     `EnterpriseFCFPS` decimal(19,4),
                     `ShareholderFCFPS` decimal(19,4),
-                    PRIMARY KEY(`id`,`trade_date`,`security_code`)
+                    constraint {0} uindex
+                    unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(PerShareIndicators, self)._create_tables(create_sql, drop_sql)
 
@@ -259,6 +260,27 @@ class PerShareIndicators(FactorBase):
         return factor_share_indicators
 
     @staticmethod
+    def undivided_pro_fit_ps(tp_share_indicators, factor_share_indicators, dependencies=['retained_profit', 'capitalization']):
+        """
+        每股未分配利润
+        :param dependencies:
+        :param tp_share_indicators:
+        :param factor_share_indicators:
+        :return:
+        """
+
+        share_indicators = tp_share_indicators.loc[:, dependencies]
+        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+        share_indicators['UndividedProfitPS'] = share_indicators[dependencies].apply(fun, axis=1)
+
+        # share_indicators = share_indicators.drop(columns=['retained_profit'], axis=1)
+        # share_indicators = share_indicators[['security_code', 'UndividedProfitPS']]
+        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        factor_share_indicators['UndividedProfitPS'] = share_indicators['UndividedProfitPS']
+
+        return factor_share_indicators
+
+    @staticmethod
     def retained_earnings_ps(tp_share_indicators, factor_share_indicators, dependencies=['SurplusReservePS', 'UndividedProfitPS']):
         """
         每股留存收益
@@ -296,27 +318,6 @@ class PerShareIndicators(FactorBase):
         # share_indicators = share_indicators[['security_code', 'TotalRevPS']]
         # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
         factor_share_indicators['TotalRevPS'] = share_indicators['TotalRevPS']
-        return factor_share_indicators
-
-    @staticmethod
-    def undivided_pro_fit_ps(tp_share_indicators, factor_share_indicators, dependencies=['retained_profit', 'capitalization']):
-        """
-        每股未分配利润
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
-        """
-
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['UndividedProfitPS'] = share_indicators[dependencies].apply(fun, axis=1)
-
-        # share_indicators = share_indicators.drop(columns=['retained_profit'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'UndividedProfitPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['UndividedProfitPS'] = share_indicators['UndividedProfitPS']
-
         return factor_share_indicators
 
     @staticmethod
@@ -488,17 +489,17 @@ def calculate(trade_date, valuation_sets):
     factor_share_indicators = per_share.eps_ttm(valuation_sets, factor_share_indicators)
     factor_share_indicators = per_share.net_asset_ps(valuation_sets, factor_share_indicators)
     factor_share_indicators = per_share.tor_ps(valuation_sets, factor_share_indicators)
-    factor_share_indicators = per_share.tor_ps_latest(factor_share_indicators, factor_share_indicators)   # memorydrror
-    factor_share_indicators = per_share.operating_revenue_ps(factor_share_indicators, factor_share_indicators)   # memoryerror
+    factor_share_indicators = per_share.tor_ps_latest(valuation_sets, factor_share_indicators)   # memorydrror
+    factor_share_indicators = per_share.operating_revenue_ps(valuation_sets, factor_share_indicators)   # memoryerror
     factor_share_indicators = per_share.operating_revenue_ps_latest(valuation_sets, factor_share_indicators)
     factor_share_indicators = per_share.operating_profit_ps(valuation_sets, factor_share_indicators)
     factor_share_indicators = per_share.operating_profit_ps_latest(valuation_sets, factor_share_indicators)
-    factor_share_indicators = per_share.capital_surplus_fund_ps(factor_share_indicators, factor_share_indicators) # memoryerror
-    factor_share_indicators = per_share.surplus_reserve_fund_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
-    factor_share_indicators = per_share.undivided_pro_fit_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
+    factor_share_indicators = per_share.capital_surplus_fund_ps(valuation_sets, factor_share_indicators) # memoryerror
+    factor_share_indicators = per_share.surplus_reserve_fund_ps(valuation_sets, factor_share_indicators)  # memorydrror
+    factor_share_indicators = per_share.undivided_pro_fit_ps(valuation_sets, factor_share_indicators)  # memorydrror
     factor_share_indicators = per_share.retained_earnings_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
-    factor_share_indicators = per_share.oper_cash_flow_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
-    factor_share_indicators = per_share.cash_flow_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
+    factor_share_indicators = per_share.oper_cash_flow_ps(valuation_sets, factor_share_indicators)  # memorydrror
+    factor_share_indicators = per_share.cash_flow_ps(valuation_sets, factor_share_indicators)  # memorydrror
 
     # factor_share_indicators = factor_share_indicators[['security_code',
     #                                                    'EPS',
@@ -522,28 +523,30 @@ def calculate(trade_date, valuation_sets):
     #                                                    'EnterpriseFCFPS',
     #                                                    'ShareholderFCFPS']]
 
-    factor_share_indicators = factor_share_indicators[['security_code',
-                                                       'EPS',
-                                                       'DilutedEPSTTM',
-                                                       'CashEquPS',
-                                                       'DivPS',
-                                                       'EPSTTM',
-                                                       'NetAssetPS',
-                                                       'TotalRevPS',
-                                                       'TotalRevPSTTM',
-                                                       'OptRevPSTTM',
-                                                       'OptRevPS',
-                                                       'OptProfitPSTTM',
-                                                       'OptProfitPS',
-                                                       'CapticalSurplusPS',
-                                                       'SurplusReservePS',
-                                                       'UndividedProfitPS',
-                                                       'RetainedEarningsPS',
-                                                       'OptCFPSTTM',
-                                                       'CFPSTTM']]
+    # factor_share_indicators = factor_share_indicators[['security_code',
+    #                                                    'EPS',
+    #                                                    'DilutedEPSTTM',
+    #                                                    'CashEquPS',
+    #                                                    'DivPS',
+    #                                                    'EPSTTM',
+    #                                                    'NetAssetPS',
+    #                                                    'TotalRevPS',
+    #                                                    'TotalRevPSTTM',
+    #                                                    'OptRevPSTTM',
+    #                                                    'OptRevPS',
+    #                                                    'OptProfitPSTTM',
+    #                                                    'OptProfitPS',
+    #                                                    'CapticalSurplusPS',
+    #                                                    'SurplusReservePS',
+    #                                                    'UndividedProfitPS',
+    #                                                    'RetainedEarningsPS',
+    #                                                    'OptCFPSTTM',
+    #                                                    'CFPSTTM']]
+    factor_share_indicators = factor_share_indicators.reset_index()
 
     factor_share_indicators['id'] = factor_share_indicators['security_code'] + str(trade_date)
     factor_share_indicators['trade_date'] = str(trade_date)
+    print(factor_share_indicators)
     # per_share._storage_data(factor_share_indicators, trade_date)
 
 

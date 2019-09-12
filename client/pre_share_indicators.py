@@ -25,6 +25,8 @@ from client.dbmodel.model import BalanceMRQ, BalanceTTM, BalanceReport
 from client.dbmodel.model import CashFlowMRQ, CashFlowTTM, CashFlowReport
 from client.dbmodel.model import IndicatorReport, IndicatorMRQ, IndicatorTTM
 from client.dbmodel.model import IncomeMRQ, IncomeReport, IncomeTTM
+from vision.vision.db.signletion_engine import *
+from vision.vision.table.valuation import Valuation
 
 from client.utillities.sync_util import SyncUtil
 from ultron.cluster.invoke.cache_data import cache_data
@@ -83,6 +85,8 @@ def get_basic_data(trade_date):
                'FCFF': 'enterprise_fcfps',   # 企业自由现金流量
                'EPSBASIC': 'basic_eps',  # 基本每股收益
                'DPS': 'dividend_receivable',  # 每股股利（税前）  每股普通股股利
+
+               'capitalization':'capitalization', # 总股本
                }
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
     # Report data
@@ -110,9 +114,15 @@ def get_basic_data(trade_date):
 
     balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                    [BalanceReport.PARESHARRIGH,  # 归属于母公司的所有者权益
+                                                                    BalanceReport.CAPISURP,
+                                                                    BalanceReport.RESE,
+                                                                    BalanceReport.UNDIPROF,
                                                                     ],
                                                                    dates=[trade_date]).drop(columns, axis=1)
     balance_sets = balance_sets.rename(columns={'PARESHARRIGH': 'total_owner_equities',  # 归属于母公司的所有者权益
+                                                'CAPISURP': 'capital_reserve_fund',  # 资本公积
+                                                'RESE': 'surplus_reserve_fund',  # 盈余公积
+                                                'UNDIPROF': 'retained_profit',  # 未分配利润
                                                 })
 
     indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
@@ -153,11 +163,17 @@ def get_basic_data(trade_date):
                                                       'BIZTOTINCO': 'total_operating_revenue_ttm',  # 营业总收入
                                                       })
 
+    column = ['trade_date']
+    valuation_data = get_fundamentals(query(Valuation.security_code,
+                                            Valuation.trade_date,
+                                            Valuation.capitalization,).filter(Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
+
     valuation_sets = pd.merge(cash_flow_sets, income_sets, on='security_code').reindex()
     valuation_sets = pd.merge(balance_sets, valuation_sets, on='security_code').reindex()
     valuation_sets = pd.merge(indicator_sets, valuation_sets, on='security_code').reindex()
     valuation_sets = pd.merge(cash_flow_ttm_sets, valuation_sets, on='security_code').reindex()
     valuation_sets = pd.merge(income_ttm_sets, valuation_sets, on='security_code').reindex()
+    valuation_sets = pd.merge(valuation_data, valuation_sets, on='security_code').reindex()
 
     return valuation_sets
 
