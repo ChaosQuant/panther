@@ -316,6 +316,7 @@ def calculate(trade_date, ttm_operation_capacity):  # 计算对应因子
     factor_management = factor_management.reset_index()
     factor_management['id'] = factor_management['security_code'] + str(trade_date)
     factor_management['trade_date'] = str(trade_date)
+    print(factor_management)
     # capacity._storage_data(factor_management, trade_date)
 
 
