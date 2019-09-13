@@ -1,101 +1,137 @@
 # -*- coding: utf-8 -*-
-
-
+import six,pdb
+import numpy as np
+import pandas as pd
+from utilities.singleton import Singleton
+import talib
 @six.add_metaclass(Singleton)
 class Sentiment(object):
     def __init__(self):
         __str__ = 'sentiment'
+        self.name = '情绪指标'
+        self.factor_type1 = '技术指标因子'
+        self.factor_type2 = '情绪指标'
+        self.desciption = '反应市场对标的的买卖情绪'
         
-    
-    def _dm(self, data, param1, dependencies=['lowest_price','highest_price']):
-        prev_lowest = data['lowest_price'].shift(param1)
-        prev_highest = data['highest_price'].shift(param1)
+    def _dm(self, data, dependencies=['lowest_price','highest_price']):
+        prev_lowest = data['lowest_price'].shift(1)
+        prev_highest = data['highest_price'].shift(1)
         condition1 = data['highest_price'] +  data['lowest_price']
         condition2 = prev_lowest + prev_highest
         condition3 =  condition1 - condition2
-        dmz = np.maximum(abs(data['highest_price'] - prev_highest),abs(data['lowest_price'] - prev_lowest))\
-            if condition3 > 0 else 0
+        result1 = np.maximum(abs(data['highest_price'].T - prev_highest.T),abs(data['lowest_price'].T - prev_lowest.T))
+        dmz = result1[condition3.T > 0].fillna(0)
         
-        dmf = np.maximum(abs(data['highest_price'] - prev_highest),abs(data['lowest_price'] - prev_lowest))\
-            if condition3 < 0 else 0
+        dmf = result1[condition3.T < 0].fillna(0)
         return dmz, dmf
         
-    def diz(self, data, param1, dependencies=['lowest_price','highest_price']):
-        dmz,dmf = self._dm(data, param1)
-        diz = dmz.rolling(window=param1, min_periods=param1).sum() / (
-                dmz.rolling(window=param1, min_periods=param1).sum() + dmf.rolling(window=param1, min_periods=param1).sum())
-        return diz
-    
-    
-    def dif(self, data, param1, dependencies=['lowest_price','highest_price']):
-        dmz,dmf = self._dm(data, param1)
-        diz = dmf.rolling(window=param1, min_periods=param1).sum() / (
-                dmz.rolling(window=param1, min_periods=param1).sum() + dmf.rolling(window=param1, min_periods=param1).sum())
+    def DIZ13D(self, data, dependencies=['lowest_price','highest_price'], max_window=13):
+        '''
+         This is alpha191_1
+         :name: DDI 因子的中间变量
+         :desc: DDI 因子的中间变量
+        '''
+        dmz,dmf = self._dm(data)
+        dif = dmz.T.sum() / (dmz.T.sum() + dmf.T.sum())
         return dif
+    
+    
+    def DIF13D(self, data, dependencies=['lowest_price','highest_price'], max_window=13):
+        '''
+         This is alpha191_1
+         :name: DDI 因子的中间变量
+         :desc: DDI 因子的中间变量
+        '''
+        dmz,dmf = self._dm(data)
+        diz = dmf.T.sum() / (dmz.T.sum() + dmf.T.sum())
+        return diz
         
-    def ddi(self, data, param1, dependencies=['lowest_price','highest_price']):
-        return self.diz(data, param1) - self.dif(data, param1)
+    def DDI13D(self, data, dependencies=['lowest_price','highest_price'], max_window=14):
+        '''
+         This is alpha191_1
+         :name: 方向标准离差指数
+         :desc: 方向标准离差指数 (Directional Divergence Index)。观察一段时间内股价相对于前一天向上波动和向下波动的比例，并对其进行移动平均分析。DDI 指标倾向于显示一种长波段趋势的方向改变。
+        '''
+        return self.DIZ13D(data) - self.DIF13D(data)
     
-    def bear_pw(self, data, param1, dependencies=['lowest_price','close_price']):
-        return data['lowest_price'] - data['close_price'].rolling_mean(param1) 
     
-    def bull_pw(self, data, param1, dependencies=['highest_price','close_price']):
-        return data['highest_price'] - data['close_price'].rolling_mean(param1)
+    def BearPw13D(self, data, dependencies=['lowest_price','close_price'], max_window=13):
+        '''
+         This is alpha191_1
+         :name: 空头力道
+         :desc: 空头力道(Mediator in calculating Elder, Bear power indicator)，是计算 Elder 因子的中间变量
+        '''
+        close_price = data['close_price'].fillna(0).T
+        def _ema(data):
+            return talib.EMA(data, 13)
+        ema_result = close_price.apply(_ema, axis=1)
+        return (data['lowest_price'] - close_price.apply(_ema, axis=1).T).iloc[-1] 
     
-    def elder(self, data, param1, dependencies=['highest_price','lowest_price', 'close_price']):
-        return (self.bear_pw(data, param1) - self.bull_pw(data, param1)) / data['close_price']
+    def BullPw13D(self, data, dependencies=['highest_price','close_price'], max_window=13):
+        '''
+         This is alpha191_1
+         :name: 多头力道
+         :desc: 多头力道 (Mediator in calculating Elder, Bull power indicator)，是计算 Elder 因子的中间变量。
+        '''
+        close_price = data['close_price'].fillna(0).T
+        def _ema(data):
+            return talib.EMA(data, 13)
+        ema_result = close_price.apply(_ema, axis=1)
+        return (data['highest_price'] - close_price.apply(_ema, axis=1).T).iloc[-1]
     
-    def ar(self, data, param1, dependencies=['highest_price','lowest_price', 'open_price']):
+    def Elder13D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=13):
+        '''
+         This is alpha191_1
+         :name: 艾达透视指标
+         :desc: 艾达透视指标（Elder-ray Index）。交易者可以经由该指标，观察市场表面之下的多头与空头力道。
+        '''
+        return (self.BearPw13D(data) - self.BullPw13D(data)) / data['close_price'].iloc[-1]
+    
+    def AR26D(self, data, dependencies=['highest_price','lowest_price', 'open_price'], max_window=26):
+        '''
+         This is alpha191_1
+         :name: 人气指标
+         :desc: 人气指标 (price movement indicator, compare buying power with selling power to open price)。是以当天开市 价为基础，即以当天市价分别比较当天最高，最低价，通过一定时期内开市价在股价中的地位，反映市场买卖人气
+        '''
         condition1 = data['highest_price'] - data['open_price']
         condition2 = data['open_price'] - data['lowest_price']
-        return condition1.rolling(window=param1, min_periods=param1).sum() /\ 
-                condition2.rolling(window=param1, min_periods=param1).sum()
+        return condition1.sum() / condition2.sum()
     
-    def br(self, data, param1, dependencies=['highest_price','lowest_price', 'close_price']):
+    def BR26D(self, data, dependencies=['highest_price','lowest_price', 'open_price','close_price'], max_window=26):
+        '''
+         This is alpha191_1
+         :name: 意愿指标
+         :desc: 意愿指标 (price movement indicator, compare buying power with selling power to last day close price)。是以 昨日收市价为基础，分别与当日最高，最低价相比，通过一定时期收市收在股价中的地位，反映市场买卖意愿的程度。
+        '''
         condition1 = data['highest_price'] - data['close_price'].shift(1)
         condition2 = data['close_price'] - data['lowest_price'].shift(1)
         condition3 = np.maximum(condition1, 0)
         condition4 = np.maximum(condition2, 0)
-        return condition3.rolling(window=param1, min_periods=param1).sum() /\ 
-                condition4.rolling(window=param1, min_periods=param1).sum()
+        return condition3.sum() / condition4.sum()
     
-    def arbr(self, data, param1, dependencies=['highest_price','lowest_price', 
-                                               'close_price','open_price']):
-        return self.ar(data, param1) - self.br(data, param1)
+    def ARBR26D(self, data, dependencies=['highest_price','lowest_price', 
+                                               'close_price','open_price'], max_window=26):
+        '''
+         This is alpha191_1
+         :name: 人气-意愿指标
+         :desc:人气指标(AR)和意愿指标(BR)都是以分析历史股价为手段的技术指标 (Difference between AR and BR)。人气 指标是以当天开市价为基础，即以当天市价分别比较当天最高，最低价，通过一定时期内开市价在股价中的地位，反映市场买卖人 气;意愿指标是以昨日收市价为基础，分别与当日最高，最低价相比，通过一定时期收市收在股价中的地位，反映市场买卖意愿的程度。
+        '''
+        return self.AR26D(data) - self.BR26D(data)
     
-    def _sm(self, data, param1, dependencies=['highest_price','lowest_price', 
-                                               'open_price']):
-        prev_open = data['open_price'].shift(param1)
-        condition1 = data['open_price'] > prev_open
-        condition2 = np.maximum(data['highest_price'] - data['open_price'],
-                               data['open_price'] - prev_open)
-        condition3 = np.maximum(data['open_price'] - data['lowest_price'],
-                               data['open_price'] - prev_open)
-        dtm = np.where(condition1, condition2, 0)
-        dbm = np.where(condition1, condition3, 0)
-        return dtm, dbm
-        
-    def stm(self, data, param1, dependencies=['highest_price','lowest_price', 
-                                               'open_price']):
-        dtm,dbm = _sm(data, param1)
-        return dtm.rolling(window=param1, min_periods=param1).sum()
+    def ADTM(self, data, dependencies=['highest_price','lowest_price','open_price'], max_window=20):
+        '''
+         This is alpha191_1
+         :name: 动态买卖气指标 
+         :desc:动态买卖气指标 (Moving dynamic indicator)，用开盘价的向上波动幅度和向下波动幅度的距离差值来描述人气高低 的指标
+        '''
+        prev_open = data['open_price'].shift(1)
+        expression1 = np.maximum(data['highest_price'] - data['open_price'], 
+                                data['open_price'] - prev_open)
+        expression2 = np.maximum(data['open_price'] - data['lowest_price'], 
+                                data['open_price'] - prev_open)
+        DTM = expression1[data['open_price'] > prev_open].fillna(0)
+        DBM = expression2[data['open_price'] < prev_open].fillna(0)
+        STM = DTM.sum()
+        SBM = DBM.sum()
+        return (STM - SBM) / np.maximum(STM, SBM)
     
-    def sbm(self, data, param1, dependencies=['highest_price','lowest_price', 
-                                               'open_price']):
-        dtm,dbm = _sm(data, param1)
-        return dbm.rolling(window=param1, min_periods=param1).sum()
-    
-    def adtm(self, data, param1, dependencies=['highest_price','lowest_price', 
-                                               'open_price']):
-        stm = self.stm(data, param1)
-        sbm = self.sbm(data, param1)
-        return (stm - sbm) / np.maximum(stm,sbm)
-        
-    def atr(self, data, param1, dependencies=['highest_price','lowest_price', 
-                                               'close_price']):
-        prev_close = data['close_price'].shift(param1)
-        condition1 = np.abs(data['highest_price'] - prev_close) 
-        condition1 = np.abs(data['lowest_price'] - prev_close)
-        tr = np.maximum(np.maximum(data['highest_price'] - data['lowest_price'], condition1),
-                        condition2)
-        
