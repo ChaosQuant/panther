@@ -11,7 +11,11 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'technical.volume','class':'Volume'}]):
+    def __init__(self, name, url, methods=[{'packet':'technical.sentiment','class':'Sentiment'},
+                                          {'packet':'technical.momentum','class':'Momentum'},
+                                          {'packet':'technical.price_volume','class':'PriceVolume'},
+                                          {'packet':'technical.reversal','class':'Reversal'},
+                                          {'packet':'technical.volume','class':'Volume'}]):
         self._name= name
         self._methods = methods
         self._url = url
@@ -155,10 +159,10 @@ class CalcEngine(object):
     def local_run(self, trade_date):
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
-        
-        result = self.calc_factor('technical.volume','Volume',mkt_df,trade_date)
         storage_engine = StorageEngine(self._url)
-        storage_engine.update_destdb('momentum', trade_date, result)
+        for method in self._methods:
+            result = self.process_calc_factor(method['packet'],method['class'],mkt_df,trade_date)
+            storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
         
         
     def remote_run(self, trade_date):

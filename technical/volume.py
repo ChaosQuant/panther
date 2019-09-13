@@ -205,7 +205,7 @@ class Volume(object):
     def _DifVOLXD(self, data, param1, dependencies=['close_price']):
         return data['close_price'].iloc[-param1:].mean() - data['close_price'].mean()
     
-    def DifVOL5D(self, data, dependencies=['close_price']self, data, dependencies=['close_price'], max_window=120):
+    def DifVOL5D(self, data, dependencies=['close_price'], max_window=120):
         '''
         This is alpha191_1
         :name: 相对 5 日相对 120 日平均换手率
@@ -213,7 +213,7 @@ class Volume(object):
         '''
         return self._DifVOLXD(data, 5)
     
-    def DifVOL10D(self, data, dependencies=['close_price']self, data, dependencies=['close_price'], max_window=120):
+    def DifVOL10D(self, data, dependencies=['close_price'], max_window=120):
         '''
         This is alpha191_1
         :name: 相对 10 日相对 120 日平均换手率
@@ -221,7 +221,7 @@ class Volume(object):
         '''
         return self._DifVOLXD(data, 10)
     
-    def DifVOL20D(self, data, dependencies=['close_price']self, data, dependencies=['close_price'], max_window=120):
+    def DifVOL20D(self, data, dependencies=['close_price'], max_window=120):
         '''
         This is alpha191_1
         :name: 相对 20 日相对 120 日平均换手率
