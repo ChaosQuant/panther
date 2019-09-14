@@ -11,11 +11,12 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'technical.sentiment','class':'Sentiment'},
-                                          {'packet':'technical.momentum','class':'Momentum'},
-                                          {'packet':'technical.price_volume','class':'PriceVolume'},
-                                          {'packet':'technical.reversal','class':'Reversal'},
-                                          {'packet':'technical.volume','class':'Volume'}]):
+    def __init__(self, name, url, methods=[{'packet':'technical.price_volume','class':'PriceVolume'},
+                                           {'packet':'technical.power_volume','class':'PowerVolume'},
+                                           {'packet':'technical.sentiment','class':'Sentiment'},
+                                           {'packet':'technical.reversal','class':'Reversal'},
+                                           {'packet':'technical.momentum','class':'Momentum'}
+                                          ]):
         self._name= name
         self._methods = methods
         self._url = url
@@ -120,7 +121,7 @@ class CalcEngine(object):
         with multiprocessing.Pool(processes=cpus*2) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
-        result = pd.concat(res,axis=1).reset_index().rename(columns={'code':'symbol'})
+        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'symbol','code':'symbol'})
         result = result.replace([np.inf, -np.inf], np.nan)
         result['trade_date'] = trade_date
         return result
@@ -163,6 +164,7 @@ class CalcEngine(object):
         for method in self._methods:
             result = self.process_calc_factor(method['packet'],method['class'],mkt_df,trade_date)
             storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
+            print('----')
         
         
     def remote_run(self, trade_date):

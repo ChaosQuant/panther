@@ -90,3 +90,64 @@ class Reversal(object):
             return talib.RSI(data, timeperiod=param1)[-1]
         close_price['rsi'] = close_price.apply(_rsi,axis=1)
         return close_price['rsi']
+    
+    def KDJK9D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=16):
+        '''
+        This is alpha191_1
+        :name: 随机指标
+        :desc: 随机指标 (K Stochastic Oscillator)。它综合了动量观念、强弱指标及移动平均线的优点，用来度量股价脱离价格正常范围的变异程度
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
+            hp,on=['code','trade_date']).sort_values(by=['trade_date','code'],ascending=True)
+        
+        def _kdj(data):
+            k, d = talib.STOCH(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price,
+                               fastk_period=9,
+                               slowk_period=3,
+                               slowd_period=3)
+            return k.iloc[-1]
+        return data_sets.groupby('code').apply(_kdj)
+    
+    def _MFIXD(self, data, dependencies=['highest_price','lowest_price', 'close_price','turnover_vol']):
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        turnover_vol = data['turnover_vol']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        vol = turnover_vol.stack().reset_index().rename(columns={0:'turnover_vol'})
+        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
+            hp,on=['code','trade_date']).merge(vol,on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        def _mfi(data):
+            result = talib.MFI(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price,data.turnover_vol,
+                               timeperiod=14)
+            return result.iloc[-1]
+        return data_sets.groupby('code').apply(_mfi)
+        
+    def MFI14D(self, data, dependencies=['highest_price','lowest_price', 'close_price','turnover_vol'], max_window=15):
+        '''
+        This is alpha191_1
+        :name: 14日资金流量指标
+        :desc: 14日资金流量指标（Money Flow Index），该指标是通过反映股价变动的四个元素：上涨的天数、下跌的天数、成交量增加幅度、成交量减少幅度来研判量能的趋势，预测市场供求关系和买卖力道。
+        '''
+        return self._MFIXD(data)
+    
+    def MFI21D(self, data, dependencies=['highest_price','lowest_price', 'close_price','turnover_vol'], max_window=22):
+        '''
+        This is alpha191_1
+        :name: 21日资金流量指标
+        :desc: 21日资金流量指标（Money Flow Index），该指标是通过反映股价变动的四个元素：上涨的天数、下跌的天数、成交量增加幅度、成交量减少幅度来研判量能的趋势，预测市场供求关系和买卖力道。
+        '''
+        return self._MFIXD(data)

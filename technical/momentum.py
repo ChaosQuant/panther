@@ -261,7 +261,7 @@ class Momentum(object):
         '''
         return self._ChgToXMAvg(data)
 
-    def DEA(self, data, dependencies=['close_price'], max_window=27):
+    def DEA(self, data, dependencies=['close_price'], max_window=34):
         '''
          This is alpha191_1
          :name: DEA9D
@@ -306,7 +306,7 @@ class Momentum(object):
         return self._EMVXD(data, 6)
     
     
-    def MACD12D26D(self, data, dependencies=['close_price'], max_window=27):
+    def MACD12D26D(self, data, dependencies=['close_price'], max_window=34):
         '''
          This is alpha191_1
          :name: 平滑异同移动平均线
@@ -463,3 +463,189 @@ class Momentum(object):
          :desc: 5 日三重指数移动平均线（5-day Triple Exponential Moving Average）。取时间 N 内的收盘价分别计算其一至三重指数加权平均
         '''
         return self._TEMAXD(data, 5)
+    
+    def _CCIXD(self, data, param1, dependencies=['highest_price','lowest_price', 'close_price']):
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
+            hp,on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        def _cci(data):
+            result = talib.CCI(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod=param1)
+            return result[-1]
+        return data_sets.groupby('code').apply(_cci)
+    
+    def CCI10D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=11):
+        '''
+        This is alpha191_1
+        :name: 10 日顺势指标
+        :desc: 10 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 10)
+    
+    
+    def CCI20D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=21):
+        '''
+        This is alpha191_1
+        :name: 20 日顺势指标
+        :desc: 20 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 20)
+    
+    def CCI5D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=6):
+        '''
+        This is alpha191_1
+        :name: 5 日顺势指标
+        :desc: 5 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 5)
+    
+    def CCI5D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=89):
+        '''
+        This is alpha191_1
+        :name: 88 日顺势指标
+        :desc: 88 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 88)
+    
+    def ADX14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=29):
+        '''
+         This is alpha191_1
+         :name: 平均动向指数
+         :desc: 平均动向指数 (Average directional index)，DMI 因子的构成部分。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
+            hp,on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        def _adx(data):
+            result = talib.ADX(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod=14)
+            return result[-1]
+        return data_sets.groupby('code').apply(_adx)
+    
+    
+    def ADXR14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=41):
+        '''
+         This is alpha191_1
+         :name: 相对平均动向指数
+         :desc: 相对平均动向指数 (Relative average directional index)，DMI 因子的构成
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
+            hp,on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        def _adxr(data):
+            result = talib.ADXR(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod=14)
+            return result[-1]
+        return data_sets.groupby('code').apply(_adxr)
+    
+    def UOS7D14D28D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=29):
+        '''
+         This is alpha191_1
+         :name: 终极指标
+         :desc: 终极指标（Ultimate Oscillator）。现行使用的各种振荡指标，对于周期参数的选择相当敏感。不同市况、不同参数设定的振荡指标，产生的结果截然不同。因此，选择最佳的参数组合，成为使用振荡指标之前最重要的一道手续。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
+            hp,on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        def _ultosc(data):
+            result = talib.ULTOSC(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod1=7, timeperiod2=14, timeperiod3=28)
+            return result[-1]
+        return data_sets.groupby('code').apply(_ultosc)
+    
+    def ChkOsci3D10D(self, data, dependencies=['highest_price','lowest_price', 'close_price',
+                                              'turnover_vol'],max_window=11):
+        '''
+         This is alpha191_1
+         :name: 佳庆指标
+         :desc: 佳庆指标(Chaikin Oscillator)。该指标基于 AD 曲线的指数移动均线而计算得到。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        turnover_vol = data['turnover_vol']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        vol = turnover_vol.stack().reset_index().rename(columns={0:'turnover_vol'})
+        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
+            hp,on=['code','trade_date']).merge(vol, on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        
+        def _3adema(data):
+            ad = talib.AD(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price,
+                                 data.turnover_vol)
+            result = talib.EMA(np.nan_to_num(ad),3)
+            return result[-1]
+        
+        def _10adema(data):
+            ad = talib.AD(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price,
+                                 data.turnover_vol)
+            result = talib.EMA(np.nan_to_num(ad),10)
+            return result[-1]
+        return data_sets.groupby('code').apply(_3adema) - data_sets.groupby('code').apply(_10adema)
+    
+    
+    def ChkVol10D(self, data, dependencies=['highest_price','lowest_price'],max_window=21):
+        '''
+         This is alpha191_1
+         :name: 佳庆离散指标
+         :desc: 佳庆离散指标(Chaikin Volatility，简称 CVLT，VCI，CV)，又称“佳庆变异率指数”，是通过测量一段时间内价格 幅度平均值的变化来反映价格的离散程度。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(hp,on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        
+        prev_highest_price = data['highest_price'].shift(10)
+        prev_lowest_price = data['lowest_price'].shift(10)
+        prev_hp = prev_highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        prev_lp = prev_lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        prev_data_sets = prev_lp.merge(prev_hp,on=['code','trade_date']).sort_values(
+            by=['trade_date','code'],ascending=True)
+        
+        def _10hlema(data):
+            result = talib.EMA(data.highest_price.values - data.lowest_price.values, 10)
+            return result[-1]
+        
+        hlema  = data_sets.groupby('code').apply(_10hlema)
+        prev_hlema  = prev_data_sets.groupby('code').apply(_10hlema)
+        return 100 * (hlema - prev_hlema) / prev_hlema
