@@ -11,11 +11,12 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'technical.price_volume','class':'PriceVolume'},
-                                           {'packet':'technical.power_volume','class':'PowerVolume'},
-                                           {'packet':'technical.sentiment','class':'Sentiment'},
-                                           {'packet':'technical.reversal','class':'Reversal'},
-                                           {'packet':'technical.momentum','class':'Momentum'}
+    def __init__(self, name, url, methods=[#{'packet':'technical.price_volume','class':'PriceVolume'},
+                                           #{'packet':'technical.power_volume','class':'PowerVolume'},
+                                           #{'packet':'technical.sentiment','class':'Sentiment'},
+                                           #{'packet':'technical.reversal','class':'Reversal'},
+                                           #{'packet':'technical.momentum','class':'Momentum'}
+                                            {'packet':'technical.trend','class':'Trend'}
                                           ]):
         self._name= name
         self._methods = methods
@@ -82,6 +83,7 @@ class CalcEngine(object):
     
     
     def loadon_data(self, trade_date):
+        pdb.set_trace()
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
         begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
@@ -162,7 +164,7 @@ class CalcEngine(object):
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
         storage_engine = StorageEngine(self._url)
         for method in self._methods:
-            result = self.process_calc_factor(method['packet'],method['class'],mkt_df,trade_date)
+            result = self.calc_factor(method['packet'],method['class'],mkt_df,trade_date)
             storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
             print('----')
         

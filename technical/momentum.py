@@ -649,3 +649,53 @@ class Momentum(object):
         hlema  = data_sets.groupby('code').apply(_10hlema)
         prev_hlema  = prev_data_sets.groupby('code').apply(_10hlema)
         return 100 * (hlema - prev_hlema) / prev_hlema
+    
+    def _MA10RegressCoeffX(self, data, param1, dependencies=['close_price']):
+        close_price = data['close_price'].copy().fillna(0).T
+        def _ma10(data):
+            result = talib.MA(data, 10)
+            b = result[-param1:]
+            x = np.array([i for i in range(1,param1 + 1)])
+            return np.linalg.lstsq(np.reshape(x,(-1,1)),np.reshape(b.values,(-1,1)))[0][0][-1]
+        return close_price.apply(_ma10,axis=1)
+         
+        
+    def MA10RegressCoeff12(self, data, dependencies=['close_price'], max_window=24):
+        '''
+        This is alpha191_1
+        :name: 10 日价格平均线 12 日线性回归系数
+        :desc: 10 日价格平均线 12 日线性回归系数 (regression coefficient of 10-day moving average (in predicting 12-day moving average))。
+        '''
+        return self._MA10RegressCoeffX(data, 12)
+    
+    def MA10RegressCoeff6(self, data, dependencies=['close_price'], max_window=17):
+        '''
+        This is alpha191_1
+        :name: 10 日价格平均线 6 日线性回归系数
+        :desc: 10 日价格平均线 6 日线性回归系数 (regression coefficient of 10-day moving average (in predicting 12-day moving average))。
+        '''
+        return self._MA10RegressCoeffX(data, 6)
+    
+    def _PLRCXD(self, data, param1, dependencies=['close_price']):
+        close_price = data['close_price'].copy().fillna(0).T
+        def _pl(data):
+            b = data[-param1:]
+            x = np.array([i for i in range(1,param1 + 1)])
+            return np.linalg.lstsq(np.reshape(x,(-1,1)),np.reshape(b.values,(-1,1)))[0][0][-1]
+        return close_price.apply(_pl,axis=1)
+    
+    def PLRC6D(self, data, dependencies=['close_price'], max_window=7):
+        '''
+        This is alpha191_1
+        :name: 6日价格线性回归系数
+        :desc: 价格线性回归系数(6-day Price Linear Regression Coefficient)
+        '''
+        return self._PLRCXD(data, 6)
+    
+    def PLRC12D(self, data, dependencies=['close_price'], max_window=13):
+        '''
+        This is alpha191_1
+        :name: 12日价格线性回归系数
+        :desc: 价格线性回归系数(12-day Price Linear Regression Coefficient)
+        '''
+        return self._PLRCXD(data, 12)
