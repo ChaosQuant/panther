@@ -47,6 +47,7 @@ class Valuation(FactorBase):
                     `LogofNegMktValue` decimal(19,4),
                     `NLSIZE` decimal(19,4),
                     `MrktCapToCorFreeCashFlow` decimal(19,4),
+                    `PECutTTM` decimal(19,4),
                     `PBAvgOnSW1` decimal(19, 4),
                     `PBStdOnSW1` decimal(19,4),
                     `PEToAvg6M` decimal(19,4),
@@ -72,6 +73,7 @@ class Valuation(FactorBase):
                     `PCFStdOnSW1` decimal(19,4),
                     `PEIndu` decimal(19,4),
                     `PBIndu` decimal(19,4),
+                    `PSIndu` decimal(19,4),
                     `PCFIndu` decimal(19,4),
                     `TotalMrktAVGToEBIDAOnSW1` decimal(19,4),
                     `TotalMrktSTDToEBIDAOnSW1` decimal(19,4),
@@ -238,16 +240,16 @@ class Valuation(FactorBase):
 
         return factor_historical_value
 
-    @staticmethod
-    def pe_to_pe_avg_over_6m(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_6m']):
-        historical_value = valuation_sets.loc[:, dependencies]
-        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
-
-        historical_value['PEToAvg6M'] = historical_value.apply(func, axis=1)
-        historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
-
-        return factor_historical_value
+    # @staticmethod
+    # def pe_to_pe_avg_over_6m(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_6m']):
+    #     historical_value = valuation_sets.loc[:, dependencies]
+    #     func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+    #
+    #     historical_value['PEToAvg3M'] = historical_value.apply(func, axis=1)
+    #     historical_value = historical_value.drop(columns=dependencies, axis=1)
+    #     factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+    #
+    #     return factor_historical_value
 
     @staticmethod
     def pe_to_pe_avg_over_3m(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_3m']):
@@ -897,7 +899,7 @@ class Valuation(FactorBase):
         historical_value['OptIncToEnterpriseValueTTM'] = np.where(CalcTools.is_zero(historical_value['temp']), 0,
                                                                   historical_value['operating_revenue'] /
                                                                   historical_value['temp'])
-
+        dependencies = dependencies + ['temp']
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         return factor_historical_value
