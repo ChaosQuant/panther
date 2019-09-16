@@ -116,7 +116,7 @@ def prepare_calculate_local(trade_date):
     print('operation_capacity_cal_time:{}'.format(time4 - tic))
 
 
-def prepare_calculate(trade_date):
+def prepare_calculate_remote(trade_date):
     ttm_operation_capacity = get_basic_data(trade_date)
     print('len_ttm_operation_capacity: %s' % len(ttm_operation_capacity))
     if len(ttm_operation_capacity) <= 0:

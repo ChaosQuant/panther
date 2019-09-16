@@ -152,10 +152,10 @@ class OperationCapacity(FactorBase):
         management['ARDaysTTM'] = np.where(
             CalcTools.is_zero(management.operating_revenue.values), 0,
             360 / management.operating_revenue.values * management.ar.values)
-        # dependencies.append('ar')
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['ARDaysTTM'] = management['ARDaysTTM']
+        dependencies = dependencies + ['ar']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, on="security_code")
+        # factor_management['ARDaysTTM'] = management['ARDaysTTM']
         return factor_management
 
     @staticmethod
@@ -317,7 +317,7 @@ def calculate(trade_date, ttm_operation_capacity):  # 计算对应因子
     factor_management = factor_management.reset_index()
     factor_management['id'] = factor_management['security_code'] + str(trade_date)
     factor_management['trade_date'] = str(trade_date)
-    print(factor_management)
+    print(factor_management.head())
     # capacity._storage_data(factor_management, trade_date)
 
 

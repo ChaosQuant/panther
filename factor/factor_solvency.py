@@ -345,6 +345,7 @@ class Solvency(FactorBase):
         """
 
         management = tp_solvency.loc[:, dependencies]
+        print(management.head())
         management['ta'] = (management.equities_parent_company_owners -
                             management.intangible_assets -
                             management.development_expenditure -
@@ -536,6 +537,7 @@ class Solvency(FactorBase):
         cash_flow['OptCFToIBDTTM'] = np.where(
             CalcTools.is_zero(cash_flow.interest_bearing_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.interest_bearing_liability.values)
+        dependencies = dependencies + ['interest_bearing_liability']
         cash_flow = cash_flow.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
         return factor_solvency

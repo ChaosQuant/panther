@@ -433,9 +433,7 @@ class PerShareIndicators(FactorBase):
 
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['OptRevPSTTM'] = share_indicators[dependencies].apply(
-            fun,
-            axis=1)
+        share_indicators['OptRevPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
         # share_indicators = share_indicators.drop(columns=['operating_revenue_ttm'], axis=1)
         # share_indicators = share_indicators[['security_code', 'OptRevPSTTM']]
@@ -477,7 +475,6 @@ def calculate(trade_date, valuation_sets):
     factor_share_indicators = pd.DataFrame()
     factor_share_indicators['security_code'] = valuation_sets['security_code']
     valuation_sets = valuation_sets.set_index('security_code')
-    print(valuation_sets)
 
     factor_share_indicators = factor_share_indicators.set_index('security_code')
 
@@ -546,7 +543,7 @@ def calculate(trade_date, valuation_sets):
 
     factor_share_indicators['id'] = factor_share_indicators['security_code'] + str(trade_date)
     factor_share_indicators['trade_date'] = str(trade_date)
-    print(factor_share_indicators)
+    print(factor_share_indicators.head())
     # per_share._storage_data(factor_share_indicators, trade_date)
 
 

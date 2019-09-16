@@ -12,7 +12,8 @@ from factor.utillities.calc_tools import CalcTools
 
 # from factor import app
 # from ultron.cluster.invoke.cache_data import cache_data
-
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 class FactorCashFlow(FactorBase):
     """
@@ -148,9 +149,8 @@ class FactorCashFlow(FactorBase):
             cash_flow.market_cap.values - cash_flow.cash_and_equivalents_at_end.values), 0,
             cash_flow.net_operate_cash_flow.values / (cash_flow.longterm_loan.values + cash_flow.shortterm_loan.values + \
                                                       cash_flow.market_cap.values - cash_flow.cash_and_equivalents_at_end.values))
-        # cash_flow = cash_flow.drop(dependencies, axis=1)
-        # factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
-        factor_cash_flow['OptToEnterpriseTTM'] = cash_flow['OptToEnterpriseTTM']
+        cash_flow = cash_flow.drop(dependencies, axis=1)
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, how='outer', on="security_code")
         return factor_cash_flow
 
     @staticmethod
@@ -184,9 +184,9 @@ class FactorCashFlow(FactorBase):
         cash_flow['OptToAssertTTM'] = np.where(CalcTools.is_zero(cash_flow.total_assets.values),
                                                0,
                                                cash_flow.net_operate_cash_flow.values / cash_flow.total_assets.values)
-        # cash_flow = cash_flow.drop(dependencies, axis=1)
-        # factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
-        factor_cash_flow['OptToAssertTTM'] = cash_flow['OptToAssertTTM']
+        cash_flow = cash_flow.drop(dependencies, axis=1)
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, how='outer', on="security_code")
+        # factor_cash_flow['OptToAssertTTM'] = cash_flow['OptToAssertTTM']
         return factor_cash_flow
 
     @staticmethod
@@ -202,9 +202,8 @@ class FactorCashFlow(FactorBase):
         cash_flow['SaleServCashToOptReTTM'] = np.where(
             CalcTools.is_zero(cash_flow.operating_revenue.values), 0,
             cash_flow.goods_sale_and_service_render_cash.values / cash_flow.operating_revenue.values)
-        # cash_flow = cash_flow.drop(dependencies, axis=1)
-        # factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, on="security_code")
-        factor_cash_flow['SaleServCashToOptReTTM'] = cash_flow['SaleServCashToOptReTTM']
+        cash_flow = cash_flow.drop(dependencies, axis=1)
+        factor_cash_flow = pd.merge(factor_cash_flow, cash_flow, how='outer', on="security_code")
         return factor_cash_flow
 
     @staticmethod
@@ -226,7 +225,6 @@ class FactorCashFlow(FactorBase):
         historical_value = historical_value.drop(columns=['pcd', 'sbd', 'circulating_market_cap', 'market_cap'], axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         return factor_historical_value
-
 
     @staticmethod
     def ctop5(tp_historical_value, factor_historical_value, dependencies=['pcd', 'sbd', 'circulating_market_cap_5', 'market_cap_5']):
@@ -284,7 +282,7 @@ def calculate(trade_date, tp_cash_flow, ttm_factor_sets):  # 计算对应因子
     factor_cash_flow = factor_cash_flow.reset_index()
     factor_cash_flow['id'] = factor_cash_flow['security_code'] + str(trade_date)
     factor_cash_flow['trade_date'] = str(trade_date)
-    print('factor_cash_flow: \n%s' % factor_cash_flow)
+    print('factor_cash_flow: \n%s' % factor_cash_flow.head())
     # cash_flow._storage_data(factor_cash_flow, trade_date)
 
 

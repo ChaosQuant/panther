@@ -54,7 +54,6 @@ class RevenueQuality(FactorBase):
         :param revenue_quality:
         :return:
         """
-
         earning = tp_revenue_quanlity.loc[:, dependencies]
         earning['NetNonOIToTP'] = np.where(
             CalcTools.is_zero(earning.total_profit.values), 0,
@@ -172,10 +171,9 @@ class RevenueQuality(FactorBase):
         :return:
         """
         historical_value = ttm_revenue_quanlity.loc[:, dependencies]
-
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
-        historical_value['OPToTPTTM'] = historical_value.apply(func)
+        historical_value['OPToTPTTM'] = historical_value.apply(func, axis=1)
         historical_value = historical_value.drop(dependencies, axis=1)
         revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
         return revenue_quality
@@ -194,7 +192,7 @@ class RevenueQuality(FactorBase):
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
-        historical_value['PriceToRevRatioTTM'] = historical_value.apply(func)
+        historical_value['PriceToRevRatioTTM'] = historical_value.apply(func, axis=1)
         historical_value = historical_value.drop(dependencies, axis=1)
         revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
         return revenue_quality

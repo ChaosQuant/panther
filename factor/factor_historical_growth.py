@@ -69,10 +69,12 @@ class Growth(FactorBase):
         :param tp_historical_growth:
         :return:
         """
+        print('jinzicahn')
         historical_growth = tp_historical_growth.loc[:, dependencies]
+        print(historical_growth.head())
 
         if len(historical_growth) <= 0:
-            return
+            return None
 
         fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
 
@@ -91,9 +93,11 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
+        print('zongzichan')
         historical_growth = tp_historical_growth.loc[:, dependencies]
+        print(historical_growth.head())
         if len(historical_growth) <= 0:
-            return
+            return None
         fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['TotalAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
 
@@ -316,8 +320,8 @@ class Growth(FactorBase):
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
-        historical_growth['mean'] = historical_growth[dependencies].fillna(0.0).mean(axis=1)
-        historical_growth['std'] = historical_growth[dependencies].fillna(0.0).std(axis=1)
+        historical_growth['mean'] = historical_growth[dependencies].fillna(method='ffill').mean(axis=1)
+        historical_growth['std'] = historical_growth[dependencies].fillna(method='ffill').std(axis=1)
 
         fun = lambda x: (x[0] - x[1]) / x[2] if x[2] !=0 and x[1] is not None and x[0] is not None and x[2] is not None else None
 

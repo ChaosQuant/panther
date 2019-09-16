@@ -64,11 +64,11 @@ def get_basic_data(trade_date):
     trade_date_pre_year_4 = get_trade_date(trade_date, 4)
     trade_date_pre_year_5 = get_trade_date(trade_date, 5)
     print('trade_date %s' % trade_date)
-    print('trade_date_pre_year %s' % trade_date_pre_year)
-    print('trade_date_pre_year_2 %s' % trade_date_pre_year_2)
-    print('trade_date_pre_year_3 %s' % trade_date_pre_year_3)
-    print('trade_date_pre_year_4 %s' % trade_date_pre_year_4)
-    print('trade_date_pre_year_5 %s' % trade_date_pre_year_5)
+    # print('trade_date_pre_year %s' % trade_date_pre_year)
+    # print('trade_date_pre_year_2 %s' % trade_date_pre_year_2)
+    # print('trade_date_pre_year_3 %s' % trade_date_pre_year_3)
+    # print('trade_date_pre_year_4 %s' % trade_date_pre_year_4)
+    # print('trade_date_pre_year_5 %s' % trade_date_pre_year_5)
 
     engine = sqlEngine()
     maplist = {'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
@@ -89,7 +89,6 @@ def get_basic_data(trade_date):
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
 
     # report data
-    print('<><><><><><><><><><><><><><><><>')
     balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                    [BalanceReport.TOTASSET,  # 总资产（资产合计）
                                                                     BalanceReport.RIGHAGGR,  # 股东权益合计
@@ -103,7 +102,7 @@ def get_basic_data(trade_date):
                                                                             [BalanceReport.TOTASSET,  # 总资产（资产合计）
                                                                              BalanceReport.RIGHAGGR,  # 股东权益合计
                                                                              ],
-                                                                            dates=[trade_date]).drop(columns, axis=1)
+                                                                            dates=[trade_date_pre_year]).drop(columns, axis=1)
     balance_sets_pre_year = balance_sets_pre_year.rename(columns={"TOTASSET": "total_assets_pre_year",
                                                                   "RIGHAGGR": "total_owner_equities_pre_year"})
 

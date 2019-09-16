@@ -117,6 +117,7 @@ def get_basic_data(trade_date):
     cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                          [CashFlowTTM.MANANETR,       # 经营活动现金流量净额
                                                                           CashFlowTTM.FINALCASHBALA,  # 期末现金及现金等价物余额
+                                                                          CashFlowTTM.LABORGETCASH,
                                                                           ],
                                                                          dates=[trade_date]).drop(columns, axis=1)
 
@@ -141,11 +142,21 @@ def get_basic_data(trade_date):
                                                   'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
                                                   'LONGBORR': 'longterm_loan',  # 长期借款
                                                   'TOTALCURRLIAB': 'total_current_liability',   # 流动负债合计
+                                                  'LABORGETCASH': 'goods_sale_and_service_render_cash', # 销售商品、提供劳务收到的现金
                                                   # 'NDEBT':'net_liability',  # 净负债
                                                   'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
                                                   'TOTASSET': 'total_assets',      # 资产总计
                                                   'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
                                                   })
+
+    column = ['trade_date']
+    valuation_sets = get_fundamentals(query(Valuation.security_code,
+                                            Valuation.trade_date,
+                                            Valuation.market_cap,)
+                                      .filter(Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
+
+    ttm_cash_flow = pd.merge(ttm_cash_flow, valuation_sets, how='outer', on='security_code')
+    tp_cash_flow = pd.merge(tp_cash_flow, valuation_sets, how='outer', on='security_code')
 
     return tp_cash_flow, ttm_cash_flow
 

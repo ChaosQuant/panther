@@ -29,6 +29,8 @@ from vision.vision.db.signletion_engine import *
 from client.engines.sqlengine import sqlEngine
 from client.utillities.sync_util import SyncUtil
 # from ultron.cluster.invoke.cache_data import cache_data
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 
 def get_trade_date(trade_date, n):

@@ -22,6 +22,7 @@ from factor.utillities.calc_tools import CalcTools
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
+
 class Valuation(FactorBase):
     """
     估值
@@ -39,8 +40,8 @@ class Valuation(FactorBase):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
 
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
-                    `security_code` varchar(24) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                    `security_code` varchar(32) NOT NULL,
                     `trade_date` date NOT NULL,
                     `LogofMktValue` decimal(19,4) NOT NULL,
                     `LogofNegMktValue` decimal(19,4),
@@ -70,17 +71,17 @@ class Valuation(FactorBase):
                     `PCFAvgOnSW1` decimal(19,4),
                     `PCFStdOnSW1` decimal(19,4),
                     `PEIndu` decimal(19,4),
-                    `PEIndu` decimal(19,4),
+                    `PBIndu` decimal(19,4),
                     `PCFIndu` decimal(19,4),
                     `TotalMrktAVGToEBIDAOnSW1` decimal(19,4),
                     `TotalMrktSTDToEBIDAOnSW1` decimal(19,4),
-                    `BookValueToIndu` decimal(19,4),
+                    `TotalMrktToEBIDATTM` decimal(19,4),
                     `PEG3YChgTTM` decimal(19,4),
                     `PEG5YChgTTM` decimal(19,4),
                     `CEToPTTM` decimal(19,4),
                     `RevToMrktRatioTTM` decimal(19,4),
                     `OptIncToEnterpriseValueTTM` decimal(19,4),
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(Valuation, self)._create_tables(create_sql, drop_sql)
@@ -429,7 +430,10 @@ class Valuation(FactorBase):
                                                                     historical_value['total_assets_report'] /
                                                                     historical_value['temp'])
 
-        factor_historical_value['TotalAssetsToEnterpriseValue'] = historical_value['TotalAssetsToEnterpriseValue']
+        dependencies = dependencies + ['temp']
+        historical_value = historical_value.drop(dependencies, axis=1)
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+
         return factor_historical_value
 
     # TTM
@@ -447,7 +451,6 @@ class Valuation(FactorBase):
         func = lambda x: math.log(abs(x)) if x is not None and x != 0 else None
         historical_value['LogSalesTTM'] = historical_value['total_operating_revenue'].apply(func)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         # factor_historical_value['LogSalesTTM'] = historical_value['LogSalesTTM']
         return factor_historical_value
@@ -461,7 +464,10 @@ class Valuation(FactorBase):
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
         historical_value['PCFToOptCashflowTTM'] = historical_value[dependencies].apply(func, axis=1)
-        factor_historical_value['PCFToOptCashflowTTM'] = historical_value['PCFToOptCashflowTTM']
+
+        historical_value = historical_value.drop(columns=dependencies, axis=1)
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        # factor_historical_value['PCFToOptCashflowTTM'] = historical_value['PCFToOptCashflowTTM']
         return factor_historical_value
 
     @staticmethod
@@ -499,7 +505,9 @@ class Valuation(FactorBase):
                                                 historical_value['market_cap'] /
                                                 historical_value['net_profit_cut_pre'])
 
-        factor_historical_value['PECutTTM'] = historical_value['PECutTTM']
+        # factor_historical_value['PECutTTM'] = historical_value['PECutTTM']
+        historical_value = historical_value.drop(columns=dependencies, axis=1)
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         return factor_historical_value
 
     @staticmethod
@@ -520,8 +528,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
 
         return factor_historical_value
 
@@ -748,7 +756,7 @@ class Valuation(FactorBase):
         historical_value_tmp = valuation_sets.groupby('isymbol')
 
         historical_value_tmp = historical_value_tmp.std().rename(columns={"tmp": "TotalMrktSTDToEBIDAOnSW1"})
-        historical_value_tmp = historical_value_tmp['TotalMrktSTDToEBIDAOnSW1']
+        historical_value_tmp = historical_value_tmp["TotalMrktSTDToEBIDAOnSW1"]
 
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
@@ -775,7 +783,7 @@ class Valuation(FactorBase):
 
         factor_historical_value = pd.merge(valuation_sets, factor_historical_value, how='outer', on='security_code')
 
-        factor_historical_value['BookValueToIndu'] = (factor_historical_value['tmp'] - factor_historical_value['TotalMrktAVGToEBIDAOnSW1'])\
+        factor_historical_value['TotalMrktToEBIDATTM'] = (factor_historical_value['tmp'] - factor_historical_value['TotalMrktAVGToEBIDAOnSW1'])\
                                                      / factor_historical_value["TotalMrktSTDToEBIDAOnSW1"]
         dependencies = dependencies + ['tmp']
         factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
@@ -839,7 +847,7 @@ class Valuation(FactorBase):
                                                 historical_value['net_operate_cash_flow'] /
                                                 historical_value['market_cap'])
 
-        historical_value = historical_value.drop(columns=['net_operate_cash_flow', 'market_cap'], axis=1)
+        historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
 
         return factor_historical_value
@@ -861,7 +869,8 @@ class Valuation(FactorBase):
                                                 historical_value['operating_revenue'] /
                                                 historical_value['market_cap'])
 
-        factor_historical_value['RevToMrktRatioTTM'] = historical_value['RevToMrktRatioTTM']
+        historical_value = historical_value.drop(columns=dependencies, axis=1)
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         return factor_historical_value
 
     @staticmethod
@@ -889,12 +898,14 @@ class Valuation(FactorBase):
                                                                   historical_value['operating_revenue'] /
                                                                   historical_value['temp'])
 
-        factor_historical_value['OptIncToEnterpriseValueTTM'] = historical_value['OptIncToEnterpriseValueTTM']
+        historical_value = historical_value.drop(columns=dependencies, axis=1)
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         return factor_historical_value
 
 
-def calculate(trade_date, valuation_sets, sw_industry, pe_sets):
+def calculate(trade_date, valuation_sets, sw_industry, pe_sets, factor_name):
     """
+    :param factor_name:
     :param pe_sets:
     :param sw_industry:
     :param valuation_sets:
@@ -903,7 +914,7 @@ def calculate(trade_date, valuation_sets, sw_industry, pe_sets):
     """
     valuation_sets = valuation_sets.set_index('security_code')
     pe_sets = pe_sets.set_index('security_code')
-    historical_value = Valuation('factor_historical_value')
+    historical_value = Valuation(factor_name)
 
     factor_historical_value = pd.DataFrame()
     factor_historical_value['security_code'] = valuation_sets.index
@@ -977,7 +988,8 @@ def calculate(trade_date, valuation_sets, sw_industry, pe_sets):
 
     factor_historical_value['id'] = factor_historical_value['security_code'] + str(trade_date)
     factor_historical_value['trade_date'] = str(trade_date)
-    # historical_value._storage_data(factor_historical_value, trade_date)
+    print(factor_historical_value.head())
+    historical_value._storage_data(factor_historical_value, trade_date)
 
 
 # @app.task()

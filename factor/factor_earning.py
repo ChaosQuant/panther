@@ -116,7 +116,7 @@ class FactorEarning(FactorBase):
                 return regr.coef_[-1]
 
         historical_growth['coefficient'] = historical_growth.apply(fun2, axis=1)
-        historical_growth['mean'] = historical_growth[dependencies].fillna(0.0).mean(axis=1)
+        historical_growth['mean'] = historical_growth[dependencies].fillna(method='ffill').mean(axis=1)
 
         fun1 = lambda x: x[0] / abs(x[1]) if x[1] is not None and x[0] is not None and x[1] != 0 else None
         historical_growth['Rev5YChg'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
@@ -164,7 +164,7 @@ class FactorEarning(FactorBase):
                 return regr.coef_[-1]
 
         historical_growth['coefficient'] = historical_growth.apply(fun2, axis=1)
-        historical_growth['mean'] = historical_growth[dependencies].fillna('nan').mean(axis=1)
+        historical_growth['mean'] = historical_growth[dependencies].fillna(method='ffill').mean(axis=1)
 
         fun1 = lambda x: x[0] / abs(x[1]) if x[1] != 0 and x[1] is not None and x[0] is not None else None
         historical_growth['NetPft5YAvgChg'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
@@ -253,7 +253,6 @@ class FactorEarning(FactorBase):
         :param factor_earning:
         :return:
         """
-
         earning = tp_earning.loc[:, dependencies]
         earning['NPCutToNP'] = np.where(
             CalcTools.is_zero(earning.net_profit.values), 0,
@@ -378,14 +377,14 @@ class FactorEarning(FactorBase):
                 regr.fit(aa, range(0, 5))
                 return regr.coef_[-1]
         historical_growth['coefficient'] = historical_growth.apply(fun2, axis=1)
-        historical_growth['mean'] = historical_growth[dependencies].fillna('nan').mean(axis=1)
-
+        historical_growth['mean'] = historical_growth[dependencies].fillna(method='ffill').mean(axis=1)
         fun1 = lambda x: x[0] / abs(x[1]) if x[1] != 0 and x[1] is not None and x[0] is not None else None
         historical_growth['NetPft5YAvgChgTTM'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
 
+        dependencies = dependencies + ['coefficient', 'mean']
         # historical_growth = historical_growth[['security_code', 'NetPft5YAvgChgTTM']]
         historical_growth = historical_growth.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
+        factor_earning = pd.merge(factor_earning, historical_growth, how='outer', on='security_code')
 
         return factor_earning
 
@@ -428,16 +427,15 @@ class FactorEarning(FactorBase):
                 return regr.coef_[-1]
 
         historical_growth['coefficient'] = historical_growth.apply(fun2, axis=1)
-        historical_growth['mean'] = historical_growth[dependencies].fillna(0.0).mean(axis=1)
+        historical_growth['mean'] = historical_growth[dependencies].fillna(method='ffill').mean(axis=1)
 
         fun1 = lambda x: x[0] / abs(x[1]) if x[1] is not None and x[0] is not None and x[1] != 0 else None
         historical_growth['Sales5YChgTTM'] = historical_growth[['coefficient', 'mean']].apply(fun1, axis=1)
 
-        # historical_growth = historical_growth.drop(
-        #     columns=['operating_revenue', 'operating_revenue_pre_year_1', 'operating_revenue_pre_year_2',
-        #              'operating_revenue_pre_year_3', 'operating_revenue_pre_year_4', 'coefficient', 'mean'], axis=1)
-        historical_growth = historical_growth[['Sales5YChgTTM']]
-        factor_earning = pd.merge(factor_earning, historical_growth, on='security_code')
+        dependencies = dependencies + ['coefficient', 'mean']
+        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
+        # historical_growth = historical_growth[['Sales5YChgTTM']]
+        factor_earning = pd.merge(factor_earning, historical_growth, how='outer', on='security_code')
 
         return factor_earning
 
@@ -997,6 +995,7 @@ def calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y):  # 计算对
     factor_earning = factor_earning.reset_index()
     factor_earning['id'] = factor_earning['security_code'] + str(trade_date)
     factor_earning['trade_date'] = str(trade_date)
+    print(factor_earning.head())
     # earning._storage_data(factor_earning, trade_date)
 
 

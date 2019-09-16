@@ -20,6 +20,8 @@ from factor.utillities.calc_tools import CalcTools
 
 # from factor import app
 # from ultron.cluster.invoke.cache_data import cache_data
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 
 class CapitalStructure(FactorBase):
@@ -68,7 +70,7 @@ class CapitalStructure(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.total_non_current_assets.values / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
     @staticmethod
@@ -87,7 +89,7 @@ class CapitalStructure(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.total_non_current_liability.values / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
     @staticmethod
@@ -106,7 +108,7 @@ class CapitalStructure(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.longterm_loan.values / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
     @staticmethod
@@ -127,7 +129,7 @@ class CapitalStructure(FactorBase):
             management.ia.values / management.total_assets.values)
         dependencies = dependencies + ['ia']
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         # factor_management['IntangibleAssetRatio'] = management['IntangibleAssetRatio']
         return factor_management
 
@@ -149,7 +151,7 @@ class CapitalStructure(FactorBase):
              management.construction_materials.values +
              management.constru_in_process.values) / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
     @staticmethod
@@ -168,7 +170,7 @@ class CapitalStructure(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.total_owner_equities.values / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
     @staticmethod
@@ -191,7 +193,7 @@ class CapitalStructure(FactorBase):
                + management.construction_materials.values
                + management.constru_in_process.values))
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
     @staticmethod
@@ -210,7 +212,7 @@ class CapitalStructure(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.total_current_assets.values / management.total_assets.values)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
 

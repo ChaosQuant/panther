@@ -128,7 +128,7 @@ def get_basic_history_value_data(trade_date):
         'TOTASSET': 'total_assets_report',  # 资产总计
     })
     valuation_report_sets = pd.merge(indicator_sets, balance_sets, how='outer', on='security_code')
-    print('valuation_report_sets')
+    # print('valuation_report_sets')
 
     # MRQ data
     cash_flow_mrq = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
@@ -151,7 +151,7 @@ def get_basic_history_value_data(trade_date):
         'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
     })
     valuation_mrq = pd.merge(cash_flow_mrq, balance_mrq, on='security_code')
-    print('valuation_mrq')
+    # print('valuation_mrq')
 
     # TTM data
     # 总市值合并到TTM数据中，
@@ -174,8 +174,10 @@ def get_basic_history_value_data(trade_date):
                                                                        IncomeTTM.PARENETP,
                                                                        IncomeTTM.BIZTOTINCO,
                                                                        IncomeTTM.BIZINCO,
+                                                                       IncomeTTM.TOTPROFIT,
                                                                        ], dates=[trade_date]).drop(columns, axis=1)
     income_ttm_sets = income_ttm_sets.rename(columns={
+        'TOTPROFIT': 'total_profit',  # 利润总额 ttm
         'NETPROFIT': 'net_profit',  # 净利润
         'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润
         'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
@@ -265,8 +267,9 @@ def get_basic_history_value_data(trade_date):
     valuation_sets = pd.merge(valuation_sets, valuation_report_sets, how='outer', on='security_code')
     valuation_sets = pd.merge(valuation_sets, valuation_mrq, how='outer', on='security_code')
     valuation_sets = pd.merge(valuation_sets, valuation_ttm_sets, how='outer', on='security_code')
+    # print('valuation_sets')
     # valuation_sets = valuation_sets.drop('trade_date', axis=1)
-    # pe_sets = pe_sets.deop('trade_date', axis=1)
+    # pe_sets = pe_sets.drop('trade_date', axis=1)
 
     return valuation_sets, sw_indu, pe_sets
 
@@ -286,51 +289,53 @@ def prepare_calculate_remote(trade_date):
         print('history_cal_time:{}'.format(time2 - tic))
 
 
-def prepare_calculate_local(trade_date):
+def prepare_calculate_local(trade_date, factor_name):
     # historical_value
     tic = time.time()
     valuation_sets, sw_indu, pe_sets = get_basic_history_value_data(trade_date)
     print('data_read_time: %s' % (time.time()-tic))
+    print('len_of_valuation_sets: %s' % len(valuation_sets))
     if len(valuation_sets) <= 0:
         print("%s has no data" % trade_date)
         return
     else:
-        factor_valuation.calculate(trade_date, valuation_sets, sw_indu, pe_sets)
+        factor_valuation.calculate(trade_date, valuation_sets, sw_indu, pe_sets, factor_name)
     time2 = time.time()
     print('history_cal_time:{}'.format(time2 - tic))
 
 
-def do_update(start_date, end_date, count):
+def do_update(start_date, end_date, count, factor_name):
     # 读取本地交易日
     syn_util = SyncUtil()
     trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count, order='DESC')
     trade_date_sets = trade_date_sets['TRADEDATE'].values
-    print('交易日：%s' % trade_date_sets)
+    # print('交易日：%s' % trade_date_sets)
     for trade_date in trade_date_sets:
         print('因子计算日期： %s' % trade_date)
-        prepare_calculate_local(trade_date)
+        prepare_calculate_local(trade_date, factor_name)
     print('----->')
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--start_date', type=int, default=20070101)
-    # parser.add_argument('--end_date', type=int, default=0)
-    # parser.add_argument('--count', type=int, default=1)
-    # parser.add_argument('--rebuild', type=bool, default=False)
-    # parser.add_argument('--update', type=bool, default=False)
-    # parser.add_argument('--schedule', type=bool, default=False)
-    #
-    # args = parser.parse_args()
-    # if args.end_date == 0:
-    #     end_date = int(datetime.now().date().strftime('%Y%m%d'))
-    # else:
-    #     end_date = args.end_date
-    # if args.rebuild:
-    #     processor = factor_valuation.Valuation('factor_historical_value')
-    #     processor.create_dest_tables()
-    #     do_update(args.start_date, end_date, args.count)
-    # if args.update:
-    #     do_update(args.start_date, end_date, args.count)
-    do_update('20190819', '20190823', 10)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_date', type=int, default=20070101)
+    parser.add_argument('--end_date', type=int, default=0)
+    parser.add_argument('--count', type=int, default=1)
+    parser.add_argument('--rebuild', type=bool, default=False)
+    parser.add_argument('--update', type=bool, default=False)
+    parser.add_argument('--schedule', type=bool, default=False)
+    factor_name = 'factor_valuation'
+
+    args = parser.parse_args()
+    if args.end_date == 0:
+        end_date = int(datetime.now().date().strftime('%Y%m%d'))
+    else:
+        end_date = args.end_date
+    if args.rebuild:
+        processor = factor_valuation.Valuation(factor_name)
+        processor.create_dest_tables()
+        do_update(args.start_date, end_date, args.count, factor_name)
+    if args.update:
+        do_update(args.start_date, end_date, args.count, factor_name)
+    # do_update('20190819', '20190823', 10)
 

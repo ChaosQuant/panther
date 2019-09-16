@@ -110,7 +110,7 @@ def get_basic_data(trade_date):
                                                                       CashFlowReport.FINALCASHBALA,
                                                                       ], dates=[trade_date]).drop(columns, axis=1)
     cash_flow_sets = cash_flow_sets.rename(columns={'LABORGETCASH': 'goods_sale_and_service_render_cash',   # 销售商品、提供劳务收到的现金
-                                                    'FINALCASHBALA':'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
+                                                    'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
                                                     })
 
     income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
@@ -118,6 +118,7 @@ def get_basic_data(trade_date):
                                                                    IncomeReport.BIZINCO,
                                                                    IncomeReport.PERPROFIT,
                                                                    IncomeReport.PARENETP,
+                                                                   IncomeReport.NETPROFIT,
                                                                    ], dates=[trade_date]).drop(columns, axis=1)
     income_sets = income_sets.rename(columns={'NETPROFIT': 'net_profit',   # 净利润
                                               'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
