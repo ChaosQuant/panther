@@ -7,6 +7,7 @@
 @file: factor_historical_growth.py
 @time: 2019-02-12 10:03
 """
+import gc
 import json
 import numpy as np
 import pandas as pd
@@ -34,7 +35,7 @@ class Growth(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `NetAsset1YChg` decimal(19,4),
@@ -55,7 +56,7 @@ class Growth(FactorBase):
                     `FCF1YChgTTM` decimal(19,4),
                     `ICF1YChgTTM` decimal(19,4),
                     `OCF1YChgTTM` decimal(19,4),
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(Growth, self)._create_tables(create_sql, drop_sql)
@@ -69,9 +70,7 @@ class Growth(FactorBase):
         :param tp_historical_growth:
         :return:
         """
-        print('jinzicahn')
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        print(historical_growth.head())
 
         if len(historical_growth) <= 0:
             return None
@@ -93,9 +92,7 @@ class Growth(FactorBase):
         :param factor_historical_growth:
         :return:
         """
-        print('zongzichan')
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        print(historical_growth.head())
         if len(historical_growth) <= 0:
             return None
         fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
@@ -340,6 +337,7 @@ class Growth(FactorBase):
                                                                                       'operating_cost_pre_year_3', 'operating_cost_pre_year_4', 'operating_cost_pre_year_5']):
         """
         未预期毛利
+        :param dependencies:
         :param tp_historical_growth:
         :param factor_historical_growth:
         :return:
@@ -453,14 +451,14 @@ class Growth(FactorBase):
         return factor_historical_growth
 
 
-def calculate(trade_date, growth_sets):
+def calculate(trade_date, growth_sets, factor_name):
     """
     :param growth_sets: 基础数据
     :param trade_date: 交易日
     :return:
     """
     growth_sets = growth_sets.set_index('security_code')
-    growth = Growth('factor_growth')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+    growth = Growth(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     if len(growth_sets) <= 0:
         print("%s has no data" % trade_date)
         return
@@ -491,31 +489,33 @@ def calculate(trade_date, growth_sets):
                                                                      factor_historical_growth)
     factor_historical_growth = growth.historical_invest_cash_grow_rate(growth_sets,
                                                                        factor_historical_growth)
-    factor_historical_growth = factor_historical_growth[['security_code',
-                                                         'NetAsset1YChg',
-                                                         'TotalAsset1YChg',
-                                                         'ORev1YChgTTM',
-                                                         'OPft1YChgTTM',
-                                                         'GrPft1YChgTTM',
-                                                         'NetPft1YChgTTM',
-                                                         'NetPftAP1YChgTTM',
-                                                         'NetPft3YChgTTM',
-                                                         'NetPft5YChgTTM',
-                                                         'ORev3YChgTTM',
-                                                         'ORev5YChgTTM',
-                                                         'NetCF1YChgTTM',
-                                                         # 'NetPftAPNNRec1YChgTTM',
-                                                         'StdUxpErn1YTTM',
-                                                         'StdUxpGrPft1YTTM',
-                                                         'FCF1YChgTTM',
-                                                         'ICF1YChgTTM',
-                                                         'OCF1YChgTTM',
-                                                         ]]
-
-    factor_historical_growth['id'] = factor_historical_growth['security_code'] + str(trade_date)
+    # factor_historical_growth = factor_historical_growth[['security_code',
+    #                                                      'NetAsset1YChg',
+    #                                                      'TotalAsset1YChg',
+    #                                                      'ORev1YChgTTM',
+    #                                                      'OPft1YChgTTM',
+    #                                                      'GrPft1YChgTTM',
+    #                                                      'NetPft1YChgTTM',
+    #                                                      'NetPftAP1YChgTTM',
+    #                                                      'NetPft3YChgTTM',
+    #                                                      'NetPft5YChgTTM',
+    #                                                      'ORev3YChgTTM',
+    #                                                      'ORev5YChgTTM',
+    #                                                      'NetCF1YChgTTM',
+    #                                                      # 'NetPftAPNNRec1YChgTTM',
+    #                                                      'StdUxpErn1YTTM',
+    #                                                      'StdUxpGrPft1YTTM',
+    #                                                      'FCF1YChgTTM',
+    #                                                      'ICF1YChgTTM',
+    #                                                      'OCF1YChgTTM',
+    #                                                      ]]
+    # factor_historical_growth = factor_historical_growth.reset_index()
+    # factor_historical_growth['id'] = factor_historical_growth['security_code'] + str(trade_date)
     factor_historical_growth['trade_date'] = str(trade_date)
     print(factor_historical_growth.head())
-    # growth._storage_data(factor_historical_growth, trade_date)
+    growth._storage_data(factor_historical_growth, trade_date)
+    del growth
+    gc.collect()
 
 
 # @app.task()

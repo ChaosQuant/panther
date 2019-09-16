@@ -11,7 +11,7 @@ import sys
 sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../../")
-
+import gc
 import json
 import numpy as np
 import pandas as pd
@@ -38,8 +38,8 @@ class FactorEarning(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
-                    `security_code` varchar(24) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                    `security_code` varchar(32) NOT NULL,
                     `trade_date` date NOT NULL,
                     `ROA5YChg` decimal(19,4),
                     `ROE5Y` decimal(19,4),
@@ -72,7 +72,7 @@ class FactorEarning(FactorBase):
                     `SalesGrossMarginTTM` decimal(19,4),
                     `TaxRTTM` decimal(19,4),
                     `TotaProfRtTTM` decimal(19,4),
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(FactorEarning, self)._create_tables(create_sql, drop_sql)
@@ -947,11 +947,11 @@ class FactorEarning(FactorBase):
         return factor_earning
 
 
-def calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y):  # 计算对应因子
+def calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y, factor_name):  # 计算对应因子
     tp_earning = tp_earning.set_index('security_code')
     ttm_earning = ttm_earning.set_index('security_code')
     ttm_earning_5y = ttm_earning_5y.set_index('security_code')
-    earning = FactorEarning('factor_earning')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+    earning = FactorEarning(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
 
     # 因子计算
     factor_earning = pd.DataFrame()
@@ -993,10 +993,12 @@ def calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y):  # 计算对
     factor_earning = earning.total_profit_cost_ratio_ttm(ttm_earning, factor_earning)
     # factor_earning = earning.invest_r_associates_to_tp_ttm(ttm_earning, factor_earning)
     factor_earning = factor_earning.reset_index()
-    factor_earning['id'] = factor_earning['security_code'] + str(trade_date)
+    # factor_earning['id'] = factor_earning['security_code'] + str(trade_date)
     factor_earning['trade_date'] = str(trade_date)
     print(factor_earning.head())
-    # earning._storage_data(factor_earning, trade_date)
+    earning._storage_data(factor_earning, trade_date)
+    del earning
+    gc.collect()
 
 
 # @app.task()

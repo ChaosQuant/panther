@@ -13,7 +13,7 @@ import sys
 sys.path.append("../")
 sys.path.append("../../")
 sys.path.append("../../../")
-
+import gc
 import pandas as pd
 import json
 from pandas.io.json import json_normalize
@@ -37,7 +37,7 @@ class PerShareIndicators(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `EPS` decimal(19,4),
@@ -60,7 +60,7 @@ class PerShareIndicators(FactorBase):
                     `CFPSTTM` decimal(19,4),
                     `EnterpriseFCFPS` decimal(19,4),
                     `ShareholderFCFPS` decimal(19,4),
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(PerShareIndicators, self)._create_tables(create_sql, drop_sql)
@@ -78,11 +78,8 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['CapticalSurplusPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['capital_reserve_fund'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'CapticalSurplusPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['CapticalSurplusPS'] = share_indicators['CapticalSurplusPS']
-
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
         return factor_share_indicators
 
     @staticmethod
@@ -98,10 +95,8 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[1] / x[0] if x[0] and x[0] != 0 else None)
         share_indicators['CashEquPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['cash_and_equivalents_at_end'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'CashEquPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['CashEquPS'] = share_indicators['CashEquPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
         return factor_share_indicators
 
     @staticmethod
@@ -114,11 +109,9 @@ class PerShareIndicators(FactorBase):
         :return:
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators['DivPS'] = share_indicators['dividend_receivable']
-        # share_indicators = share_indicators.drop(columns=['dividend_receivable'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'DivPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['DivPS'] = share_indicators['DivPS']
+        share_indicators = share_indicators.rename(columns={'dividend_receivable': 'DivPS'})
+        # share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
         return factor_share_indicators
 
     @staticmethod
@@ -131,11 +124,10 @@ class PerShareIndicators(FactorBase):
         :return:
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators['EPS'] = share_indicators['basic_eps']
-        # share_indicators = share_indicators.drop(columns=['basic_eps'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'EPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['EPS'] = share_indicators['EPS']
+        # print(share_indicators.head())
+        share_indicators = share_indicators.rename(columns={'basic_eps': 'EPS'})
+        # share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators,  how='outer', on='security_code')
         return factor_share_indicators
 
     @staticmethod
@@ -151,10 +143,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['ShareholderFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['shareholder_fcfps'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'ShareholderFCFPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['ShareholderFCFPS'] = share_indicators['ShareholderFCFPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['ShareholderFCFPS'] = share_indicators['ShareholderFCFPS']
         return factor_share_indicators
 
     @staticmethod
@@ -169,10 +160,9 @@ class PerShareIndicators(FactorBase):
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['EnterpriseFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
-        # share_indicators = share_indicators.drop(columns=['enterprise_fcfps'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'EnterpriseFCFPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['EnterpriseFCFPS'] = share_indicators['EnterpriseFCFPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['EnterpriseFCFPS'] = share_indicators['EnterpriseFCFPS']
 
         return factor_share_indicators
 
@@ -189,10 +179,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['NetAssetPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['total_owner_equities'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'NetAssetPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['NetAssetPS'] = share_indicators['NetAssetPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['NetAssetPS'] = share_indicators['NetAssetPS']
 
         return factor_share_indicators
 
@@ -210,10 +199,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['OptRevPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['operating_revenue'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'OptRevPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['OptRevPS'] = share_indicators['OptRevPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['OptRevPS'] = share_indicators['OptRevPS']
 
         return factor_share_indicators
 
@@ -231,10 +219,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['SurplusReservePS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['surplus_reserve_fund'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'SurplusReservePS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['SurplusReservePS'] = share_indicators['SurplusReservePS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['SurplusReservePS'] = share_indicators['SurplusReservePS']
 
         return factor_share_indicators
 
@@ -252,10 +239,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['OptProfitPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['operating_profit'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'OptProfitPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['OptProfitPS'] = share_indicators['OptProfitPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['OptProfitPS'] = share_indicators['OptProfitPS']
 
         return factor_share_indicators
 
@@ -273,10 +259,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['UndividedProfitPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['retained_profit'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'UndividedProfitPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['UndividedProfitPS'] = share_indicators['UndividedProfitPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['UndividedProfitPS'] = share_indicators['UndividedProfitPS']
 
         return factor_share_indicators
 
@@ -294,10 +279,9 @@ class PerShareIndicators(FactorBase):
         share_indicators['RetainedEarningsPS'] = share_indicators['UndividedProfitPS'] + share_indicators[
             'SurplusReservePS']
 
-        # share_indicators = share_indicators.drop(columns=['UndividedProfitPS', 'SurplusReservePS'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'RetainedEarningsPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['RetainedEarningsPS'] = share_indicators['RetainedEarningsPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['RetainedEarningsPS'] = share_indicators['RetainedEarningsPS']
 
         return factor_share_indicators
 
@@ -314,10 +298,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['TotalRevPS'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['total_operating_revenue'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'TotalRevPS']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['TotalRevPS'] = share_indicators['TotalRevPS']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['TotalRevPS'] = share_indicators['TotalRevPS']
         return factor_share_indicators
 
     @staticmethod
@@ -333,10 +316,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['CFPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['n_change_in_cash_ttm'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'CFPSTTM']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['CFPSTTM'] = share_indicators['CFPSTTM']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['CFPSTTM'] = share_indicators['CFPSTTM']
 
         return factor_share_indicators
 
@@ -350,11 +332,11 @@ class PerShareIndicators(FactorBase):
         :return:
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators['DilutedEPSTTM'] = share_indicators['diluted_eps']
+        share_indicators = share_indicators.rename(columns={'diluted_eps': 'DilutedEPSTTM'})
         # share_indicators = share_indicators.drop(columns=['diluted_eps'], axis=1)
         # share_indicators = share_indicators[['security_code', 'DilutedEPSTTM']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['DilutedEPSTTM'] = share_indicators['DilutedEPSTTM']
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['DilutedEPSTTM'] = share_indicators['DilutedEPSTTM']
 
         return factor_share_indicators
 
@@ -372,10 +354,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else 0)
         share_indicators['EPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['np_parent_company_owners_ttm'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'EPSTTM']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['EPSTTM'] = share_indicators['EPSTTM']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['EPSTTM'] = share_indicators['EPSTTM']
 
         return factor_share_indicators
 
@@ -393,10 +374,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['OptCFPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['net_operate_cash_flow_ttm'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'OptCFPSTTM']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['OptCFPSTTM'] = share_indicators['OptCFPSTTM']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['OptCFPSTTM'] = share_indicators['OptCFPSTTM']
 
         return factor_share_indicators
 
@@ -414,10 +394,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['OptProfitPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['operating_profit_ttm'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'OptProfitPSTTM']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['OptProfitPSTTM'] = share_indicators['OptProfitPSTTM']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+        # factor_share_indicators['OptProfitPSTTM'] = share_indicators['OptProfitPSTTM']
 
         return factor_share_indicators
 
@@ -435,10 +414,9 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['OptRevPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['operating_revenue_ttm'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'OptRevPSTTM']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['OptRevPSTTM'] = share_indicators['OptRevPSTTM']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        # factor_share_indicators['OptRevPSTTM'] = share_indicators['OptRevPSTTM']
 
         return factor_share_indicators
 
@@ -456,22 +434,20 @@ class PerShareIndicators(FactorBase):
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['TotalRevPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
 
-        # share_indicators = share_indicators.drop(columns=['total_operating_revenue_ttm'], axis=1)
-        # share_indicators = share_indicators[['security_code', 'TotalRevPSTTM']]
-        # factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
-        factor_share_indicators['TotalRevPSTTM'] = share_indicators['TotalRevPSTTM']
+        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, on='security_code')
+        # factor_share_indicators['TotalRevPSTTM'] = share_indicators['TotalRevPSTTM']
 
         return factor_share_indicators
 
 
-def calculate(trade_date, valuation_sets):
+def calculate(trade_date, valuation_sets, factor_name):
     """
-    规模
     :param valuation_sets: 基础数据
     :param trade_date: 交易日
     :return:
     """
-    per_share = PerShareIndicators('factor_per_share')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+    per_share = PerShareIndicators(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     factor_share_indicators = pd.DataFrame()
     factor_share_indicators['security_code'] = valuation_sets['security_code']
     valuation_sets = valuation_sets.set_index('security_code')
@@ -497,6 +473,8 @@ def calculate(trade_date, valuation_sets):
     factor_share_indicators = per_share.retained_earnings_ps(factor_share_indicators, factor_share_indicators)  # memorydrror
     factor_share_indicators = per_share.oper_cash_flow_ps(valuation_sets, factor_share_indicators)  # memorydrror
     factor_share_indicators = per_share.cash_flow_ps(valuation_sets, factor_share_indicators)  # memorydrror
+    factor_share_indicators = per_share.enterprise_fcfps(valuation_sets, factor_share_indicators)  # memorydrror
+    factor_share_indicators = per_share.shareholder_fcfps(valuation_sets, factor_share_indicators)  # memorydrror
 
     # factor_share_indicators = factor_share_indicators[['security_code',
     #                                                    'EPS',
@@ -541,10 +519,12 @@ def calculate(trade_date, valuation_sets):
     #                                                    'CFPSTTM']]
     factor_share_indicators = factor_share_indicators.reset_index()
 
-    factor_share_indicators['id'] = factor_share_indicators['security_code'] + str(trade_date)
+    # factor_share_indicators['id'] = factor_share_indicators['security_code'] + str(trade_date)
     factor_share_indicators['trade_date'] = str(trade_date)
     print(factor_share_indicators.head())
-    # per_share._storage_data(factor_share_indicators, trade_date)
+    per_share._storage_data(factor_share_indicators, trade_date)
+    del per_share
+    gc.collect()
 
 
 # @app.task()

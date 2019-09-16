@@ -101,9 +101,9 @@ class Valuation(FactorBase):
         """
         print('1')
         historical_value = valuation_sets.loc[:, dependencies]
-        func = lambda x: math.log(abs(x)) if x is not None and x != 0 else None
+        func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
-        historical_value['LogofMktValue'] = historical_value.apply(func)
+        historical_value['LogofMktValue'] = historical_value[dependencies].apply(func)
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
@@ -122,9 +122,9 @@ class Valuation(FactorBase):
         print('2')
 
         historical_value = valuation_sets.loc[:, dependencies]
-        func = lambda x: math.log(abs(x)) if x is not None and x != 0 else None
+        func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
-        historical_value['LogofNegMktValue'] = historical_value.apply(func)
+        historical_value['LogofNegMktValue'] = historical_value[dependencies].apply(func)
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
@@ -143,8 +143,8 @@ class Valuation(FactorBase):
 
         # 对数市值
         historical_value = valuation_sets.loc[:, dependencies]
-        func = lambda x: pow(math.log(abs(x)), 1/3.0) if x is not None and x != 0 else None
-        historical_value['NLSIZE'] = historical_value.apply(func)
+        func = lambda x: pow(math.log(abs(x[0])), 1/3.0) if x[0] is not None and x[0] != 0 else None
+        historical_value['NLSIZE'] = historical_value[dependencies].apply(func)
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
@@ -167,7 +167,6 @@ class Valuation(FactorBase):
 
         historical_value['MrktCapToCorFreeCashFlow'] = historical_value[dependencies].apply(func, axis=1)
 
-        print(historical_value.heaad())
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
@@ -388,9 +387,9 @@ class Valuation(FactorBase):
         print('15')
 
         historical_value = valuation_sets.loc[:, dependencies]
-        func = lambda x: math.log(abs(x)) if x is not None and x != 0 else None
+        func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
-        historical_value['LogTotalAssets'] = historical_value.apply(func)
+        historical_value['LogTotalAssets'] = historical_value[dependencies].apply(func)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         # factor_historical_value['LogTotalAssets'] = historical_value['LogTotalAssets']
@@ -531,8 +530,8 @@ class Valuation(FactorBase):
 
         historical_value = valuation_sets.loc[:, dependencies]
 
-        func = lambda x: math.log(abs(x)) if x is not None and x != 0 else None
-        historical_value['LogSalesTTM'] = historical_value.apply(func)
+        func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
+        historical_value['LogSalesTTM'] = historical_value[dependencies].apply(func)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
         # factor_historical_value['LogSalesTTM'] = historical_value['LogSalesTTM']
@@ -1103,12 +1102,10 @@ def calculate(trade_date, valuation_sets, sw_industry, pe_sets, factor_name):
     #                                                    'PCFIndu',
     #                                                    'CEToPTTM',
     #                                                    ]]
-    # factor_cash_flow = factor_cash_flow.reset_index()
-
+    factor_historical_value = factor_historical_value.reset_index()
     factor_historical_value['trade_date'] = str(trade_date)
-
     print(factor_historical_value.head())
-    # historical_value._storage_data(factor_historical_value, trade_date)
+    historical_value._storage_data(factor_historical_value, trade_date)
     del historical_value
     gc.collect()
 

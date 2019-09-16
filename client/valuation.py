@@ -318,25 +318,24 @@ def do_update(start_date, end_date, count, factor_name):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--start_date', type=int, default=20070101)
-    # parser.add_argument('--end_date', type=int, default=0)
-    # parser.add_argument('--count', type=int, default=1)
-    # parser.add_argument('--rebuild', type=bool, default=False)
-    # parser.add_argument('--update', type=bool, default=False)
-    # parser.add_argument('--schedule', type=bool, default=False)
-    # factor_name = 'factor_valuation'
-    #
-    # args = parser.parse_args()
-    # if args.end_date == 0:
-    #     end_date = int(datetime.now().date().strftime('%Y%m%d'))
-    # else:
-    #     end_date = args.end_date
-    # if args.rebuild:
-    #     processor = factor_valuation.Valuation(factor_name)
-    #     processor.create_dest_tables()
-    #     do_update(args.start_date, end_date, args.count, factor_name)
-    # if args.update:
-    #     do_update(args.start_date, end_date, args.count, factor_name)
-    do_update('20160819', '20190101', 10, 'factor_valuation')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_date', type=int, default=20070101)
+    parser.add_argument('--end_date', type=int, default=0)
+    parser.add_argument('--count', type=int, default=1)
+    parser.add_argument('--rebuild', type=bool, default=False)
+    parser.add_argument('--update', type=bool, default=False)
+    parser.add_argument('--schedule', type=bool, default=False)
+    factor_name = 'factor_valuation'
 
+    args = parser.parse_args()
+    if args.end_date == 0:
+        end_date = int(datetime.now().date().strftime('%Y%m%d'))
+    else:
+        end_date = args.end_date
+    if args.rebuild:
+        processor = factor_valuation.Valuation(factor_name)
+        processor.create_dest_tables()
+        do_update(args.start_date, end_date, args.count, factor_name)
+    if args.update:
+        do_update(args.start_date, end_date, args.count, factor_name)
+    # do_update('20160819', '20190101', 10, 'factor_valuation')

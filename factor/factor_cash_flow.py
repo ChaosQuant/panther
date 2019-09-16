@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-
+import gc
 import json
 import numpy as np
 import pandas as pd
@@ -15,6 +15,7 @@ from factor.utillities.calc_tools import CalcTools
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
+
 class FactorCashFlow(FactorBase):
     """
     现金流量
@@ -26,7 +27,7 @@ class FactorCashFlow(FactorBase):
     def create_dest_tables(self):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,               
                     `OptOnReToAssetTTM` decimal(19,4),                    
@@ -38,7 +39,7 @@ class FactorCashFlow(FactorBase):
                     `SalesServCashToOR` decimal(19,4),
                     `SaleServCashToOptReTTM` decimal(19,4),
                     `NOCFToOpt` decimal(19,4),
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(FactorCashFlow, self)._create_tables(create_sql, drop_sql)
@@ -257,11 +258,11 @@ class FactorCashFlow(FactorBase):
 '''
 
 
-def calculate(trade_date, tp_cash_flow, ttm_factor_sets):  # 计算对应因子
+def calculate(trade_date, tp_cash_flow, ttm_factor_sets, factor_name):  # 计算对应因子
     tp_cash_flow = tp_cash_flow.set_index('security_code')
     ttm_factor_sets = ttm_factor_sets.set_index('security_code')
 
-    cash_flow = FactorCashFlow('factor_cash_flow')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+    cash_flow = FactorCashFlow(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     factor_cash_flow = pd.DataFrame()
     factor_cash_flow['security_code'] = tp_cash_flow.index
     factor_cash_flow = factor_cash_flow.set_index('security_code')
@@ -279,10 +280,12 @@ def calculate(trade_date, tp_cash_flow, ttm_factor_sets):  # 计算对应因子
     factor_cash_flow = cash_flow.oper_cash_in_to_asset_ttm(ttm_factor_sets, factor_cash_flow)
     factor_cash_flow = cash_flow.sale_service_cash_to_or_ttm(ttm_factor_sets, factor_cash_flow)
 
-    # factor_cash_flow['id'] = factor_cash_flow['security_code'] + str(trade_date)
     factor_cash_flow['trade_date'] = str(trade_date)
+    factor_cash_flow = factor_cash_flow.reset_index()
     print('factor_cash_flow: \n%s' % factor_cash_flow.head())
-    # cash_flow._storage_data(factor_cash_flow, trade_date)
+    cash_flow._storage_data(factor_cash_flow, trade_date)
+    del cash_flow
+    gc.collect()
 
 
 # @app.task()

@@ -88,8 +88,8 @@ def get_basic_data(trade_date):
 
     income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                   [IncomeReport.TOTPROFIT,
-                                                                   # IncomeReport.NONOREVE,
-                                                                   # IncomeReport.NONOEXPE,
+                                                                   IncomeReport.NONOREVE,
+                                                                   IncomeReport.NONOEXPE,
                                                                    IncomeReport.BIZTOTCOST,
                                                                    IncomeReport.BIZTOTINCO,
                                                                    ],
@@ -204,7 +204,7 @@ def get_basic_data(trade_date):
     return tp_revenue_quanlity, ttm_revenue_quanlity
 
 
-def prepare_calculate_local(trade_date):
+def prepare_calculate_local(trade_date, factor_name):
     # local
     tic = time.time()
     tp_revenue_quanlity, ttm_revenue_quanlity = get_basic_data(trade_date)
@@ -212,7 +212,7 @@ def prepare_calculate_local(trade_date):
         print("%s has no data" % trade_date)
         return
     else:
-        factor_revenue_quality.calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity)
+        factor_revenue_quality.calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity, factor_name)
     time6 = time.time()
     print('earning_cal_time:{}'.format(time6 - tic))
 
@@ -233,35 +233,37 @@ def prepare_calculate_remote(trade_date):
         print('earning_cal_time:{}'.format(time6 - tic))
 
 
-def do_update(start_date, end_date, count):
+def do_update(start_date, end_date, count, factor_name):
     # 读取本地交易日
     syn_util = SyncUtil()
     trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count, order='DESC')
     trade_date_sets = trade_date_sets['TRADEDATE'].values
     for trade_date in trade_date_sets:
         print('因子计算日期： %s' % trade_date)
-        prepare_calculate_local(trade_date)
+        prepare_calculate_local(trade_date, factor_name)
     print('----->')
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--start_date', type=int, default=20070101)
-    # parser.add_argument('--end_date', type=int, default=0)
-    # parser.add_argument('--count', type=int, default=1)
-    # parser.add_argument('--rebuild', type=bool, default=False)
-    # parser.add_argument('--update', type=bool, default=False)
-    # parser.add_argument('--schedule', type=bool, default=False)
-    #
-    # args = parser.parse_args()
-    # if args.end_date == 0:
-    #     end_date = int(datetime.now().date().strftime('%Y%m%d'))
-    # else:
-    #     end_date = args.end_date
-    # if args.rebuild:
-    #     processor = factor_revenue_quality.RevenueQuality('factor_revenue')
-    #     processor.create_dest_tables()
-    #     do_update(args.start_date, end_date, args.count)
-    # if args.update:
-    #     do_update(args.start_date, end_date, args.count)
-    do_update('20190819', '20190823', 10)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_date', type=int, default=20070101)
+    parser.add_argument('--end_date', type=int, default=0)
+    parser.add_argument('--count', type=int, default=1)
+    parser.add_argument('--rebuild', type=bool, default=False)
+    parser.add_argument('--update', type=bool, default=False)
+    parser.add_argument('--schedule', type=bool, default=False)
+
+    factor_name = 'factor_revenue'
+
+    args = parser.parse_args()
+    if args.end_date == 0:
+        end_date = int(datetime.now().date().strftime('%Y%m%d'))
+    else:
+        end_date = args.end_date
+    if args.rebuild:
+        processor = factor_revenue_quality.RevenueQuality(factor_name)
+        processor.create_dest_tables()
+        do_update(args.start_date, end_date, args.count, factor_name)
+    if args.update:
+        do_update(args.start_date, end_date, args.count, factor_name)
+    # do_update('20190819', '20190823', 10)

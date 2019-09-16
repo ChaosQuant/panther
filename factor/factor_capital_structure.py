@@ -7,6 +7,7 @@
 @file: factor_operation_capacity.py
 @time: 2019-05-30
 """
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -240,9 +241,11 @@ def calculate(trade_date, tp_management, factor_name):  # 计算对应因子
     # factor_management['id'] = factor_management['security_code'] + str(trade_date)
     factor_management['trade_date'] = str(trade_date)
     print(factor_management.head())
-    print(len(factor_management))
-    print(len(factor_management) == len(set(factor_management.index.values)))
+    # print(len(factor_management))
+    # print(len(factor_management) == len(set(factor_management.index.values)))
     management._storage_data(factor_management, trade_date)
+    del management
+    gc.collect()
 
 
 # @app.task()

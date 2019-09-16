@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-
+import gc
 import sys
 sys.path.append("../")
 sys.path.append("../../")
@@ -14,6 +14,8 @@ from factor.utillities.calc_tools import CalcTools
 
 # from factor import app
 from ultron.cluster.invoke.cache_data import cache_data
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
 
 
 class RevenueQuality(FactorBase):
@@ -27,8 +29,8 @@ class RevenueQuality(FactorBase):
     def create_dest_tables(self):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
-                    `security_code` varchar(24) NOT NULL,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                    `security_code` varchar(32) NOT NULL,
                     `trade_date` date NOT NULL,
                     `NetNonOIToTP` decimal(19,4),
                     `NetNonOIToTPTTM` decimal(19,4),
@@ -40,7 +42,7 @@ class RevenueQuality(FactorBase):
                     `PriceToRevRatioTTM` decimal(19,4),
                     `PftMarginTTM` decimal(19,4),
                     `PriceToRevRatioAvg5YTTM` decimal(19,4),
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(RevenueQuality, self)._create_tables(create_sql, drop_sql)
@@ -62,7 +64,7 @@ class RevenueQuality(FactorBase):
             / earning.total_profit.values
             )
         earning = earning.drop(dependencies, axis=1)
-        revenue_quality = pd.merge(revenue_quality, earning, on="security_code")
+        revenue_quality = pd.merge(revenue_quality, earning, how='outer', on="security_code")
         return revenue_quality
 
     @staticmethod
@@ -82,7 +84,7 @@ class RevenueQuality(FactorBase):
             / earning.total_profit.values
             )
         earning = earning.drop(dependencies, axis=1)
-        revenue_quality = pd.merge(revenue_quality, earning, on="security_code")
+        revenue_quality = pd.merge(revenue_quality, earning, how='outer', on="security_code")
         return revenue_quality
 
     @staticmethod
@@ -104,7 +106,7 @@ class RevenueQuality(FactorBase):
              earning.total_operating_cost.values)
             / earning.total_profit.values)
         earning = earning.drop(dependencies, axis=1)
-        revenue_quality = pd.merge(revenue_quality, earning, on="security_code")
+        revenue_quality = pd.merge(revenue_quality, earning, how='outer', on="security_code")
         return revenue_quality
 
     @staticmethod
@@ -126,7 +128,7 @@ class RevenueQuality(FactorBase):
              earning.total_operating_cost.values)
             / earning.total_profit.values)
         earning = earning.drop(dependencies, axis=1)
-        revenue_quality = pd.merge(revenue_quality, earning, on="security_code")
+        revenue_quality = pd.merge(revenue_quality, earning, how='outer', on="security_code")
         return revenue_quality
 
     @staticmethod
@@ -144,7 +146,7 @@ class RevenueQuality(FactorBase):
             CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        revenue_quality = pd.merge(revenue_quality, cash_flow, on="security_code")
+        revenue_quality = pd.merge(revenue_quality, cash_flow, how='outer', on="security_code")
         return revenue_quality
 
     @staticmethod
@@ -192,7 +194,7 @@ class RevenueQuality(FactorBase):
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
-        historical_value['PriceToRevRatioTTM'] = historical_value.apply(func, axis=1)
+        historical_value['PriceToRevRatioTTM'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(dependencies, axis=1)
         revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
         return revenue_quality
@@ -211,7 +213,7 @@ class RevenueQuality(FactorBase):
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
-        historical_value['PftMarginTTM'] = historical_value.apply(func)
+        historical_value['PftMarginTTM'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(dependencies, axis=1)
         revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
         return revenue_quality
@@ -230,15 +232,15 @@ class RevenueQuality(FactorBase):
         fun = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else (x[0] / x[2] if x[2] is not None and x[2] !=0 else None)
         historical_value['PriceToRevRatioAvg5YTTM'] = historical_value[dependencies].apply(fun, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        revenue_quality = pd.merge(revenue_quality, historical_value, on="security_code")
+        revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on="security_code")
         return revenue_quality
 
 
-def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity):
+def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity, factor_name):
     # 计算对应因子
     tp_revenue_quanlity = tp_revenue_quanlity.set_index('security_code')
     ttm_revenue_quanlity = ttm_revenue_quanlity.set_index('security_code')
-    revenue_quality = RevenueQuality('factor_revenue')  # 注意, 这里的name要与client中新建table时的name一致, 不然会报错
+    revenue_quality = RevenueQuality(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然会报错
 
     factor_revenue = pd.DataFrame()
     factor_revenue['security_code'] = tp_revenue_quanlity.index
@@ -255,13 +257,14 @@ def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity):
     factor_revenue = revenue_quality.operating_profit_to_total_profit_ttm(ttm_revenue_quanlity, factor_revenue)
     factor_revenue = revenue_quality.price_to_revenue_ratio_ttm(ttm_revenue_quanlity, factor_revenue)
     factor_revenue = revenue_quality.net_income_to_total_profit_ttm(ttm_revenue_quanlity, factor_revenue)
-
+    factor_revenue = revenue_quality.profit_margin_ttm(ttm_revenue_quanlity, factor_revenue)
     factor_revenue = factor_revenue.reset_index()
 
-    factor_revenue['id'] = factor_revenue['security_code'] + str(trade_date)
     factor_revenue['trade_date'] = str(trade_date)
     print(factor_revenue.head())
-    # factor_revenue._storage_data(factor_revenue, trade_date)
+    revenue_quality._storage_data(factor_revenue, trade_date)
+    del revenue_quality
+    gc.collect()
 
 
 # @app.task()

@@ -32,6 +32,7 @@ from client.utillities.sync_util import SyncUtil
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
+
 def get_basic_data(trade_date):
     engine = sqlEngine()
     maplist = {
@@ -83,16 +84,16 @@ def get_basic_data(trade_date):
         'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
         })
 
-    print(balance_sets.head())
-    print(len(balance_sets))
-    print(len(set(balance_sets['security_code'])))
-    a = list(balance_sets['security_code'].values)
-    if (len(balance_sets) != len(set(balance_sets['security_code']))):
-        import collections
-        print([item for item, count in collections.Counter(a).items() if count > 1])
-
-        # print(balance_sets['security_code']['2010000958'])
-        print(balance_sets[balance_sets['security_code'] == '2010000958'])
+    # print(balance_sets.head())
+    # print(len(balance_sets))
+    # print(len(set(balance_sets['security_code'])))
+    # a = list(balance_sets['security_code'].values)
+    # if (len(balance_sets) != len(set(balance_sets['security_code']))):
+    #     import collections
+    #     print([item for item, count in collections.Counter(a).items() if count > 1])
+    #
+    #     # print(balance_sets['security_code']['2010000958'])
+    #     print(balance_sets[balance_sets['security_code'] == '2010000958'])
     return balance_sets
 
 

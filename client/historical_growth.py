@@ -63,7 +63,7 @@ def get_basic_data(trade_date):
     trade_date_pre_year_3 = get_trade_date(trade_date, 3)
     trade_date_pre_year_4 = get_trade_date(trade_date, 4)
     trade_date_pre_year_5 = get_trade_date(trade_date, 5)
-    print('trade_date %s' % trade_date)
+    # print('trade_date %s' % trade_date)
     # print('trade_date_pre_year %s' % trade_date_pre_year)
     # print('trade_date_pre_year_2 %s' % trade_date_pre_year_2)
     # print('trade_date_pre_year_3 %s' % trade_date_pre_year_3)
@@ -263,7 +263,7 @@ def get_basic_data(trade_date):
     return ttm_factor_sets, balance_sets
 
 
-def prepare_calculate_local(trade_date):
+def prepare_calculate_local(trade_date, factor_name):
     # growth
     tic = time.time()
     print('trade_date %s' % trade_date)
@@ -275,7 +275,7 @@ def prepare_calculate_local(trade_date):
         print("%s has no data" % trade_date)
         return
     else:
-        factor_historical_growth.calculate(trade_date, growth_sets=growth_sets)
+        factor_historical_growth.calculate(trade_date, growth_sets, factor_name)
     time1 = time.time()
     print('growth_cal_time:{}'.format(time1 - tic))
 
@@ -299,38 +299,39 @@ def prepare_calculate_remote(trade_date):
     print('growth_cal_time:{}'.format(time1 - tic))
 
 
-def do_update(start_date, end_date, count):
+def do_update(start_date, end_date, count, factor_name):
     # 读取交易日
     syn_util = SyncUtil()
     trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count, order='DESC')
     trade_date_sets = trade_date_sets['TRADEDATE'].values
-    print('交易日：%s' % trade_date_sets)
+    # print('交易日：%s' % trade_date_sets)
     for trade_date in trade_date_sets:
         print('因子计算日期： %s' % trade_date)
-        prepare_calculate_local(trade_date)
+        prepare_calculate_local(trade_date, factor_name)
     print('----->')
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--start_date', type=int, default=20070101)
-    # parser.add_argument('--end_date', type=int, default=0)
-    # parser.add_argument('--count', type=int, default=1)
-    # parser.add_argument('--rebuild', type=bool, default=False)
-    # parser.add_argument('--update', type=bool, default=False)
-    # parser.add_argument('--schedule', type=bool, default=False)
-    #
-    # args = parser.parse_args()
-    # if args.end_date == 0:
-    #     end_date = int(datetime.now().date().strftime('%Y%m%d'))
-    # else:
-    #     end_date = args.end_date
-    # if args.rebuild:
-    #     processor = factor_historical_growth.Growth('factor_growth')
-    #     processor.create_dest_tables()
-    #     do_update(args.start_date, end_date, args.count)
-    # if args.update:
-    #     do_update(args.start_date, end_date, args.count)
-    do_update('20190819', '20190823', 10)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_date', type=int, default=20070101)
+    parser.add_argument('--end_date', type=int, default=0)
+    parser.add_argument('--count', type=int, default=1)
+    parser.add_argument('--rebuild', type=bool, default=False)
+    parser.add_argument('--update', type=bool, default=False)
+    parser.add_argument('--schedule', type=bool, default=False)
+
+    factor_name = 'factor_growth'
+    args = parser.parse_args()
+    if args.end_date == 0:
+        end_date = int(datetime.now().date().strftime('%Y%m%d'))
+    else:
+        end_date = args.end_date
+    if args.rebuild:
+        processor = factor_historical_growth.Growth(factor_name)
+        processor.create_dest_tables()
+        do_update(args.start_date, end_date, args.count, factor_name)
+    if args.update:
+        do_update(args.start_date, end_date, args.count, factor_name)
+    # do_update('20190819', '20190823', 10)
 
 

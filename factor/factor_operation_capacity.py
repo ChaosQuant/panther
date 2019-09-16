@@ -7,6 +7,7 @@
 @file: factor_operation_capacity.py
 @time: 2019-05-30
 """
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -36,7 +37,7 @@ class OperationCapacity(FactorBase):
         """
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `AccPayablesRateTTM` decimal(19,4),
@@ -50,7 +51,7 @@ class OperationCapacity(FactorBase):
                     `InvDaysTTM` decimal(19,4),
                     `OptCycle` decimal(19,4),
                     `TotaAssetRtTTM` decimal(19,4),
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(OperationCapacity, self)._create_tables(create_sql, drop_sql)
@@ -70,16 +71,17 @@ class OperationCapacity(FactorBase):
         """
 
         management = ttm_management.loc[:, dependencies]
+        print(management.head())
         management['ap'] = (management.accounts_payable
                             + management.notes_payable
                             - management.advance_payment) / 4
         management['AccPayablesRateTTM'] = np.where(
             CalcTools.is_zero(management.ap.values), 0,
             management.operating_cost.values / management.ap.values)
-        # dependencies.append('ap')
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['AccPayablesRateTTM'] = management['AccPayablesRateTTM']
+        dependencies = dependencies + ['ap']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        # factor_management['AccPayablesRateTTM'] = management['AccPayablesRateTTM']
         return factor_management
 
     @staticmethod
@@ -103,10 +105,10 @@ class OperationCapacity(FactorBase):
         management['AccPayablesDaysTTM'] = np.where(
             CalcTools.is_zero(management.ap.values), 0,
             360 / management.operating_cost.values * management.ap.values)
-        # dependencies.append('ap')
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['AccPayablesDaysTTM'] = management['AccPayablesDaysTTM']
+        dependencies = dependencies + ['ap']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        # factor_management['AccPayablesDaysTTM'] = management['AccPayablesDaysTTM']
         return factor_management
 
     @staticmethod
@@ -128,10 +130,10 @@ class OperationCapacity(FactorBase):
         management['ARRateTTM'] = np.where(
             CalcTools.is_zero(management.ar.values), 0,
             management.operating_revenue.values / management.ar.values)
-        # dependencies.append('ar')
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['ARRateTTM'] = management['ARRateTTM']
+        dependencies = dependencies + ['ar']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        # factor_management['ARRateTTM'] = management['ARRateTTM']
         return factor_management
 
     @staticmethod
@@ -154,7 +156,7 @@ class OperationCapacity(FactorBase):
             360 / management.operating_revenue.values * management.ar.values)
         dependencies = dependencies + ['ar']
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         # factor_management['ARDaysTTM'] = management['ARDaysTTM']
         return factor_management
 
@@ -173,9 +175,9 @@ class OperationCapacity(FactorBase):
         management['InvRateTTM'] = np.where(
             CalcTools.is_zero(management.inventories.values), 0,
             management.operating_cost.values / management.inventories.values * 4)
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['InvRateTTM'] = management['InvRateTTM']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        # factor_management['InvRateTTM'] = management['InvRateTTM']
         return factor_management
 
     @staticmethod
@@ -193,9 +195,9 @@ class OperationCapacity(FactorBase):
         management['InvDaysTTM'] = np.where(
             CalcTools.is_zero(management.operating_cost.values), 0,
             360 / management.operating_cost.values * management.inventories.values / 4)
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['InvDaysTTM'] = management['InvDaysTTM']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        # factor_management['InvDaysTTM'] = management['InvDaysTTM']
         return factor_management
 
     @staticmethod
@@ -226,9 +228,9 @@ class OperationCapacity(FactorBase):
         management['CurAssetsRtTTM'] = np.where(
             CalcTools.is_zero(management.total_current_assets.values), 0,
             management.operating_revenue.values / management.total_current_assets.values * 4)
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['CurAssetsRtTTM'] = management['CurAssetsRtTTM']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        # factor_management['CurAssetsRtTTM'] = management['CurAssetsRtTTM']
         return factor_management
 
     @staticmethod
@@ -253,10 +255,10 @@ class OperationCapacity(FactorBase):
         management['FixAssetsRtTTM'] = np.where(
             CalcTools.is_zero(management.fa.values), 0,
             management.operating_revenue.values / management.fa.values * 4)
-        # dependencies.append('fa')
-        # management = management.drop(dependencies, axis=1)
-        # factor_management = pd.merge(factor_management, management, on="security_code")
-        factor_management['FixAssetsRtTTM'] = management['FixAssetsRtTTM']
+        dependencies = dependencies + ['fa']
+        management = management.drop(dependencies, axis=1)
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        # factor_management['FixAssetsRtTTM'] = management['FixAssetsRtTTM']
         return factor_management
 
     @staticmethod
@@ -288,13 +290,13 @@ class OperationCapacity(FactorBase):
             CalcTools.is_zero(management.total_assets.values), 0,
             management.operating_revenue.values / management.total_assets * 4)
         management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, on="security_code")
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
 
-def calculate(trade_date, ttm_operation_capacity):  # 计算对应因子
+def calculate(trade_date, ttm_operation_capacity, factor_name):  # 计算对应因子
     ttm_operation_capacity = ttm_operation_capacity.set_index('security_code')
-    capacity = OperationCapacity('operation_capacity')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+    capacity = OperationCapacity(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
     # 读取目前涉及到的因子
 
     # 因子计算
@@ -315,10 +317,12 @@ def calculate(trade_date, ttm_operation_capacity):  # 计算对应因子
     factor_management = capacity.total_assets_t_rate_ttm(ttm_operation_capacity, factor_management)
 
     factor_management = factor_management.reset_index()
-    factor_management['id'] = factor_management['security_code'] + str(trade_date)
+    # factor_management['id'] = factor_management['security_code'] + str(trade_date)
     factor_management['trade_date'] = str(trade_date)
     print(factor_management.head())
-    # capacity._storage_data(factor_management, trade_date)
+    capacity._storage_data(factor_management, trade_date)
+    del capacity
+    gc.collect()
 
 
 # @app.task()
