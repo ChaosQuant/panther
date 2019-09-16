@@ -30,8 +30,9 @@ class Rebuild(object):
         ## update factor_info
         delete_sql = """delete from `{0}` where factor_type='{1}'""".format('factor_info', class_name)
         session.execute(delete_sql)
-        update_sql = """insert into `{0}` (`name`,`factor_type`,`type_1`,`type_2`) values('{1}','{2}','{3}','{4}');""".format(
-        'factor_info', class_method().name, class_name, class_method().factor_type1, class_method().factor_type2)
+        update_sql = """insert into `{0}` (`name`,`factor_type`,`type_1`,`type_2`,`description`) values('{1}','{2}','{3}','{4}','{5}');""".format(
+        'factor_info', class_method().name, class_name, class_method().factor_type1, class_method().factor_type2,
+                                    class_method().desciption)
         session.execute(update_sql)
     
     def _update_factor_detail(self, class_name, class_method, func_sets, session):
@@ -40,12 +41,15 @@ class Rebuild(object):
         session.execute(delete_sql)
         for func in func_sets:
             try:
-                desc = str(str(getattr(class_method,func).__doc__.split('\n')[-2]).split('return:')[-1])
+                desc = str(str(getattr(class_method,func).__doc__.split('\n')[-2]).split('desc:')[-1]).replace(' ', '')
                 desc = desc.replace(':','：')
+                name = str(str(getattr(class_method,func).__doc__.split('\n')[-3]).split('name:')[-1]).replace(' ', '')
+                name = name.replace(':','：')
             except:
                 desc = None
-            update_sql ="""insert into `{0}` (`factor_type`,`factor_name`,`description`) values('{1}','{2}','{3}');""".format(
-            'factor_detail', class_name, str(func), desc)
+                name = None
+            update_sql ="""insert into `{0}` (`factor_type`,`factor_name`,`factor_cn_name`, `description`) values('{1}','{2}','{3}','{4}');""".format(
+            'factor_detail', class_name.lower(), str(func), name, desc)
             session.execute(update_sql)
         
     def _build_table(self, class_name, func_sets, session):
@@ -59,7 +63,7 @@ class Rebuild(object):
         session = self._destsession()
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         func_sets = self._func_sets(class_method)
-        self._build_table(class_name, func_sets, session)
+        self._build_table(str(packet_name.split('.')[-1]), func_sets, session)
         self._update_factor_info(class_name, class_method, session)
         self._update_factor_detail(class_name, class_method, func_sets, session)
         session.commit()
