@@ -55,7 +55,7 @@ class InternalCode(object):
         trade_dates.sort()
         sql = """select security_code,symbol,exchange,company_id,begin_date,end_date from `{0}`
                     where exchange in (001002,001003) and security_type=101
-                     and ((begin_date<='{1}' and end_date>='{2}') 
+                     and ((begin_date<='{1}' and end_date>'{2}') 
                      or (begin_date<='{1}' and end_date='19000101'));""".format(
             self.internal_code_table, trade_dates[0], trade_dates[-1])
         result_list = pd.read_sql(sql, self.source)
@@ -68,7 +68,7 @@ class InternalCode(object):
                 if not isinstance(trade_date, datetime.date):
                     trade_date = datetime.datetime.strptime(str(trade_date), '%Y%m%d').date()
                 trade_date_code = result_list[
-                    ((result_list['begin_date'] <= trade_date) & (result_list['end_date'] >= trade_date)) | (
+                    ((result_list['begin_date'] <= trade_date) & (result_list['end_date'] > trade_date)) | (
                             (result_list['begin_date'] <= trade_date) & (
                             result_list['end_date'] == datetime.datetime.strptime('19000101', '%Y%m%d').date()))]
                 trade_date_code['trade_date'] = trade_date
