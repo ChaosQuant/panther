@@ -85,28 +85,28 @@ class PriceVolume(object):
         cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
-            hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _willr(data):
             result = talib.WILLR(data.highest_price.values,
                                data.lowest_price.values,
                                data.close_price, timeperiod=14)
             return result.iloc[-1]
-        return data_sets.groupby('code').apply(_willr)
+        return data_sets.groupby('security_code').apply(_willr)
     
     def _OBVXD(self, data, dependencies=['turnover_vol','close_price']):
         turnover_vol = data['turnover_vol']
         close_price = data['close_price']
         cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
         vol = turnover_vol.stack().reset_index().rename(columns={0:'turnover_vol'})
-        data_sets = cp.merge(vol,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = cp.merge(vol,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _obv(data):
             result = talib.OBV(data.close_price.values,
                                data.turnover_vol.values)
             return result[0]
-        return data_sets.groupby('code').apply(_obv)
+        return data_sets.groupby('security_code').apply(_obv)
     
     
     def OBV1D(self, data, dependencies=['turnover_vol','close_price'], max_window=1):

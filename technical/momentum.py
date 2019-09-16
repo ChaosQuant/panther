@@ -18,8 +18,8 @@ class Momentum(object):
         :param param1: double
         :return:1.EMA3 = EMA(EMA(EMA(close, N), N), N)；2. TRIX = EMA3(t) / EMA3(t-1) – 1
         '''
-        close_price = data['close_price'].copy().fillna(0).T
-        close_price_shift = data['close_price'].copy().fillna(0).shift(1).T
+        close_price = data['close_price'].copy().fillna(method='ffill').T
+        close_price_shift = data['close_price'].copy().fillna(method='ffill').shift(1).T
         def _emaxd(data):
             expression1 = np.nan_to_num(talib.EMA(data.values, timeperiod))
             expression2 = np.nan_to_num(talib.EMA(expression1, timeperiod))
@@ -80,7 +80,7 @@ class Momentum(object):
         '''
         return self._PMXD(data, 20)
 
-    def PM60D(self, data, dependencies=['close_price'], max_window=61):
+    def PM60D(self, data, dependencies=['close_price'], max_window=62):
         '''
          This is alpha191_1
          :name: 过去 60 天的价格动量
@@ -88,7 +88,7 @@ class Momentum(object):
         '''
         return self._PMXD(data, 60)
 
-    def PM120D(self, data, dependencies=['close_price'], max_window=121):
+    def PM120D(self, data, dependencies=['close_price'], max_window=122):
         '''
          This is alpha191_1
          :name: 过去 120 天的价格动量
@@ -96,7 +96,7 @@ class Momentum(object):
         '''
         return self._PMXD(data, 120)
 
-    def PM250D(self, data, dependencies=['close_price'], max_window=251):
+    def PM250D(self, data, dependencies=['close_price'], max_window=252):
         '''
          This is alpha191_1
          :name: 过去 250 天的价格动量
@@ -114,7 +114,7 @@ class Momentum(object):
         pm20d = self.PM20D(data)
         return pm5d - pm20d
 
-    def PMDif5D60D(self, data, dependencies=['close_price'], max_window=61):
+    def PMDif5D60D(self, data, dependencies=['close_price'], max_window=62):
         '''
          This is alpha191_1
          :name: 过去 5 天的价格动量减去过去 3 个月的价格动量
@@ -138,6 +138,7 @@ class Momentum(object):
          :name: 24 日变化率指数
          :desc: 24 日变化率指数（24-day Rate of Change），类似于动力指数。如果价格始终是上升的，则变化率指数始终在 100%线以上，且如果变化速度指数在向上发展时，说明价格上升的速度在加快。公式：RCI[t]=close[t]/close[t-N]
         '''
+        pdb.set_trace()
         return self._PMXD(data, 24)
 
     def ARC50D(self, data, dependencies=['close_price'], max_window=101):
@@ -149,7 +150,7 @@ class Momentum(object):
         close_price = data['close_price']
         prev_close = close_price.shift(50)
         rc = close_price / prev_close
-        rc = rc.copy().fillna(0).T
+        rc = rc.copy().fillna(method='ffill').T
         def _ema(data):
             return talib.EMA(data, 50)[-1]
         return rc.apply(_ema, axis=1)
@@ -160,7 +161,7 @@ class Momentum(object):
          :name: 绝对偏差移动平均
          :desc: 变化率指数均值 (Average Rate of Change)。股票的价格变化率 RC 指标的均值，用以判断前一段交易周期内股票的平均价格变化率。ARC=EMA(RC,N,1/N),其中RCt=close[t]/close[t-N], N=50, 1/N为指数移动平均加权系数。
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _ma(data):
             return talib.MA(data, 5)
         close_price_5ma = close_price.apply(_ma, axis=1)
@@ -173,14 +174,14 @@ class Momentum(object):
          :name: 均线价格比
          :desc: 均线价格比 (10-day moving average to close price ratio)。由于股票的成交价格有响起均线回归的趋势，计算均线价格比可以预测股票在未来周期的运动趋势。MA10Close = MA(close, N) / close
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _ma(data):
             return talib.MA(data, 10)
         ma10 = close_price.apply(_ma, axis=1)
         return (ma10 / close_price).T.iloc[-1]
 
     def _BIASXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _ma(data):
             return talib.MA(data, param1)[-1]
         close_price_ma = close_price.apply(_ma, axis=1)
@@ -211,7 +212,7 @@ class Momentum(object):
         '''
         return self._BIASXD(data, 5)
 
-    def BIAS60D(self, data, dependencies=['close_price'], max_window=61):
+    def BIAS60D(self, data, dependencies=['close_price'], max_window=62):
         '''
          This is alpha191_1
          :name: 61日乖离率
@@ -261,21 +262,21 @@ class Momentum(object):
         '''
         return self._ChgToXMAvg(data)
 
-    def DEA(self, data, dependencies=['close_price'], max_window=34):
+    def DEA(self, data, dependencies=['close_price'], max_window=35):
         '''
          This is alpha191_1
          :name: DEA9D
          :desc: 计算 MACD 因子的中间变量 (Difference in Exponential Average（mediator in calculating MACD))。
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _macd(data):
             macd, macdsignal, macdhist = talib.MACD(data, fastperiod=12, slowperiod=26, signalperiod=9)
             return macdsignal[-1]
         return close_price.apply(_macd, axis=1)
 
     def _EMVXD(self, data, param1 , dependencies=['highest_price','lowest_price','turnover_vol']):
-        highest_price = data['highest_price'].fillna(0)
-        lowest_price = data['lowest_price'].fillna(0)
+        highest_price = data['highest_price'].fillna(method='ffill')
+        lowest_price = data['lowest_price'].fillna(method='ffill')
         perv_highest = highest_price.shift(1)
         perv_lowest = lowest_price.shift(1)
         #(highest + lowest) / 2
@@ -306,13 +307,13 @@ class Momentum(object):
         return self._EMVXD(data, 6)
     
     
-    def MACD12D26D(self, data, dependencies=['close_price'], max_window=34):
+    def MACD12D26D(self, data, dependencies=['close_price'], max_window=35):
         '''
          This is alpha191_1
          :name: 平滑异同移动平均线
          :desc: 平滑异同移动平均线（Moving Average Convergence Divergence）,又称移动平均聚散指标。
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _macd(data):
             macd, macdsignal, macdhist = talib.MACD(data, fastperiod=12, slowperiod=26, signalperiod=9)
             return macd[-1]
@@ -327,7 +328,7 @@ class Momentum(object):
         return data['close_price'].diff(10).iloc[-1]
 
     def _EMAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _ema(data):
             return talib.EMA(data, param1)[-1]
         return close_price.apply(_ema, axis=1)
@@ -389,7 +390,7 @@ class Momentum(object):
         return self._EMAXD(data, 60)
 
     def _MAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _ma(data):
             return talib.MA(data, param1)[-1]
         return close_price.apply(_ma, axis=1)
@@ -443,7 +444,7 @@ class Momentum(object):
         return (self._MAXD(data, 3) + self._MAXD(data, 6) + self._MAXD(data, 12) + self._MAXD(data, 24)) / 4
 
     def _TEMAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _tema(data):
             return talib.TEMA(data, param1)[-1]
         return close_price.apply(_tema, axis=1)
@@ -471,16 +472,16 @@ class Momentum(object):
         cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
-            hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _cci(data):
             result = talib.CCI(data.highest_price.values,
                                data.lowest_price.values,
                                data.close_price.values,
                                timeperiod=param1)
             return result[-1]
-        return data_sets.groupby('code').apply(_cci)
+        return data_sets.groupby('security_code').apply(_cci)
     
     def CCI10D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=11):
         '''
@@ -527,19 +528,19 @@ class Momentum(object):
         cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
-            hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _adx(data):
             result = talib.ADX(data.highest_price.values,
                                data.lowest_price.values,
                                data.close_price.values,
                                timeperiod=14)
             return result[-1]
-        return data_sets.groupby('code').apply(_adx)
+        return data_sets.groupby('security_code').apply(_adx)
     
     
-    def ADXR14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=41):
+    def ADXR14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=43):
         '''
          This is alpha191_1
          :name: 相对平均动向指数
@@ -551,16 +552,16 @@ class Momentum(object):
         cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
-            hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _adxr(data):
             result = talib.ADXR(data.highest_price.values,
                                data.lowest_price.values,
                                data.close_price.values,
                                timeperiod=14)
             return result[-1]
-        return data_sets.groupby('code').apply(_adxr)
+        return data_sets.groupby('security_code').apply(_adxr)
     
     def UOS7D14D28D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=29):
         '''
@@ -568,22 +569,23 @@ class Momentum(object):
          :name: 终极指标
          :desc: 终极指标（Ultimate Oscillator）。现行使用的各种振荡指标，对于周期参数的选择相当敏感。不同市况、不同参数设定的振荡指标，产生的结果截然不同。因此，选择最佳的参数组合，成为使用振荡指标之前最重要的一道手续。
         '''
+        pdb.set_trace()
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
         close_price = data['close_price']
         cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
-            hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _ultosc(data):
             result = talib.ULTOSC(data.highest_price.values,
                                data.lowest_price.values,
                                data.close_price.values,
                                timeperiod1=7, timeperiod2=14, timeperiod3=28)
             return result[-1]
-        return data_sets.groupby('code').apply(_ultosc)
+        return data_sets.groupby('security_code').apply(_ultosc)
     
     def ChkOsci3D10D(self, data, dependencies=['highest_price','lowest_price', 'close_price',
                                               'turnover_vol'],max_window=11):
@@ -600,9 +602,9 @@ class Momentum(object):
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
         vol = turnover_vol.stack().reset_index().rename(columns={0:'turnover_vol'})
-        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
-            hp,on=['code','trade_date']).merge(vol, on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).merge(vol, on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         
         def _3adema(data):
             ad = talib.AD(data.highest_price.values,
@@ -619,7 +621,7 @@ class Momentum(object):
                                  data.turnover_vol)
             result = talib.EMA(np.nan_to_num(ad),10)
             return result[-1]
-        return data_sets.groupby('code').apply(_3adema) - data_sets.groupby('code').apply(_10adema)
+        return data_sets.groupby('security_code').apply(_3adema) - data_sets.groupby('security_code').apply(_10adema)
     
     
     def ChkVol10D(self, data, dependencies=['highest_price','lowest_price'],max_window=21):
@@ -632,26 +634,26 @@ class Momentum(object):
         lowest_price = data['lowest_price']
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         
         prev_highest_price = data['highest_price'].shift(10)
         prev_lowest_price = data['lowest_price'].shift(10)
         prev_hp = prev_highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         prev_lp = prev_lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        prev_data_sets = prev_lp.merge(prev_hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        prev_data_sets = prev_lp.merge(prev_hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         
         def _10hlema(data):
             result = talib.EMA(data.highest_price.values - data.lowest_price.values, 10)
             return result[-1]
         
-        hlema  = data_sets.groupby('code').apply(_10hlema)
-        prev_hlema  = prev_data_sets.groupby('code').apply(_10hlema)
+        hlema  = data_sets.groupby('security_code').apply(_10hlema)
+        prev_hlema  = prev_data_sets.groupby('security_code').apply(_10hlema)
         return 100 * (hlema - prev_hlema) / prev_hlema
     
     def _MA10RegressCoeffX(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].copy().fillna(0).T
+        close_price = data['close_price'].copy().fillna(method='ffill').T
         def _ma10(data):
             result = talib.MA(data, 10)
             b = result[-param1:]
@@ -677,7 +679,7 @@ class Momentum(object):
         return self._MA10RegressCoeffX(data, 6)
     
     def _PLRCXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].copy().fillna(0).T
+        close_price = data['close_price'].copy().fillna(method='ffill').T
         def _pl(data):
             b = data[-param1:]
             x = np.array([i for i in range(1,param1 + 1)])

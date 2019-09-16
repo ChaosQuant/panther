@@ -13,7 +13,7 @@ class Sentiment(object):
         self.factor_type2 = '情绪指标'
         self.desciption = '反应市场对标的的买卖情绪'
 
-    def AroonD26D(self, data, dependencies=['highest_price','lowest_price'], max_window=27):
+    def AroonD26D(self, data, dependencies=['highest_price','lowest_price'], max_window=30):
         '''
         This is alpha191_1
         :name: Aroon 因子的中间变量
@@ -23,16 +23,16 @@ class Sentiment(object):
         lowest_price = data['lowest_price']
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _aroon(data):
             aroondown, aroonup = talib.AROON(data.highest_price.values,
                                data.lowest_price.values,
                                timeperiod=26)
             return aroondown[-1]
-        return data_sets.groupby('code').apply(_aroon)
+        return data_sets.groupby('security_code').apply(_aroon)
     
-    def AroonU26D(self, data, dependencies=['highest_price','lowest_price'], max_window=27):
+    def AroonU26D(self, data, dependencies=['highest_price','lowest_price'], max_window=30):
         '''
         This is alpha191_1
         :name: Aroon 因子的中间变量
@@ -42,16 +42,16 @@ class Sentiment(object):
         lowest_price = data['lowest_price']
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _aroon(data):
             aroondown, aroonup = talib.AROON(data.highest_price.values,
                                data.lowest_price.values,
                                timeperiod=26)
             return aroonup[-1]
-        return data_sets.groupby('code').apply(_aroon)
+        return data_sets.groupby('security_code').apply(_aroon)
     
-    def Aroon26D(self, data, dependencies=['highest_price','lowest_price'], max_window=27):
+    def Aroon26D(self, data, dependencies=['highest_price','lowest_price'], max_window=30):
         '''
         This is alpha191_1
         :name: 阿隆振荡
@@ -61,14 +61,14 @@ class Sentiment(object):
         lowest_price = data['lowest_price']
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _aroon(data):
             aroon = talib.AROONOSC(data.highest_price.values,
                                data.lowest_price.values,
                                timeperiod=26)
             return aroon[-1]
-        return data_sets.groupby('code').apply(_aroon)
+        return data_sets.groupby('security_code').apply(_aroon)
     
     def _dm(self, data, dependencies=['lowest_price','highest_price']):
         prev_lowest = data['lowest_price'].shift(1)
@@ -77,9 +77,9 @@ class Sentiment(object):
         condition2 = prev_lowest + prev_highest
         condition3 =  condition1 - condition2
         result1 = np.maximum(abs(data['highest_price'].T - prev_highest.T),abs(data['lowest_price'].T - prev_lowest.T))
-        dmz = result1[condition3.T > 0].fillna(0)
+        dmz = result1[condition3.T > 0].fillna(method='ffill')
         
-        dmf = result1[condition3.T < 0].fillna(0)
+        dmf = result1[condition3.T < 0].fillna(method='ffill')
         return dmz, dmf
         
     def DIZ13D(self, data, dependencies=['lowest_price','highest_price'], max_window=13):
@@ -118,7 +118,7 @@ class Sentiment(object):
          :name: 空头力道
          :desc: 空头力道(Mediator in calculating Elder, Bear power indicator)，是计算 Elder 因子的中间变量
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _ema(data):
             return talib.EMA(data, 13)
         ema_result = close_price.apply(_ema, axis=1)
@@ -130,7 +130,7 @@ class Sentiment(object):
          :name: 多头力道
          :desc: 多头力道 (Mediator in calculating Elder, Bull power indicator)，是计算 Elder 因子的中间变量。
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').T
         def _ema(data):
             return talib.EMA(data, 13)
         ema_result = close_price.apply(_ema, axis=1)
@@ -186,8 +186,8 @@ class Sentiment(object):
                                 data['open_price'] - prev_open)
         expression2 = np.maximum(data['open_price'] - data['lowest_price'], 
                                 data['open_price'] - prev_open)
-        DTM = expression1[data['open_price'] > prev_open].fillna(0)
-        DBM = expression2[data['open_price'] < prev_open].fillna(0)
+        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill')
+        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill')
         STM = DTM.sum()
         SBM = DBM.sum()
         return SBM
@@ -203,8 +203,8 @@ class Sentiment(object):
                                 data['open_price'] - prev_open)
         expression2 = np.maximum(data['open_price'] - data['lowest_price'], 
                                 data['open_price'] - prev_open)
-        DTM = expression1[data['open_price'] > prev_open].fillna(0)
-        DBM = expression2[data['open_price'] < prev_open].fillna(0)
+        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill')
+        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill')
         STM = DTM.sum()
         SBM = DBM.sum()
         return STM
@@ -220,8 +220,8 @@ class Sentiment(object):
                                 data['open_price'] - prev_open)
         expression2 = np.maximum(data['open_price'] - data['lowest_price'], 
                                 data['open_price'] - prev_open)
-        DTM = expression1[data['open_price'] > prev_open].fillna(0)
-        DBM = expression2[data['open_price'] < prev_open].fillna(0)
+        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill')
+        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill')
         STM = DTM.sum()
         SBM = DBM.sum()
         return (STM - SBM) / np.maximum(STM, SBM)
@@ -233,16 +233,16 @@ class Sentiment(object):
         cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
         hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
         lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
-        data_sets = lp.merge(cp,on=['code','trade_date']).merge(
-            hp,on=['code','trade_date']).sort_values(
-            by=['trade_date','code'],ascending=True)
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
         def _atr(data):
             result = talib.ATR(data.highest_price.values,
                                data.lowest_price.values,
                                data.close_price,
                                timeperiod=param1)
             return result.iloc[-1]
-        return data_sets.groupby('code').apply(_atr)
+        return data_sets.groupby('security_code').apply(_atr)
     
     
     def ATR14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=15):

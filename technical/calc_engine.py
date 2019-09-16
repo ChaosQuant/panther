@@ -15,8 +15,8 @@ class CalcEngine(object):
                                            #{'packet':'technical.power_volume','class':'PowerVolume'},
                                            #{'packet':'technical.sentiment','class':'Sentiment'},
                                            #{'packet':'technical.reversal','class':'Reversal'},
-                                           #{'packet':'technical.momentum','class':'Momentum'}
-                                            {'packet':'technical.trend','class':'Trend'}
+                                           {'packet':'technical.momentum','class':'Momentum'}
+                                            #{'packet':'technical.trend','class':'Trend'}
                                           ]):
         self._name= name
         self._methods = methods
@@ -55,16 +55,16 @@ class CalcEngine(object):
     def calc_factor_by_date(self, data, trade_date):
         trade_date_list = list(set(data.trade_date))
         trade_date_list.sort(reverse=False)
-        benchmark_factor = data.set_index('trade_date').loc[trade_date_list[-1]][['code','factor']]
-        benchmark_factor.rename(columns={'factor':'benchmark_factor'},inplace=True)
-        mkt_df = data.merge(benchmark_factor, on=['code'])
-        mkt_df = mkt_df.set_index(['trade_date', 'code'])
+        benchmark_factor = data.set_index('trade_date').loc[trade_date_list[-1]][['security_code','pre_factor']]
+        benchmark_factor.rename(columns={'pre_factor':'benchmark_factor'},inplace=True)
+        mkt_df = data.merge(benchmark_factor, on=['security_code'])
+        mkt_df = mkt_df.set_index(['trade_date', 'security_code'])
         mkt_df = mkt_df[mkt_df['turnover_vol'] > 0]
         
         #
         for p in mkt_df.columns:
             if p in ['open_price', 'highest_price', 'lowest_price', 'close_price', 'vwap']:
-                mkt_df[p] = mkt_df[p] * mkt_df['factor'] / mkt_df['benchmark_factor']
+                mkt_df[p] = mkt_df[p] * mkt_df['pre_factor'] / mkt_df['benchmark_factor']
         '''
         indu_dict = {}
         indu_names = self._INDU_STYLES + ['COUNTRY']
@@ -83,7 +83,6 @@ class CalcEngine(object):
     
     
     def loadon_data(self, trade_date):
-        pdb.set_trace()
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
         begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
@@ -112,7 +111,7 @@ class CalcEngine(object):
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
             max_window = fun_param['max_window'].default
-            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window - 1))
+            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window))
             data = {}
             for dep in dependencies:
                 if dep not in ['indu']:
@@ -123,7 +122,7 @@ class CalcEngine(object):
         with multiprocessing.Pool(processes=cpus*2) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
-        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'symbol','code':'symbol'})
+        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'security_code','code':'security_code'})
         result = result.replace([np.inf, -np.inf], np.nan)
         result['trade_date'] = trade_date
         return result
@@ -142,7 +141,7 @@ class CalcEngine(object):
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
             max_window = fun_param['max_window'].default
-            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window - 1))
+            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window))
             data = {}
             for dep in dependencies:
                 if dep not in ['indu']:
@@ -152,9 +151,11 @@ class CalcEngine(object):
             res = getattr(class_method(),func)(data)
             res = pd.DataFrame(res)
             res.columns=[func]
-            res = res.reset_index().sort_values(by='code',ascending=True)
+            #res = res.reset_index().sort_values(by='code',ascending=True)
+            res = res.reset_index().sort_values(by='security_code', ascending=True)
             result[func] = res[func]
-        result['symbol'] = res['code']
+        #result['symbol'] = res['code']
+        result['security_code'] = res['security_code']
         result['trade_date'] = trade_date
         print(time.time() - start_time)
         return result.replace([np.inf, -np.inf], np.nan)
