@@ -279,8 +279,7 @@ def calculate(trade_date, tp_cash_flow, ttm_factor_sets):  # 计算对应因子
     factor_cash_flow = cash_flow.oper_cash_in_to_asset_ttm(ttm_factor_sets, factor_cash_flow)
     factor_cash_flow = cash_flow.sale_service_cash_to_or_ttm(ttm_factor_sets, factor_cash_flow)
 
-    factor_cash_flow = factor_cash_flow.reset_index()
-    factor_cash_flow['id'] = factor_cash_flow['security_code'] + str(trade_date)
+    # factor_cash_flow['id'] = factor_cash_flow['security_code'] + str(trade_date)
     factor_cash_flow['trade_date'] = str(trade_date)
     print('factor_cash_flow: \n%s' % factor_cash_flow.head())
     # cash_flow._storage_data(factor_cash_flow, trade_date)
