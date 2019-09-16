@@ -13,7 +13,6 @@ class StorageEngine(object):
         self._destsession = sessionmaker(bind=self._destination, autocommit=False, autoflush=True)
      
     def update_destdb(self, table_name, trade_date, sets):
-        pdb.set_trace()
         sets = sets.where(pd.notnull(sets), None)
         #删除原表
         session = self._destsession()

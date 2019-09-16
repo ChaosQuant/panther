@@ -16,14 +16,16 @@ class Rebuild(object):
     
     def _create_table(self, class_name, func_sets):
         create_sql = """create table `{0}`(
-                    `id` varchar(32) NOT NULL,
-                    `symbol` varchar(24) NOT NULL,
-                    `trade_date` date NOT NULL,""".format(class_name)
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                    `security_code` varchar(32) NOT NULL,
+                    `trade_date` date NOT NULL,
+                    """.format(class_name)
         for func in func_sets:
             create_sql += """`{0}` decimal(19,4),
                           """.format(func)
-        create_sql += """ PRIMARY KEY(`id`,`trade_date`,`symbol`)
-                    )ENGINE=InnoDB DEFAULT CHARSET=utf8;"""
+        create_sql += """ constraint {0}_uindex
+                            unique (`trade_date`,`security_code`))
+                            ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(class_name)
         return create_sql
     
     def _update_factor_info(self, class_name, class_method, session):
@@ -64,7 +66,7 @@ class Rebuild(object):
         class_method = importlib.import_module(packet_name).__getattribute__(class_name)
         func_sets = self._func_sets(class_method)
         self._build_table(str(packet_name.split('.')[-1]), func_sets, session)
-        self._update_factor_info(class_name, class_method, session)
-        self._update_factor_detail(class_name, class_method, func_sets, session)
+        self._update_factor_info(str(packet_name.split('.')[-1]), class_method, session)
+        self._update_factor_detail(str(packet_name.split('.')[-1]), class_method, func_sets, session)
         session.commit()
         session.close()

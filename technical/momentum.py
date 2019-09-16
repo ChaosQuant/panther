@@ -18,8 +18,8 @@ class Momentum(object):
         :param param1: double
         :return:1.EMA3 = EMA(EMA(EMA(close, N), N), N)；2. TRIX = EMA3(t) / EMA3(t-1) – 1
         '''
-        close_price = data['close_price'].copy().fillna(0).T
-        close_price_shift = data['close_price'].copy().fillna(0).shift(1).T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
+        close_price_shift = data['close_price'].copy().fillna(method='ffill').fillna(0).shift(1).T
         def _emaxd(data):
             expression1 = np.nan_to_num(talib.EMA(data.values, timeperiod))
             expression2 = np.nan_to_num(talib.EMA(expression1, timeperiod))
@@ -80,7 +80,7 @@ class Momentum(object):
         '''
         return self._PMXD(data, 20)
 
-    def PM60D(self, data, dependencies=['close_price'], max_window=61):
+    def PM60D(self, data, dependencies=['close_price'], max_window=62):
         '''
          This is alpha191_1
          :name: 过去 60 天的价格动量
@@ -88,7 +88,7 @@ class Momentum(object):
         '''
         return self._PMXD(data, 60)
 
-    def PM120D(self, data, dependencies=['close_price'], max_window=121):
+    def PM120D(self, data, dependencies=['close_price'], max_window=122):
         '''
          This is alpha191_1
          :name: 过去 120 天的价格动量
@@ -96,7 +96,7 @@ class Momentum(object):
         '''
         return self._PMXD(data, 120)
 
-    def PM250D(self, data, dependencies=['close_price'], max_window=251):
+    def PM250D(self, data, dependencies=['close_price'], max_window=252):
         '''
          This is alpha191_1
          :name: 过去 250 天的价格动量
@@ -114,7 +114,7 @@ class Momentum(object):
         pm20d = self.PM20D(data)
         return pm5d - pm20d
 
-    def PMDif5D60D(self, data, dependencies=['close_price'], max_window=61):
+    def PMDif5D60D(self, data, dependencies=['close_price'], max_window=62):
         '''
          This is alpha191_1
          :name: 过去 5 天的价格动量减去过去 3 个月的价格动量
@@ -132,7 +132,7 @@ class Momentum(object):
         '''
         return self._PMXD(data, 12)
 
-    def RCI24D(self, data, dependencies=['close_price'], max_window=25):
+    def RCI24D(self, data, dependencies=['close_price'], max_window=26):
         '''
          This is alpha191_1
          :name: 24 日变化率指数
@@ -149,7 +149,7 @@ class Momentum(object):
         close_price = data['close_price']
         prev_close = close_price.shift(50)
         rc = close_price / prev_close
-        rc = rc.copy().fillna(0).T
+        rc = rc.copy().fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, 50)[-1]
         return rc.apply(_ema, axis=1)
@@ -160,7 +160,7 @@ class Momentum(object):
          :name: 绝对偏差移动平均
          :desc: 变化率指数均值 (Average Rate of Change)。股票的价格变化率 RC 指标的均值，用以判断前一段交易周期内股票的平均价格变化率。ARC=EMA(RC,N,1/N),其中RCt=close[t]/close[t-N], N=50, 1/N为指数移动平均加权系数。
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, 5)
         close_price_5ma = close_price.apply(_ma, axis=1)
@@ -173,14 +173,14 @@ class Momentum(object):
          :name: 均线价格比
          :desc: 均线价格比 (10-day moving average to close price ratio)。由于股票的成交价格有响起均线回归的趋势，计算均线价格比可以预测股票在未来周期的运动趋势。MA10Close = MA(close, N) / close
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, 10)
         ma10 = close_price.apply(_ma, axis=1)
         return (ma10 / close_price).T.iloc[-1]
 
     def _BIASXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, param1)[-1]
         close_price_ma = close_price.apply(_ma, axis=1)
@@ -211,7 +211,7 @@ class Momentum(object):
         '''
         return self._BIASXD(data, 5)
 
-    def BIAS60D(self, data, dependencies=['close_price'], max_window=61):
+    def BIAS60D(self, data, dependencies=['close_price'], max_window=62):
         '''
          This is alpha191_1
          :name: 61日乖离率
@@ -261,21 +261,21 @@ class Momentum(object):
         '''
         return self._ChgToXMAvg(data)
 
-    def DEA(self, data, dependencies=['close_price'], max_window=27):
+    def DEA(self, data, dependencies=['close_price'], max_window=35):
         '''
          This is alpha191_1
          :name: DEA9D
          :desc: 计算 MACD 因子的中间变量 (Difference in Exponential Average（mediator in calculating MACD))。
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _macd(data):
             macd, macdsignal, macdhist = talib.MACD(data, fastperiod=12, slowperiod=26, signalperiod=9)
             return macdsignal[-1]
         return close_price.apply(_macd, axis=1)
 
     def _EMVXD(self, data, param1 , dependencies=['highest_price','lowest_price','turnover_vol']):
-        highest_price = data['highest_price'].fillna(0)
-        lowest_price = data['lowest_price'].fillna(0)
+        highest_price = data['highest_price'].fillna(method='ffill').fillna(0)
+        lowest_price = data['lowest_price'].fillna(method='ffill').fillna(0)
         perv_highest = highest_price.shift(1)
         perv_lowest = lowest_price.shift(1)
         #(highest + lowest) / 2
@@ -283,17 +283,17 @@ class Momentum(object):
         #(prev_highest + prev_lowest) / 2
         expression2 = (perv_highest + perv_lowest) /2
         #(highest – lowest) / volume
-        expression3 = (highest_price  - lowest_price) / data['turnover_vol']
+        expression3 = (highest_price  - lowest_price) / (data['turnover_vol'] / 100000000)
         expression4 = (expression1 - expression2) * expression3
         def _ema(data):
             return talib.EMA(data, param1)[-1]
-        return expression4.fillna(0).T.apply(_ema, axis=1)
+        return expression4.fillna(method='ffill').fillna(0).T.apply(_ema, axis=1)
 
     def EMV14D(self, data, dependencies=['highest_price','lowest_price','turnover_vol'], max_window=15):
         '''
          This is alpha191_1
          :name: 14日简易波动指标
-         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。
+         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。成交量以亿为单位。
         '''
         return self._EMVXD(data, 14)
 
@@ -301,18 +301,18 @@ class Momentum(object):
         '''
          This is alpha191_1
          :name: 6日简易波动指标
-         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。
+         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。成交量以亿为单位。
         '''
         return self._EMVXD(data, 6)
     
     
-    def MACD12D26D(self, data, dependencies=['close_price'], max_window=27):
+    def MACD12D26D(self, data, dependencies=['close_price'], max_window=35):
         '''
          This is alpha191_1
          :name: 平滑异同移动平均线
          :desc: 平滑异同移动平均线（Moving Average Convergence Divergence）,又称移动平均聚散指标。
         '''
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _macd(data):
             macd, macdsignal, macdhist = talib.MACD(data, fastperiod=12, slowperiod=26, signalperiod=9)
             return macd[-1]
@@ -327,7 +327,7 @@ class Momentum(object):
         return data['close_price'].diff(10).iloc[-1]
 
     def _EMAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, param1)[-1]
         return close_price.apply(_ema, axis=1)
@@ -389,7 +389,7 @@ class Momentum(object):
         return self._EMAXD(data, 60)
 
     def _MAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, param1)[-1]
         return close_price.apply(_ma, axis=1)
@@ -443,7 +443,7 @@ class Momentum(object):
         return (self._MAXD(data, 3) + self._MAXD(data, 6) + self._MAXD(data, 12) + self._MAXD(data, 24)) / 4
 
     def _TEMAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(0).T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _tema(data):
             return talib.TEMA(data, param1)[-1]
         return close_price.apply(_tema, axis=1)
@@ -463,3 +463,239 @@ class Momentum(object):
          :desc: 5 日三重指数移动平均线（5-day Triple Exponential Moving Average）。取时间 N 内的收盘价分别计算其一至三重指数加权平均
         '''
         return self._TEMAXD(data, 5)
+    
+    def _CCIXD(self, data, param1, dependencies=['highest_price','lowest_price', 'close_price']):
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        def _cci(data):
+            result = talib.CCI(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod=param1)
+            return result[-1]
+        return data_sets.groupby('security_code').apply(_cci)
+    
+    def CCI10D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=11):
+        '''
+        This is alpha191_1
+        :name: 10 日顺势指标
+        :desc: 10 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 10)
+    
+    
+    def CCI20D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=21):
+        '''
+        This is alpha191_1
+        :name: 20 日顺势指标
+        :desc: 20 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 20)
+    
+    def CCI5D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=6):
+        '''
+        This is alpha191_1
+        :name: 5 日顺势指标
+        :desc: 5 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 5)
+    
+    def CCI88D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=91):
+        '''
+        This is alpha191_1
+        :name: 88 日顺势指标
+        :desc: 88 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
+        '''
+        return self._CCIXD(data, 88)
+    
+    def ADX14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=29):
+        '''
+         This is alpha191_1
+         :name: 平均动向指数
+         :desc: 平均动向指数 (Average directional index)，DMI 因子的构成部分。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        def _adx(data):
+            result = talib.ADX(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod=14)
+            return result[-1]
+        return data_sets.groupby('security_code').apply(_adx)
+    
+    
+    def ADXR14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=43):
+        '''
+         This is alpha191_1
+         :name: 相对平均动向指数
+         :desc: 相对平均动向指数 (Relative average directional index)，DMI 因子的构成
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        def _adxr(data):
+            result = talib.ADXR(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod=14)
+            return result[-1]
+        return data_sets.groupby('security_code').apply(_adxr)
+    
+    def UOS7D14D28D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=30):
+        '''
+         This is alpha191_1
+         :name: 终极指标
+         :desc: 终极指标（Ultimate Oscillator）。现行使用的各种振荡指标，对于周期参数的选择相当敏感。不同市况、不同参数设定的振荡指标，产生的结果截然不同。因此，选择最佳的参数组合，成为使用振荡指标之前最重要的一道手续。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        def _ultosc(data):
+            result = talib.ULTOSC(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price.values,
+                               timeperiod1=7, timeperiod2=14, timeperiod3=28)
+            return result[-1]
+        return data_sets.groupby('security_code').apply(_ultosc)
+    
+    def ChkOsci3D10D(self, data, dependencies=['highest_price','lowest_price', 'close_price',
+                                              'turnover_vol'],max_window=11):
+        '''
+         This is alpha191_1
+         :name: 佳庆指标
+         :desc: 佳庆指标(Chaikin Oscillator)。该指标基于 AD 曲线的指数移动均线而计算得到。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        turnover_vol = data['turnover_vol']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        vol = turnover_vol.stack().reset_index().rename(columns={0:'turnover_vol'})
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).merge(vol, on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        
+        def _3adema(data):
+            ad = talib.AD(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price,
+                                 data.turnover_vol)
+            result = talib.EMA(np.nan_to_num(ad),3)
+            return result[-1]
+        
+        def _10adema(data):
+            ad = talib.AD(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price,
+                                 data.turnover_vol)
+            result = talib.EMA(np.nan_to_num(ad),10)
+            return result[-1]
+        return data_sets.groupby('security_code').apply(_3adema) - data_sets.groupby('security_code').apply(_10adema)
+    
+    
+    def ChkVol10D(self, data, dependencies=['highest_price','lowest_price'],max_window=21):
+        '''
+         This is alpha191_1
+         :name: 佳庆离散指标
+         :desc: 佳庆离散指标(Chaikin Volatility，简称 CVLT，VCI，CV)，又称“佳庆变异率指数”，是通过测量一段时间内价格 幅度平均值的变化来反映价格的离散程度。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        
+        prev_highest_price = data['highest_price'].shift(10)
+        prev_lowest_price = data['lowest_price'].shift(10)
+        prev_hp = prev_highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        prev_lp = prev_lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        prev_data_sets = prev_lp.merge(prev_hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        
+        def _10hlema(data):
+            result = talib.EMA(data.highest_price.values - data.lowest_price.values, 10)
+            return result[-1]
+        
+        hlema  = data_sets.groupby('security_code').apply(_10hlema)
+        prev_hlema  = prev_data_sets.groupby('security_code').apply(_10hlema)
+        return 100 * (hlema - prev_hlema) / prev_hlema
+    
+    def _MA10RegressCoeffX(self, data, param1, dependencies=['close_price']):
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
+        def _ma10(data):
+            result = talib.MA(data, 10)
+            b = result[-param1:]
+            x = np.array([i for i in range(1,param1 + 1)])
+            return np.linalg.lstsq(np.reshape(x,(-1,1)),np.reshape(b.values,(-1,1)))[0][0][-1]
+        return close_price.apply(_ma10,axis=1)
+         
+        
+    def MA10RegressCoeff12(self, data, dependencies=['close_price'], max_window=24):
+        '''
+        This is alpha191_1
+        :name: 10 日价格平均线 12 日线性回归系数
+        :desc: 10 日价格平均线 12 日线性回归系数 (regression coefficient of 10-day moving average (in predicting 12-day moving average))。
+        '''
+        return self._MA10RegressCoeffX(data, 12)
+    
+    def MA10RegressCoeff6(self, data, dependencies=['close_price'], max_window=17):
+        '''
+        This is alpha191_1
+        :name: 10 日价格平均线 6 日线性回归系数
+        :desc: 10 日价格平均线 6 日线性回归系数 (regression coefficient of 10-day moving average (in predicting 12-day moving average))。
+        '''
+        return self._MA10RegressCoeffX(data, 6)
+    
+    def _PLRCXD(self, data, param1, dependencies=['close_price']):
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
+        def _pl(data):
+            b = data[-param1:]
+            x = np.array([i for i in range(1,param1 + 1)])
+            return np.linalg.lstsq(np.reshape(x,(-1,1)),np.reshape(b.values,(-1,1)))[0][0][-1]
+        return close_price.apply(_pl,axis=1)
+    
+    def PLRC6D(self, data, dependencies=['close_price'], max_window=7):
+        '''
+        This is alpha191_1
+        :name: 6日价格线性回归系数
+        :desc: 价格线性回归系数(6-day Price Linear Regression Coefficient)
+        '''
+        return self._PLRCXD(data, 6)
+    
+    def PLRC12D(self, data, dependencies=['close_price'], max_window=13):
+        '''
+        This is alpha191_1
+        :name: 12日价格线性回归系数
+        :desc: 价格线性回归系数(12-day Price Linear Regression Coefficient)
+        '''
+        return self._PLRCXD(data, 12)
