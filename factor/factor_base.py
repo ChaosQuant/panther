@@ -14,11 +14,11 @@ import config
 
 class FactorBase(object):
     def __init__(self, name):
-        destination_db = '''mysql+mysqlconnector://{0}:{1}@{2}:{3}/{4}'''.format(config.destination_db_user,
-                                                                                 config.destination_db_pwd,
-                                                                                 config.destination_db_host,
-                                                                                 config.destination_db_port,
-                                                                                 config.destination_db_database)
+        destination_db = '''mysql+mysqlconnector://{0}:{1}@{2}:{3}/{4}'''.format(config.rl_db_user,
+                                                                                 config.rl_db_pwd,
+                                                                                 config.rl_db_host,
+                                                                                 config.rl_db_port,
+                                                                                 config.rl_db_database)
         self._name = name
         self._destination = sa.create_engine(destination_db)
         self._dest_session = sessionmaker(bind=self._destination, autocommit=False, autoflush=True)
@@ -33,7 +33,7 @@ class FactorBase(object):
     def _create_index(self):
         session = self._dest_session()
         indexs = [
-            '''CREATE INDEX {0}_trade_date_symbol_index ON `{0}` (trade_date, symbol);'''.format(self._name)
+            '''CREATE INDEX {0}_trade_date_symbol_index ON `{0}` (trade_date, security_code);'''.format(self._name)
         ]
         for sql in indexs:
             session.execute(sql)
