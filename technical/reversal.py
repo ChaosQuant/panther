@@ -41,7 +41,7 @@ class Reversal(object):
         :name: 钱德动量摆动指标
         :desc: 钱德动量摆动指标（Chande Momentum Osciliator）。由 Tushar Chande 发明，与其他动量指标摆动指标如相对强弱指标（RSI）和随机指标（KDJ）不同，钱德动量指标在计算公式的分子中采用上涨日和下跌日的数据。
         '''
-        close_price = data['close_price'].copy().fillna(method='ffill').T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _cmod(data):
             return talib.CMO(data, timeperiod=param1)[-1]
         close_price['cmo20'] = close_price.apply(_cmod,axis=1)
@@ -53,7 +53,7 @@ class Reversal(object):
         :name: 梅斯线
         :desc: 梅斯线（Mass Index）。本指标是 Donald Dorsey 累积股价波幅宽度之后所设计的震荡曲线。其最主要的作用，在于寻找飙涨股或者极度弱势股的重要趋势反转点。
         '''
-        expression1 = (data['highest_price'] - data['lowest_price']).fillna(method='ffill').T
+        expression1 = (data['highest_price'] - data['lowest_price']).fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, timeperiod=9)
         def _emahl(data):
@@ -61,9 +61,9 @@ class Reversal(object):
         def _sum(data):
             return data[-param1:].sum()
         EMAHL = expression1.apply(_ema,axis=1)
-        EMAEMAHL = EMAHL.fillna(method='ffill').apply(_emahl,axis=1)
+        EMAEMAHL = EMAHL.fillna(method='ffill').fillna(0).apply(_emahl,axis=1)
         EMA_Ratio = EMAHL / EMAEMAHL
-        EMA_Ratio['mass_index'] = EMA_Ratio.fillna(method='ffill').apply(_sum, axis=1)
+        EMA_Ratio['mass_index'] = EMA_Ratio.fillna(method='ffill').fillna(0).apply(_sum, axis=1)
         return EMA_Ratio['mass_index']
     
     def BollDown20D(self, data, param1=20, dependencies=['close_price'], max_window=21):
@@ -72,7 +72,7 @@ class Reversal(object):
         :name: 下轨线(布林线)指标
         :desc: 下轨线（布林线）指标（Lower Bollinger Bands），它是研判股价运动趋势的一种中长期技术分析工具。计算方法：中轨线为 N 日的移动平均线，上轨线为中轨线+两倍标准差。计算取 N=20
         '''
-        close_price = data['close_price'].copy().fillna(method='ffill').T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _bbands(data):
             upperband, middleband, lowerband = talib.BBANDS(data, timeperiod=param1)
             return lowerband[-1]
@@ -85,7 +85,7 @@ class Reversal(object):
         :name: 相对强弱指标
         :desc: 相对强度 RS = MA(U, N) / MA(D, N) , 其中N取12
         '''
-        close_price = data['close_price'].copy().fillna(method='ffill').T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _rsi(data):
             return talib.RSI(data, timeperiod=param1)[-1]
         close_price['rsi'] = close_price.apply(_rsi,axis=1)

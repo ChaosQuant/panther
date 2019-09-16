@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#针对191，101 量价进行通用计算
 import pandas as pd
 import numpy as np
 import multiprocessing
@@ -11,10 +10,10 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[#{'packet':'technical.price_volume','class':'PriceVolume'},
-                                           #{'packet':'technical.power_volume','class':'PowerVolume'},
-                                           #{'packet':'technical.sentiment','class':'Sentiment'},
-                                           #{'packet':'technical.reversal','class':'Reversal'},
+    def __init__(self, name, url, methods=[{'packet':'technical.price_volume','class':'PriceVolume'},
+                                           {'packet':'technical.power_volume','class':'PowerVolume'},
+                                           {'packet':'technical.sentiment','class':'Sentiment'},
+                                           {'packet':'technical.reversal','class':'Reversal'},
                                            {'packet':'technical.momentum','class':'Momentum'}
                                             #{'packet':'technical.trend','class':'Trend'}
                                           ]):
@@ -165,9 +164,8 @@ class CalcEngine(object):
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
         storage_engine = StorageEngine(self._url)
         for method in self._methods:
-            result = self.calc_factor(method['packet'],method['class'],mkt_df,trade_date)
+            result = self.process_calc_factor(method['packet'],method['class'],mkt_df,trade_date)
             storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-            print('----')
         
         
     def remote_run(self, trade_date):

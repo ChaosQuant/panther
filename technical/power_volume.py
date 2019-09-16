@@ -21,7 +21,7 @@ class PowerVolume(object):
         return data['turn_rate'].std() / data['turn_rate'].mean()
     
     def _TVMAXD(self, data, param1, dependencies=['turnover_value']):
-        turnover_value = data['turnover_value'].fillna(method='ffill').T
+        turnover_value = data['turnover_value'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, param1)[-1]
         turnover_value['TVMAX'] = turnover_value.apply(_ma,axis=1)
@@ -60,7 +60,7 @@ class PowerVolume(object):
         return data['turnover_value'].std()
         
     def _VEMAXD(self, data, dependencies=['turnover_value']):
-        turnover_value = data['turnover_value'].fillna(method='ffill').T
+        turnover_value = data['turnover_value'].fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, param1)[-1]
         turnover_value['EMA'] = turnover_value.apply(_ema,axis=1)
@@ -105,7 +105,7 @@ class PowerVolume(object):
         :name: VMACD 因子的中间变量
         :desc: VMACD 因子的中间变量
         '''
-        turnover_vol = data['turnover_vol'].fillna(method='ffill').T
+        turnover_vol = data['turnover_vol'].fillna(method='ffill').fillna(0).T
         def _12ema(data):
             return talib.EMA(data, 13)[-1]
         def _26ema(data):
@@ -164,7 +164,7 @@ class PowerVolume(object):
     
     
     def _VROCXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].copy().fillna(method='ffill').T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _roc(data):
             return talib.ROC(data, timeperiod=param1)[-1]
         close_price['roc'] = close_price.apply(_roc,axis=1)

@@ -77,9 +77,9 @@ class Sentiment(object):
         condition2 = prev_lowest + prev_highest
         condition3 =  condition1 - condition2
         result1 = np.maximum(abs(data['highest_price'].T - prev_highest.T),abs(data['lowest_price'].T - prev_lowest.T))
-        dmz = result1[condition3.T > 0].fillna(method='ffill')
+        dmz = result1[condition3.T > 0].fillna(method='ffill').fillna(0)
         
-        dmf = result1[condition3.T < 0].fillna(method='ffill')
+        dmf = result1[condition3.T < 0].fillna(method='ffill').fillna(0)
         return dmz, dmf
         
     def DIZ13D(self, data, dependencies=['lowest_price','highest_price'], max_window=13):
@@ -118,7 +118,7 @@ class Sentiment(object):
          :name: 空头力道
          :desc: 空头力道(Mediator in calculating Elder, Bear power indicator)，是计算 Elder 因子的中间变量
         '''
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, 13)
         ema_result = close_price.apply(_ema, axis=1)
@@ -130,7 +130,7 @@ class Sentiment(object):
          :name: 多头力道
          :desc: 多头力道 (Mediator in calculating Elder, Bull power indicator)，是计算 Elder 因子的中间变量。
         '''
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, 13)
         ema_result = close_price.apply(_ema, axis=1)
@@ -186,8 +186,8 @@ class Sentiment(object):
                                 data['open_price'] - prev_open)
         expression2 = np.maximum(data['open_price'] - data['lowest_price'], 
                                 data['open_price'] - prev_open)
-        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill')
-        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill')
+        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill').fillna(0)
+        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill').fillna(0)
         STM = DTM.sum()
         SBM = DBM.sum()
         return SBM
@@ -203,8 +203,8 @@ class Sentiment(object):
                                 data['open_price'] - prev_open)
         expression2 = np.maximum(data['open_price'] - data['lowest_price'], 
                                 data['open_price'] - prev_open)
-        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill')
-        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill')
+        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill').fillna(0)
+        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill').fillna(0)
         STM = DTM.sum()
         SBM = DBM.sum()
         return STM
@@ -220,8 +220,8 @@ class Sentiment(object):
                                 data['open_price'] - prev_open)
         expression2 = np.maximum(data['open_price'] - data['lowest_price'], 
                                 data['open_price'] - prev_open)
-        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill')
-        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill')
+        DTM = expression1[data['open_price'] > prev_open].fillna(method='ffill').fillna(0)
+        DBM = expression2[data['open_price'] < prev_open].fillna(method='ffill').fillna(0)
         STM = DTM.sum()
         SBM = DBM.sum()
         return (STM - SBM) / np.maximum(STM, SBM)

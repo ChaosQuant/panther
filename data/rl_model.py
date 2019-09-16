@@ -6,13 +6,13 @@ Base = declarative_base()
 metadata = Base.metadata
 
 class Market(Base):
-    __tablename__ = 'sk_daily_price'
+    __tablename__ = 'sk_daily_price_new'
     __table_args__ = (
-        Index('id', 'trade_date', 'symbol', unique=True),
+        Index('id', 'trade_date', 'security_code', unique=True),
     )
     id = Column(VARCHAR(32), primary_key=True)
-    symbol = Column(VARCHAR(24), primary_key=True)
-    #security_code = Column(VARCHAR(24), primary_key=True)
+    #symbol = Column(VARCHAR(24), primary_key=True)
+    security_code = Column(VARCHAR(24), primary_key=True)
     trade_date = Column(DATE, primary_key=True)
     name = Column(VARCHAR(50))
     pre_close = Column(DECIMAL(15, 6))
@@ -27,17 +27,20 @@ class Market(Base):
     change_pct = Column(DECIMAL(8, 4))
     tot_mkt_cap = Column(DECIMAL(18, 4))
     turn_rate = Column(DECIMAL(9, 4))
-    factor = Column(DECIMAL(9, 4))
-    ltd_factor = Column(DECIMAL(9, 4))
+    pre_factor = Column(DECIMAL(9,4))
+    lat_factor = Column(DECIMAL(9,4))
+    #factor = Column(DECIMAL(9, 4))
+    #ltd_factor = Column(DECIMAL(9, 4))
         
 
 class Exposure(Base):
     __tablename__ = 'risk_exposure'
     __table_args__ = (
-        Index('trade_date', 'symbol', unique=True),
+        Index('trade_date', 'security_code', unique=True),
     )
     trade_date =  Column(DateTime, primary_key=True, nullable=False)
-    symbol = Column(String, primary_key=True, nullable=False)
+    #symbol = Column(String, primary_key=True, nullable=False) 
+    security_code = Column(VARCHAR(24), primary_key=True)
     BETA = Column(Float(53))
     MOMENTUM = Column(Float(53))
     SIZE = Column(Float(53))

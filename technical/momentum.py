@@ -18,8 +18,8 @@ class Momentum(object):
         :param param1: double
         :return:1.EMA3 = EMA(EMA(EMA(close, N), N), N)；2. TRIX = EMA3(t) / EMA3(t-1) – 1
         '''
-        close_price = data['close_price'].copy().fillna(method='ffill').T
-        close_price_shift = data['close_price'].copy().fillna(method='ffill').shift(1).T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
+        close_price_shift = data['close_price'].copy().fillna(method='ffill').fillna(0).shift(1).T
         def _emaxd(data):
             expression1 = np.nan_to_num(talib.EMA(data.values, timeperiod))
             expression2 = np.nan_to_num(talib.EMA(expression1, timeperiod))
@@ -132,13 +132,12 @@ class Momentum(object):
         '''
         return self._PMXD(data, 12)
 
-    def RCI24D(self, data, dependencies=['close_price'], max_window=25):
+    def RCI24D(self, data, dependencies=['close_price'], max_window=26):
         '''
          This is alpha191_1
          :name: 24 日变化率指数
          :desc: 24 日变化率指数（24-day Rate of Change），类似于动力指数。如果价格始终是上升的，则变化率指数始终在 100%线以上，且如果变化速度指数在向上发展时，说明价格上升的速度在加快。公式：RCI[t]=close[t]/close[t-N]
         '''
-        pdb.set_trace()
         return self._PMXD(data, 24)
 
     def ARC50D(self, data, dependencies=['close_price'], max_window=101):
@@ -150,7 +149,7 @@ class Momentum(object):
         close_price = data['close_price']
         prev_close = close_price.shift(50)
         rc = close_price / prev_close
-        rc = rc.copy().fillna(method='ffill').T
+        rc = rc.copy().fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, 50)[-1]
         return rc.apply(_ema, axis=1)
@@ -161,7 +160,7 @@ class Momentum(object):
          :name: 绝对偏差移动平均
          :desc: 变化率指数均值 (Average Rate of Change)。股票的价格变化率 RC 指标的均值，用以判断前一段交易周期内股票的平均价格变化率。ARC=EMA(RC,N,1/N),其中RCt=close[t]/close[t-N], N=50, 1/N为指数移动平均加权系数。
         '''
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, 5)
         close_price_5ma = close_price.apply(_ma, axis=1)
@@ -174,14 +173,14 @@ class Momentum(object):
          :name: 均线价格比
          :desc: 均线价格比 (10-day moving average to close price ratio)。由于股票的成交价格有响起均线回归的趋势，计算均线价格比可以预测股票在未来周期的运动趋势。MA10Close = MA(close, N) / close
         '''
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, 10)
         ma10 = close_price.apply(_ma, axis=1)
         return (ma10 / close_price).T.iloc[-1]
 
     def _BIASXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, param1)[-1]
         close_price_ma = close_price.apply(_ma, axis=1)
@@ -268,15 +267,15 @@ class Momentum(object):
          :name: DEA9D
          :desc: 计算 MACD 因子的中间变量 (Difference in Exponential Average（mediator in calculating MACD))。
         '''
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _macd(data):
             macd, macdsignal, macdhist = talib.MACD(data, fastperiod=12, slowperiod=26, signalperiod=9)
             return macdsignal[-1]
         return close_price.apply(_macd, axis=1)
 
     def _EMVXD(self, data, param1 , dependencies=['highest_price','lowest_price','turnover_vol']):
-        highest_price = data['highest_price'].fillna(method='ffill')
-        lowest_price = data['lowest_price'].fillna(method='ffill')
+        highest_price = data['highest_price'].fillna(method='ffill').fillna(0)
+        lowest_price = data['lowest_price'].fillna(method='ffill').fillna(0)
         perv_highest = highest_price.shift(1)
         perv_lowest = lowest_price.shift(1)
         #(highest + lowest) / 2
@@ -284,17 +283,17 @@ class Momentum(object):
         #(prev_highest + prev_lowest) / 2
         expression2 = (perv_highest + perv_lowest) /2
         #(highest – lowest) / volume
-        expression3 = (highest_price  - lowest_price) / data['turnover_vol']
+        expression3 = (highest_price  - lowest_price) / (data['turnover_vol'] / 100000000)
         expression4 = (expression1 - expression2) * expression3
         def _ema(data):
             return talib.EMA(data, param1)[-1]
-        return expression4.fillna(0).T.apply(_ema, axis=1)
+        return expression4.fillna(method='ffill').fillna(0).T.apply(_ema, axis=1)
 
     def EMV14D(self, data, dependencies=['highest_price','lowest_price','turnover_vol'], max_window=15):
         '''
          This is alpha191_1
          :name: 14日简易波动指标
-         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。
+         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。成交量以亿为单位。
         '''
         return self._EMVXD(data, 14)
 
@@ -302,7 +301,7 @@ class Momentum(object):
         '''
          This is alpha191_1
          :name: 6日简易波动指标
-         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。
+         :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。成交量以亿为单位。
         '''
         return self._EMVXD(data, 6)
     
@@ -313,7 +312,7 @@ class Momentum(object):
          :name: 平滑异同移动平均线
          :desc: 平滑异同移动平均线（Moving Average Convergence Divergence）,又称移动平均聚散指标。
         '''
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _macd(data):
             macd, macdsignal, macdhist = talib.MACD(data, fastperiod=12, slowperiod=26, signalperiod=9)
             return macd[-1]
@@ -328,7 +327,7 @@ class Momentum(object):
         return data['close_price'].diff(10).iloc[-1]
 
     def _EMAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ema(data):
             return talib.EMA(data, param1)[-1]
         return close_price.apply(_ema, axis=1)
@@ -390,7 +389,7 @@ class Momentum(object):
         return self._EMAXD(data, 60)
 
     def _MAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
             return talib.MA(data, param1)[-1]
         return close_price.apply(_ma, axis=1)
@@ -444,7 +443,7 @@ class Momentum(object):
         return (self._MAXD(data, 3) + self._MAXD(data, 6) + self._MAXD(data, 12) + self._MAXD(data, 24)) / 4
 
     def _TEMAXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].fillna(method='ffill').T
+        close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _tema(data):
             return talib.TEMA(data, param1)[-1]
         return close_price.apply(_tema, axis=1)
@@ -508,7 +507,7 @@ class Momentum(object):
         '''
         return self._CCIXD(data, 5)
     
-    def CCI5D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=89):
+    def CCI88D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=91):
         '''
         This is alpha191_1
         :name: 88 日顺势指标
@@ -563,13 +562,12 @@ class Momentum(object):
             return result[-1]
         return data_sets.groupby('security_code').apply(_adxr)
     
-    def UOS7D14D28D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=29):
+    def UOS7D14D28D(self, data, dependencies=['highest_price','lowest_price', 'close_price'],max_window=30):
         '''
          This is alpha191_1
          :name: 终极指标
          :desc: 终极指标（Ultimate Oscillator）。现行使用的各种振荡指标，对于周期参数的选择相当敏感。不同市况、不同参数设定的振荡指标，产生的结果截然不同。因此，选择最佳的参数组合，成为使用振荡指标之前最重要的一道手续。
         '''
-        pdb.set_trace()
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
         close_price = data['close_price']
@@ -653,7 +651,7 @@ class Momentum(object):
         return 100 * (hlema - prev_hlema) / prev_hlema
     
     def _MA10RegressCoeffX(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].copy().fillna(method='ffill').T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _ma10(data):
             result = talib.MA(data, 10)
             b = result[-param1:]
@@ -679,7 +677,7 @@ class Momentum(object):
         return self._MA10RegressCoeffX(data, 6)
     
     def _PLRCXD(self, data, param1, dependencies=['close_price']):
-        close_price = data['close_price'].copy().fillna(method='ffill').T
+        close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _pl(data):
             b = data[-param1:]
             x = np.array([i for i in range(1,param1 + 1)])

@@ -78,7 +78,7 @@ class CalcEngine(object):
     def loadon_data(self, trade_date):
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
-        begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows))
+        begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
         total_data = db_polymerize.fetch_data(begin_date, trade_date,'1b')
         return total_data
     
@@ -115,7 +115,7 @@ class CalcEngine(object):
         with multiprocessing.Pool(processes=cpus*2) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
-        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'symbol'})
+        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'code'})
         result = result.replace([np.inf, -np.inf], np.nan)
         result['trade_date'] = trade_date
         return result
@@ -146,23 +146,19 @@ class CalcEngine(object):
             res.columns=[func]
             res = res.reset_index().sort_values(by='code',ascending=True)
             result[func] = res[func]
-        result['symbol'] = res['code']
+        result['code'] = res['code']
         result['trade_date'] = trade_date
         print(time.time() - start_time)
         return result
     
     def local_run(self, trade_date):
-        pdb.set_trace()
         total_data = self.loadon_data(trade_date)
         mkt_df = self.calc_factor_by_date(total_data,trade_date)
-        
-        result = self.process_calc_factor('alphax.alpha101','Alpha101',mkt_df,trade_date)
         storage_engine = StorageEngine(self._url)
-        storage_engine.update_destdb('alpha101', trade_date, result)
-        
-        result = self.process_calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
-        storage_engine = StorageEngine(self._url)
-        storage_engine.update_destdb('alpha191', trade_date, result)
+        for method in self._methods:
+            result = self.process_calc_factor(method['packet'],method['class'],mkt_df,trade_date)
+            storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
+            print('----')
         
         
     def remote_run(self, trade_date):
