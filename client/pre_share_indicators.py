@@ -7,7 +7,7 @@
 @file: pre_share_indicators.py
 @time: 2019-09-03 22:45
 """
-
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -192,6 +192,8 @@ def prepare_calculate_local(trade_date, factor_name):
         factor_per_share_indicators.calculate(trade_date, valuation_sets, factor_name)
     time3 = time.time()
     print('per_share_cal_time:{}'.format(time3 - tic))
+    del valuation_sets
+    gc.collect()
 
 
 def prepare_calculate_remote(trade_date):

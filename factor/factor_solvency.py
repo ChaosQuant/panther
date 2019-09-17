@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-
+import gc
 import json
 import numpy as np
 import pandas as pd
@@ -26,7 +26,7 @@ class Solvency(FactorBase):
     def create_dest_tables(self):
         drop_sql = """drop table if exists `{0}`""".format(self._name)
         create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO INCREMENT,
+                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
                     `security_code` varchar(24) NOT NULL,
                     `trade_date` date NOT NULL,
                     `BondsToAsset` decimal(19,4),
@@ -51,7 +51,7 @@ class Solvency(FactorBase):
                     `OptCFToIBDTTM` decimal(19,4),                   
                     `OptCFToNetDebtTTM` decimal(19,4),                   
                     `OptCFToCurrLiabilityTTM` decimal(19,4),                   
-                    constraint {0} uindex
+                    constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
         super(Solvency, self)._create_tables(create_sql, drop_sql)
@@ -193,7 +193,7 @@ class Solvency(FactorBase):
 
         dependencies = dependencies + ['debt']
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -224,7 +224,7 @@ class Solvency(FactorBase):
             management.equities_parent_company_owners.values / management.tc.values)
         dependencies = dependencies + ['tc']
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     # InteBearDebtToTotalCapital = 有息负债/总资本   总资本=固定资产+净运营资本  净运营资本=流动资产-流动负债
@@ -258,7 +258,7 @@ class Solvency(FactorBase):
         )
         dependencies = dependencies + ['interest_bearing_liability']
         contrarian = contrarian.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, contrarian, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, contrarian, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -280,7 +280,7 @@ class Solvency(FactorBase):
             management.total_non_current_assets.values
             / (management.total_current_assets.values - management.total_current_liability.values))
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -300,7 +300,7 @@ class Solvency(FactorBase):
             management.total_non_current_liability.values /
             (management.total_non_current_liability.values + management.market_cap.values))
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -321,7 +321,7 @@ class Solvency(FactorBase):
             (management.total_current_assets.values - management.inventories.values)
             / management.total_current_liability.values)
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -362,7 +362,7 @@ class Solvency(FactorBase):
             management.ta.values / management.ibd.values)
         dependencies = dependencies + ['ta', 'ibd']
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -391,7 +391,7 @@ class Solvency(FactorBase):
              management.other_receivable.values) /
             management.total_current_liability.values)
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -433,7 +433,7 @@ class Solvency(FactorBase):
             management.ta.values / management.nd.values)
         dependencies = dependencies + ['ta', 'nd']
         management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -451,7 +451,7 @@ class Solvency(FactorBase):
             CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
             cash_flow.net_operate_cash_flow_mrq.values / cash_flow.total_current_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -470,7 +470,7 @@ class Solvency(FactorBase):
                                              0,
                                              cash_flow.cash_and_equivalents_at_end.values / cash_flow.total_current_assets.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -492,7 +492,7 @@ class Solvency(FactorBase):
             (earning.total_profit.values + earning.financial_expense.values - earning.interest_income.values) /
             (earning.financial_expense.values - earning.interest_income.values))
         earning = earning.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, earning, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, earning, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -510,7 +510,7 @@ class Solvency(FactorBase):
             CalcTools.is_zero(cash_flow.total_liability.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.total_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -539,7 +539,7 @@ class Solvency(FactorBase):
             cash_flow.net_operate_cash_flow.values / cash_flow.interest_bearing_liability.values)
         dependencies = dependencies + ['interest_bearing_liability']
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -555,7 +555,7 @@ class Solvency(FactorBase):
         cash_flow['OptCFToNetDebtTTM'] = np.where(CalcTools.is_zero(cash_flow.net_liability.values), 0,
                                                   cash_flow.net_operate_cash_flow.values / cash_flow.net_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
@@ -573,13 +573,13 @@ class Solvency(FactorBase):
             CalcTools.is_zero(cash_flow.total_current_liability_ttm.values), 0,
             cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability_ttm.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, cash_flow, on="security_code")
+        factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
 
-def calculate(trade_date, tp_solvency):  # 计算对应因子
+def calculate(trade_date, tp_solvency, factor_name):  # 计算对应因子
     tp_solvency = tp_solvency.set_index('security_code')
-    solvency = Solvency('factor_solvency')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+    solvency = Solvency(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
 
     print(trade_date)
     # 读取目前涉及到的因子
@@ -611,10 +611,11 @@ def calculate(trade_date, tp_solvency):  # 计算对应因子
     factor_solvency = solvency.oper_cash_in_to_current_liability_ttm(tp_solvency, factor_solvency)
     factor_solvency = solvency.cash_to_current_liability_ttm(tp_solvency, factor_solvency)
     factor_solvency = factor_solvency.reset_index()
-    factor_solvency['id'] = factor_solvency['security_code'] + str(trade_date)
     factor_solvency['trade_date'] = str(trade_date)
     print(factor_solvency.head())
-    # solvency._storage_data(factor_cash_flow, trade_date)
+    solvency._storage_data(factor_solvency, trade_date)
+    del solvency
+    gc.collect()
 
 
 # @app.task()

@@ -8,15 +8,7 @@
 @time: 2019-09-05 11:05
 """
 
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""
-@version: ??
-@author: li
-@file: factor_historical_value.py
-@time: 2019-07-16 19:48
-"""
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -128,7 +120,7 @@ def get_basic_history_value_data(trade_date):
         'TOTASSET': 'total_assets_report',  # 资产总计
     })
     valuation_report_sets = pd.merge(indicator_sets, balance_sets, how='outer', on='security_code')
-    print('valuation_report_sets')
+    # print('valuation_report_sets')
 
     # MRQ data
     cash_flow_mrq = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
@@ -151,7 +143,7 @@ def get_basic_history_value_data(trade_date):
         'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
     })
     valuation_mrq = pd.merge(cash_flow_mrq, balance_mrq, on='security_code')
-    print('valuation_mrq')
+    # print('valuation_mrq')
 
     # TTM data
     # 总市值合并到TTM数据中，
@@ -262,15 +254,13 @@ def get_basic_history_value_data(trade_date):
                                                      Industry.isymbol)
                                                .filter(Industry.trade_date.in_([trade_date])),
                                                internal_type='symbol').drop(column_sw, axis=1)
-    print('sw_indu')
+    # print('sw_indu')
     sw_indu = sw_indu[sw_indu['isymbol'].isin(industry_set)]
 
     valuation_sets = pd.merge(valuation_sets, valuation_report_sets, how='outer', on='security_code')
     valuation_sets = pd.merge(valuation_sets, valuation_mrq, how='outer', on='security_code')
     valuation_sets = pd.merge(valuation_sets, valuation_ttm_sets, how='outer', on='security_code')
-    print('valuation_sets')
-    # valuation_sets = valuation_sets.drop('trade_date', axis=1)
-    # pe_sets = pe_sets.drop('trade_date', axis=1)
+    # print('valuation_sets')
 
     return valuation_sets, sw_indu, pe_sets
 
@@ -295,14 +285,15 @@ def prepare_calculate_local(trade_date, factor_name):
     tic = time.time()
     valuation_sets, sw_indu, pe_sets = get_basic_history_value_data(trade_date)
     print('data_read_time: %s' % (time.time()-tic))
-    print('len_of_valuation_sets: %s' % len(valuation_sets))
+    # print('len_of_valuation_sets: %s' % len(valuation_sets))
     if len(valuation_sets) <= 0:
         print("%s has no data" % trade_date)
         return
     else:
         factor_valuation.calculate(trade_date, valuation_sets, sw_indu, pe_sets, factor_name)
-    time2 = time.time()
-    print('history_cal_time:{}'.format(time2 - tic))
+    print('history_cal_time:{}'.format(time.time() - tic))
+    del valuation_sets, sw_indu, pe_sets
+    gc.collect()
 
 
 def do_update(start_date, end_date, count, factor_name):

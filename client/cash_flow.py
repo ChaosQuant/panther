@@ -7,7 +7,7 @@
 @file: cash_flow.py
 @time: 2019-09-02 10:51
 """
-
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -176,6 +176,8 @@ def prepare_calculate_local(trade_date, factor_name):
         factor_cash_flow.calculate(trade_date, tp_cash_flow, ttm_cash_flow_sets, factor_name)
     end = time.time()
     print('cash_flow_cal_time:{}'.format(end - tic))
+    del tp_cash_flow, ttm_cash_flow_sets
+    gc.collect()
 
 
 def prepare_calculate_remote(trade_date):
@@ -232,4 +234,3 @@ if __name__ == '__main__':
         do_update(args.start_date, end_date, args.count, factor_name)
     if args.update:
         do_update(args.start_date, end_date, args.count, factor_name)
-    # do_update('20190819', '20190823', 10)

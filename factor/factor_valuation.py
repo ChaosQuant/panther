@@ -97,9 +97,8 @@ class Valuation(FactorBase):
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return: 总市值的对数
         """
-        print('1')
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
@@ -117,10 +116,8 @@ class Valuation(FactorBase):
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return:流通总市值的对数
         """
-        print('2')
-
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
@@ -139,8 +136,6 @@ class Valuation(FactorBase):
         :param factor_historical_value:
         :return:
         """
-        print('3')
-
         # 对数市值
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: pow(math.log(abs(x[0])), 1/3.0) if x[0] is not None and x[0] != 0 else None
@@ -159,8 +154,6 @@ class Valuation(FactorBase):
         :param dependencies:
         :return:
         """
-        print('4')
-
         historical_value = valuation_sets.loc[:, dependencies]
         print(historical_value.head())
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -174,15 +167,13 @@ class Valuation(FactorBase):
     @staticmethod
     def pb_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['pb']):
         """
-        pb 均值
+        PB 均值
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PB 均值
         """
-        print('5')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -202,15 +193,13 @@ class Valuation(FactorBase):
     @staticmethod
     def pb_std(valuation_sets, sw_industry, factor_historical_value=None, dependencies=['pb']):
         """
-        pb 标准差
+        PB 标准差
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PB 标准差
         """
-        print('6')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -228,14 +217,12 @@ class Valuation(FactorBase):
     @staticmethod
     def pb_indu(valuation_sets, factor_historical_value, dependencies=['pb']):
         """
-        # (Pb – Pb 的行业均值)/Pb 的行业标准差
+        (Pb – Pb 的行业均值)/Pb 的行业标准差
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return: (Pb – Pb 的行业均值)/Pb 的行业标准差
         """
-        print('7')
-
         historical_value = valuation_sets.loc[:, dependencies]
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
 
@@ -273,8 +260,6 @@ class Valuation(FactorBase):
         :param dependencies:
         :return:
         """
-        print('9')
-
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
@@ -293,8 +278,6 @@ class Valuation(FactorBase):
         :param dependencies:
         :return:
         """
-        print('10')
-
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
@@ -313,8 +296,6 @@ class Valuation(FactorBase):
         :param dependencies:
         :return:
         """
-        print('11')
-
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
@@ -327,14 +308,12 @@ class Valuation(FactorBase):
     @staticmethod
     def total_assert(valuation_sets, factor_historical_value, dependencies=['total_assets_report']):
         """
-
+        总资产
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 总资产
         """
-        print('12')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
@@ -345,14 +324,12 @@ class Valuation(FactorBase):
     @staticmethod
     def market_value(valuation_sets, factor_historical_value, dependencies=['market_cap']):
         """
-
+        总市值
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 总市值
         """
-        print('13')
-
         historical_value = valuation_sets.loc[:, dependencies]
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
         factor_historical_value = factor_historical_value.rename(columns={"market_cap": "MktValue"})
@@ -361,14 +338,12 @@ class Valuation(FactorBase):
     @staticmethod
     def circulating_market_value(valuation_sets, factor_historical_value, dependencies=['circulating_market_cap']):
         """
-
+        流通市值
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 流通市值
         """
-        print('14')
-
         historical_value = valuation_sets.loc[:, dependencies]
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
         factor_historical_value = factor_historical_value.rename(columns={"circulating_market_cap": "CirMktValue"})
@@ -382,10 +357,8 @@ class Valuation(FactorBase):
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 对数总资产MRQ
         """
-        print('15')
-
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
@@ -404,10 +377,8 @@ class Valuation(FactorBase):
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 归属于母公司的股东权益（MRQ) / 总市值
         """
-        print('16')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -437,10 +408,8 @@ class Valuation(FactorBase):
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 归属于母公司的股东权益（MRQ) / 总市值
         """
-        print('17')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -468,10 +437,8 @@ class Valuation(FactorBase):
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 归属于母公司的股东权益（MRQ) / 总市值(行业)
         """
-        print('18')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -497,10 +464,8 @@ class Valuation(FactorBase):
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 资产总计/企业价值 MRQ
         """
-        print('19')
-
         historical_value = valuation_sets.loc[:, dependencies]
         fuc = lambda x: x[1] + x[2] + x[3] - x[4]
 
@@ -524,13 +489,11 @@ class Valuation(FactorBase):
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 对数营业收入(TTM)
         """
-        print('20')
-
         historical_value = valuation_sets.loc[:, dependencies]
-
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
+
         historical_value['LogSalesTTM'] = historical_value[dependencies].apply(func)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
@@ -541,10 +504,11 @@ class Valuation(FactorBase):
     def pcf_to_operating_cash_flow_ttm(valuation_sets, factor_historical_value, dependencies=['market_cap', 'net_operate_cash_flow']):
         """
         市现率PCF(经营现金流TTM)
-        :return:
+        :param valuation_sets:
+        :param factor_historical_value:
+        :param dependencies:
+        :return: 市现率PCF(经营现金流TTM)
         """
-        print('21')
-
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
         historical_value['PCFToOptCashflowTTM'] = historical_value[dependencies].apply(func, axis=1)
@@ -557,14 +521,12 @@ class Valuation(FactorBase):
     @staticmethod
     def etop(valuation_sets, factor_historical_value, dependencies=['net_profit', 'market_cap']):
         """
-        收益市值比= 净利润TTM/总市值
+        收益市值比 = 净利润TTM/总市值
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return: 收益市值比
         """
-        print('22')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         historical_value['EPTTM'] = np.where(CalcTools.is_zero(historical_value['market_cap']), 0,
@@ -582,10 +544,8 @@ class Valuation(FactorBase):
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 市盈率PE(TTM)（扣除）
         """
-        print('23')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         historical_value['PECutTTM'] = np.where(CalcTools.is_zero(historical_value['net_profit_cut_pre']), 0,
@@ -600,15 +560,13 @@ class Valuation(FactorBase):
     @staticmethod
     def pe_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['pe']):
         """
-        pe 均值
+        PE 均值
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PE 均值
         """
-        print('24')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -625,15 +583,13 @@ class Valuation(FactorBase):
     @staticmethod
     def pe_std(valuation_sets, sw_industry, factor_historical_value, dependencies=['pe']):
         """
-        pe 标准差
+        PE 标准差
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PE 标准差
         """
-        print('25')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -650,15 +606,13 @@ class Valuation(FactorBase):
     @staticmethod
     def ps_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['ps']):
         """
-        ps 均值 TTM
+        PS 均值 TTM
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PS 行业均值 TTM
         """
-        print('26')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -676,15 +630,13 @@ class Valuation(FactorBase):
     @staticmethod
     def ps_std(valuation_sets, sw_industry, factor_historical_value, dependencies=['ps']):
         """
-        ps 标准差 TTM
+        PS 标准差 TTM
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PS 行业标准差 TTM
         """
-        print('27')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -702,15 +654,13 @@ class Valuation(FactorBase):
     @staticmethod
     def pcf_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['pcf']):
         """
-        pcf 均值
+        PCF 均值
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PCF 均值
         """
-        print('28')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -728,15 +678,13 @@ class Valuation(FactorBase):
     @staticmethod
     def pcf_std(valuation_sets, sw_industry, factor_historical_value, dependencies=['pcf']):
         """
-        pcf 标准差
+        PCF 标准差
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: PCF 标准差
         """
-        print('29')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
         valuation_sets = pd.merge(valuation_sets, sw_industry, how='outer', on='security_code')
 
@@ -758,10 +706,8 @@ class Valuation(FactorBase):
         :param dependencies:
         :param tp_historical_value:
         :param factor_historical_value:
-        :return: PEIndu
+        :return: (PE – PE 的行业均值)/PE 的行业标准差 TTM
         """
-        print('30')
-
         historical_value = tp_historical_value.loc[:, dependencies]
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
 
@@ -773,14 +719,12 @@ class Valuation(FactorBase):
     @staticmethod
     def ps_indu(valuation_sets, factor_historical_value, dependencies=['ps']):
         """
-        # (Ps – Ps 的行业均值)/Ps 的行业标准差 TTM
+        (Ps – Ps 的行业均值)/Ps 的行业标准差 TTM
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return: (Ps – Ps 的行业均值)/Ps 的行业标准差 TTM
         """
-        print('31')
-
         historical_value = valuation_sets.loc[:, dependencies]
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
 
@@ -792,14 +736,12 @@ class Valuation(FactorBase):
     @staticmethod
     def pcf_indu(valuation_sets, factor_historical_value, dependencies=['pcf']):
         """
-        # (Pcf – Pcf 的行业均值)/Pcf 的行业标准差 TTM
+        (Pcf – Pcf 的行业均值)/Pcf 的行业标准差 TTM
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return:  (Pcf – Pcf 的行业均值)/Pcf 的行业标准差 TTM
         """
-        print('32')
-
         historical_value = valuation_sets.loc[:, dependencies]
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
 
@@ -812,15 +754,13 @@ class Valuation(FactorBase):
     def total_mkt_avg_to_ebidta(valuation_sets, sw_industry, factor_historical_value,
                                 dependencies=['market_cap', 'total_profit']):
         """
-        总市值/ 利润总额TTM
+
         :param valuation_sets:
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 总市值/ 利润总额TTM（行业平均）
         """
-        print('33')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -850,10 +790,8 @@ class Valuation(FactorBase):
         :param sw_industry:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 总市值/ 利润总额TTM
         """
-        print('34')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -878,14 +816,12 @@ class Valuation(FactorBase):
                                      dependencies=['market_cap', 'total_profit']):
 
         """
-        总市值/ 利润总额TTM
+        总市值/ 利润总额TTM(行业)
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 总市值/ 利润总额TTM（行业）
         """
-        print('35')
-
         valuation_sets = valuation_sets.loc[:, dependencies]
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -902,14 +838,12 @@ class Valuation(FactorBase):
     @staticmethod
     def peg_3y(valuation_sets, factor_historical_value, dependencies=['pe', 'np_parent_company_owners', 'np_parent_company_owners_3']):
         """
-        # 市盈率/归属于母公司所有者净利润 3 年复合增长率
+        市盈率/归属于母公司所有者净利润 3 年复合增长率
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return: 市盈率/归属于母公司所有者净利润 3 年复合增长率
         """
-        print('36')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         tmp = np.where(CalcTools.is_zero(historical_value['np_parent_company_owners_3']), 0,
@@ -923,14 +857,12 @@ class Valuation(FactorBase):
     @staticmethod
     def peg_5y(valuation_sets, factor_historical_value, dependencies=['pe', 'np_parent_company_owners', 'np_parent_company_owners_5']):
         """
-        # 市盈率/归属于母公司所有者净利润 5 年复合增长率
+        市盈率/归属于母公司所有者净利润 5 年复合增长率
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return: 市盈率/归属于母公司所有者净利润 5 年复合增长率
         """
-        print('37')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         tmp = np.where(CalcTools.is_zero(historical_value['np_parent_company_owners_5']), 0,
@@ -950,10 +882,8 @@ class Valuation(FactorBase):
         :param dependencies:
         :param valuation_sets:
         :param factor_historical_value:
-        :return:
+        :return: 现金收益滚动收益与市值比
         """
-        print('38')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         historical_value['CEToPTTM'] = np.where(CalcTools.is_zero(historical_value['market_cap']), 0,
@@ -974,10 +904,8 @@ class Valuation(FactorBase):
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 营收市值比(TTM)
         """
-        print('39')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         historical_value['RevToMrktRatioTTM'] = np.where(CalcTools.is_zero(historical_value['market_cap']), 0,
@@ -1001,16 +929,12 @@ class Valuation(FactorBase):
         :param valuation_sets:
         :param factor_historical_value:
         :param dependencies:
-        :return:
+        :return: 营业收入(TTM)/企业价值
         """
-        print('40')
-
         historical_value = valuation_sets.loc[:, dependencies]
 
         fuc = lambda x: x[1] + x[2] + x[3] - x[4]
-
         historical_value['temp'] = historical_value[dependencies].apply(fuc, axis=1)
-
         historical_value['OptIncToEnterpriseValueTTM'] = np.where(CalcTools.is_zero(historical_value['temp']), 0,
                                                                   historical_value['operating_revenue'] /
                                                                   historical_value['temp'])
@@ -1106,7 +1030,7 @@ def calculate(trade_date, valuation_sets, sw_industry, pe_sets, factor_name):
     factor_historical_value['trade_date'] = str(trade_date)
     print(factor_historical_value.head())
     historical_value._storage_data(factor_historical_value, trade_date)
-    del historical_value
+    del historical_value, factor_historical_value
     gc.collect()
 
 

@@ -7,7 +7,7 @@
 @file: earning.py
 @time: 2019-09-03 14:46
 """
-
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -361,6 +361,8 @@ def prepare_calculate_local(trade_date, factor_name):
         factor_earning.calculate(trade_date, tp_earning, ttm_earning, ttm_earning_5y, factor_name)
     time6 = time.time()
     print('earning_cal_time:{}'.format(time6 - tic))
+    del tp_earning, ttm_earning, ttm_earning_5y
+    gc.collect()
 
 
 def prepare_calculate_remote(trade_date):

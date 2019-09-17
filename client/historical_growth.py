@@ -7,6 +7,7 @@
 @file: historical_growth.py
 @time: 2019-09-02 13:30
 """
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -278,6 +279,8 @@ def prepare_calculate_local(trade_date, factor_name):
         factor_historical_growth.calculate(trade_date, growth_sets, factor_name)
     time1 = time.time()
     print('growth_cal_time:{}'.format(time1 - tic))
+    del ttm_factor_sets, balance_sets
+    gc.collect()
 
 
 def prepare_calculate_remote(trade_date):

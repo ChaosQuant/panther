@@ -7,7 +7,7 @@
 @file: solvency.py
 @time: 2019-09-04 17:28
 """
-
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -224,7 +224,7 @@ def get_basic_data(trade_date):
     return tp_solvency
 
 
-def prepare_calculate_local(trade_date):
+def prepare_calculate_local(trade_date, factor_name):
     # 本地计算
     tic = time.time()
     tp_solvency = get_basic_data(trade_date)
@@ -235,9 +235,11 @@ def prepare_calculate_local(trade_date):
         print("%s has no data" % trade_date)
         return
     else:
-        factor_solvency.calculate(trade_date, tp_solvency)
+        factor_solvency.calculate(trade_date, tp_solvency, factor_name)
     end = time.time()
     print('cash_flow_cal_time:{}'.format(end - tic))
+    del tp_solvency
+    gc.collect()
 
 
 def prepare_calculate_remote(trade_date):
@@ -258,36 +260,37 @@ def prepare_calculate_remote(trade_date):
         print('cash_flow_cal_time:{}'.format(time4 - tic))
 
 
-def do_update(start_date, end_date, count):
+def do_update(start_date, end_date, count, factor_name):
     # 读取交易日
     syn_util = SyncUtil()
     trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count, order='DESC')
     trade_date_sets = trade_date_sets['TRADEDATE'].values
-    print('交易日：%s' % trade_date_sets)
+    # print('交易日：%s' % trade_date_sets)
     for trade_date in trade_date_sets:
         print('因子计算日期： %s' % trade_date)
-        prepare_calculate_local(trade_date)
+        prepare_calculate_local(trade_date, factor_name)
     print('----->')
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--start_date', type=int, default=20070101)
-    # parser.add_argument('--end_date', type=int, default=0)
-    # parser.add_argument('--count', type=int, default=1)
-    # parser.add_argument('--rebuild', type=bool, default=False)
-    # parser.add_argument('--update', type=bool, default=False)
-    # parser.add_argument('--schedule', type=bool, default=False)
-    #
-    # args = parser.parse_args()
-    # if args.end_date == 0:
-    #     end_date = int(datetime.now().date().strftime('%Y%m%d'))
-    # else:
-    #     end_date = args.end_date
-    # if args.rebuild:
-    #     processor = factor_cash_flow.FactorCashFlow('factor_cash_flow')
-    #     processor.create_dest_tables()
-    #     do_update(args.start_date, end_date, args.count)
-    # if args.update:
-    #     do_update(args.start_date, end_date, args.count)
-    do_update('20190819', '20190823', 10)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_date', type=int, default=20070101)
+    parser.add_argument('--end_date', type=int, default=0)
+    parser.add_argument('--count', type=int, default=1)
+    parser.add_argument('--rebuild', type=bool, default=False)
+    parser.add_argument('--update', type=bool, default=False)
+    parser.add_argument('--schedule', type=bool, default=False)
+
+    factor_name = 'factor_solvency'
+    args = parser.parse_args()
+    if args.end_date == 0:
+        end_date = int(datetime.now().date().strftime('%Y%m%d'))
+    else:
+        end_date = args.end_date
+    if args.rebuild:
+        processor = factor_solvency.Solvency(factor_name)
+        processor.create_dest_tables()
+        do_update(args.start_date, end_date, args.count, factor_name)
+    if args.update:
+        do_update(args.start_date, end_date, args.count, factor_name)
+    # do_update('20190819', '20190823', 10)

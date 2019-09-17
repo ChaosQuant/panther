@@ -7,7 +7,7 @@
 @file: capital_structure.py
 @time: 2019-09-04 13:06
 """
-
+import gc
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -107,6 +107,8 @@ def prepare_calculate_local(trade_date, factor_name):
         factor_capital_structure.calculate(trade_date, tp_management, factor_name)
     time4 = time.time()
     print('management_cal_time:{}'.format(time4 - tic))
+    del tp_management
+    gc.collect()
 
 
 def prepare_calculate_remote(trade_date):
