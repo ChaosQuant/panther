@@ -72,3 +72,64 @@ class PriceVolume(object):
         :desc: 20日收集派发指标
         '''
         return self._ACDXD(data)
+    
+    def WILLR14D(self, data, dependencies=['highest_price','lowest_price', 'close_price'], max_window=15):
+        '''
+        This is alpha191_1
+        :name: 威廉指标
+        :desc: 表示是市场处于超买还是超卖状态。
+        '''
+        highest_price = data['highest_price']
+        lowest_price = data['lowest_price']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        hp = highest_price.stack().reset_index().rename(columns={0:'highest_price'})
+        lp = lowest_price.stack().reset_index().rename(columns={0:'lowest_price'})
+        data_sets = lp.merge(cp,on=['security_code','trade_date']).merge(
+            hp,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        def _willr(data):
+            result = talib.WILLR(data.highest_price.values,
+                               data.lowest_price.values,
+                               data.close_price, timeperiod=14)
+            return result.iloc[-1]
+        return data_sets.groupby('security_code').apply(_willr)
+    
+    def _OBVXD(self, data, dependencies=['turnover_vol','close_price']):
+        turnover_vol = data['turnover_vol']
+        close_price = data['close_price']
+        cp = close_price.stack().reset_index().rename(columns={0:'close_price'})
+        vol = turnover_vol.stack().reset_index().rename(columns={0:'turnover_vol'})
+        data_sets = cp.merge(vol,on=['security_code','trade_date']).sort_values(
+            by=['trade_date','security_code'],ascending=True)
+        def _obv(data):
+            result = talib.OBV(data.close_price.values,
+                               data.turnover_vol.values)
+            return result[0]
+        return data_sets.groupby('security_code').apply(_obv)
+    
+    
+    def OBV1D(self, data, dependencies=['turnover_vol','close_price'], max_window=1):
+        '''
+        This is alpha191_1
+        :name: 能量潮指标
+        :desc: 以股市的成交量变化来衡量股市的推动力，从而研判股价的走势。
+        '''
+        return self._OBVXD(data)
+    
+    def OBV6D(self, data, dependencies=['turnover_vol','close_price'], max_window=6):
+        '''
+        This is alpha191_1
+        :name: 6日能量潮指标
+        :desc: 以股市的成交量变化来衡量股市的推动力，从而研判股价的走势。
+        '''
+        return self._OBVXD(data)
+    
+    
+    def OBV20D(self, data, dependencies=['turnover_vol','close_price'], max_window=20):
+        '''
+        This is alpha191_1
+        :name: 20日能量潮指标
+        :desc: 以股市的成交量变化来衡量股市的推动力，从而研判股价的走势。
+        '''
+        return self._OBVXD(data)

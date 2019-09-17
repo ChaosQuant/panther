@@ -75,5 +75,5 @@ class DBPolymerize(object):
         exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
         market_data = self._adaptation.market(market_data)
         exposure_data = self._adaptation.risk_exposure(exposure_data)
-        total_data = market_data.merge(exposure_data, on=['code','trade_date'])
+        total_data = market_data.merge(exposure_data, on=['security_code','trade_date'])
         return self._adaptation.calc_adaptation(total_data)      
