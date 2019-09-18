@@ -92,11 +92,6 @@ def get_basic_data(trade_date):
                                                                      [CashFlowMRQ.FINALCASHBALA,
                                                                       ], dates=[trade_date]).drop(columns, axis=1)
 
-    # income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeMRQ,
-    #                                                               [
-    #                                                                   # IncomeMRQ.MINYSHARRIGH,
-    #                                                                ], dates=[trade_date]).drop(columns, axis=1)
-
     balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
                                                                    [BalanceMRQ.SHORTTERMBORR,
                                                                     BalanceMRQ.DUENONCLIAB,
@@ -136,14 +131,20 @@ def get_basic_data(trade_date):
                                                                       IndicatorMRQ.NONINTNONCURLIAB,
                                                                       IndicatorMRQ.CURDEPANDAMOR,
                                                                       IndicatorMRQ.TOTIC,
+                                                                      IndicatorMRQ.EBIT,
                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+
+    income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeMRQ,
+                                                                  [IncomeMRQ.INCOTAXEXPE,
+                                                                   ], dates=[trade_date]).drop(columns, axis=1)
 
     tp_detivation = pd.merge(cash_flow_sets, balance_sets, how='outer', on='security_code')
     tp_detivation = pd.merge(indicator_sets, tp_detivation, how='outer', on='security_code')
+    tp_detivation = pd.merge(income_sets, tp_detivation, how='outer', on='security_code')
 
-    balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
-                                                                       [BalanceTTM.MINYSHARRIGH,
-                                                                        ])
+    # balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
+    #                                                                    [BalanceTTM.MINYSHARRIGH,
+    #                                                                    ], dates=[trade_date]).drop(columns, axis=1)
 
     income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                       [IncomeTTM.BIZTOTINCO,
@@ -163,8 +164,8 @@ def get_basic_data(trade_date):
                                                                        IncomeTTM.NONOEXPE,
                                                                        IncomeTTM.MINYSHARRIGH,
                                                                        IncomeTTM.INCOTAXEXPE,
-
                                                                        ], dates=[trade_date]).drop(columns, axis=1)
+    income_ttm_sets = income_ttm_sets.rename(columns={'MINYSHARRIGH':'minority_profit'})
 
     cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                          [CashFlowTTM.MANANETR,
@@ -185,7 +186,6 @@ def get_basic_data(trade_date):
 
     ttm_derivation = pd.merge(income_ttm_sets, cash_flow_ttm_sets, how='outer', on='security_code')
     ttm_derivation = pd.merge(indicator_ttm_sets, ttm_derivation, how='outer', on='security_code')
-    ttm_derivation = pd.merge(balance_ttm_sets, ttm_derivation, how='outer', on='security_code')
 
     return tp_detivation, ttm_derivation
 
@@ -193,7 +193,9 @@ def get_basic_data(trade_date):
 def prepare_calculate_local(trade_date, factor_name):
     tic = time.time()
     tp_detivation, ttm_derivation = get_basic_data(trade_date)
+    print('tp_derivation')
     print(tp_detivation.head())
+    print('ttm_derivation')
     print(ttm_derivation.head())
     if len(tp_detivation) <= 0 or len(ttm_derivation) <= 0:
         print("%s has no data" % trade_date)
@@ -248,8 +250,8 @@ if __name__ == '__main__':
     else:
         end_date = args.end_date
     if args.rebuild:
-        # processor = factor_basic_derivation.Derivation(factor_name)
-        # processor.create_dest_tables()
+        processor = factor_basic_derivation.Derivation(factor_name)
+        processor.create_dest_tables()
         do_update(args.start_date, end_date, args.count, factor_name)
     if args.update:
         do_update(args.start_date, end_date, args.count, factor_name)

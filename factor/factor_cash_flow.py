@@ -293,6 +293,7 @@ def factor_calculate(**kwargs):
     print("cash_flow_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
+    factor_name = kwargs['factor_name']
     content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
     content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
     tp_cash_flow = json_normalize(json.loads(str(content1, encoding='utf8')))
@@ -301,4 +302,4 @@ def factor_calculate(**kwargs):
     ttm_factor_sets.set_index('security_code', inplace=True)
     print("len_tp_cash_flow_data {}".format(len(tp_cash_flow)))
     print("len_ttm_cash_flow_data {}".format(len(ttm_factor_sets)))
-    calculate(date_index, tp_cash_flow, ttm_factor_sets)
+    calculate(date_index, tp_cash_flow, ttm_factor_sets, factor_name)

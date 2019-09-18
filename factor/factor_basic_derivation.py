@@ -49,7 +49,48 @@ class Derivation(FactorBase):
                     `WorkingCap` decimal(19,4),
                     `TangibleAssets` decimal(19,4),
                     `RetainedEarnings` decimal(19,4),
-                    `CurAssetsR` decimal(19,4),
+                    `InterestBearingLiabilities` decimal(19,4),
+                    `NetDebt` decimal(19,4),
+                    `InterestFreeCurLb` decimal(19,4),
+                    `InterestFreeNonCurLb` decimal(19,4),
+                    `EBIAT` decimal(19,4),
+                    `DepAndAmo` decimal(19,4),
+                    `EquityPC` decimal(19,4),
+                    `TotalInvestedCap` decimal(19,4),
+                    `TotalAssets` decimal(19,4),
+                    `TotalFixedAssets` decimal(19,4),
+                    `TotalLib` decimal(19,4),
+                    `ShEquity` decimal(19,4),
+                    `CashAndCashEqu` decimal(19,4),
+                    `SalesTTM` decimal(19,4),
+                    `TotalOptCostTTM` decimal(19,4),
+                    `OptIncTTM` decimal(19,4),
+                    `GrossMarginTTM` decimal(19,4),
+                    `SalesExpensesTTM` decimal(19,4),
+                    `AdmFeeTTM` decimal(19,4),
+                    `FinFeeTTM` decimal(19,4),
+                    `PerFeeTTM` decimal(19,4),
+                    `InterestExpTTM` decimal(19,4),
+                    `MinorInterestTTM` decimal(19,4),
+                    `AssetImpLossTTM` decimal(19,4),
+                    `NetIncFromOptActTTM` decimal(19,4),
+                    `NetIncFromValueChgTTM` decimal(19,4),
+                    `OptProfitTTM` decimal(19,4),
+                    `NetNonOptIncAndExpTTM` decimal(19,4),
+                    `EBITTTM` decimal(19,4),
+                    `IncTaxTTM` decimal(19,4),
+                    `TotalProfTTM` decimal(19,4),
+                    `NetIncTTM` decimal(19,4),
+                    `NetProfToPSTTM` decimal(19,4),
+                    `NetProfAfterNonRecGainsAndLossTTM` decimal(19,4),
+                    `EBITFORPTTM` decimal(19,4),
+                    `EBITDATTM` decimal(19,4),
+                    `CashRecForSGAndPSTTM` decimal(19,4),
+                    `NCFOTTM` decimal(19,4),
+                    `NetCashFlowFromInvActTTM` decimal(19,4),
+                    `NetCashFlowFromFundActTTM` decimal(19,4),
+                    `NetCashFlowTTM` decimal(19,4),
+                    `BusTaxAndSuchgTTM` decimal(19,4),
                     constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
@@ -65,6 +106,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
@@ -78,6 +121,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
@@ -91,6 +136,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <= 0:
+            return None
         management = management.rename(columns={'NEGAL': 'NonRecGainLoss'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -105,6 +152,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'NOPI': 'NetOptInc'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -119,6 +168,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'WORKCAP': 'WorkingCap'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -140,6 +191,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         func = lambda x: x[0] - x[1] - x[2] + x[3] + x[4] + x[5] + x[6]
         management['TangibleAssets'] = management[dependencies].apply(func, axis=1)
 
@@ -157,6 +210,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'RETAINEDEAR': 'RetainedEarnings'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -176,6 +231,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         func = lambda x: x[0] + x[1] + x[2] + x[3] + x[4]
         management['InterestBearingLiabilities'] = management[dependencies].apply(func, axis=1)
 
@@ -193,6 +250,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'NDEBT': 'NetDebt'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -207,6 +266,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'NONINTCURLIABS': 'InterestFreeCurLb'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -221,23 +282,12 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'NONINTNONCURLIAB': 'InterestFreeNonCurLb'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def earnings_before_interest_and_after_tax(tp_derivation, factor_derivation, dependencies=['EBIT']):
-        """
-        息前税后利润(MRQ)
-        :param dependencies:
-        :param tp_derivation:
-        :param factor_derivation:
-        :return:
-        """
-        management = tp_derivation.loc[:, dependencies]
-        management = management.rename(columns={'EBIT': 'EBITTTM'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
 
     @staticmethod
     def depreciation_and_amortization(tp_derivation, factor_derivation, dependencies=['CURDEPANDAMOR']):
@@ -249,6 +299,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'CURDEPANDAMOR': 'DepAndAmo'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -263,6 +315,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'PARESHARRIGH': 'EquityPC'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -277,6 +331,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'TOTIC': 'TotalInvestedCap'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -291,6 +347,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'TOTASSET': 'TotalAssets'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -305,6 +363,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'FIXEDASSECLEATOT': 'TotalFixedAssets'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -319,6 +379,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'TOTLIAB': 'TotalLib'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -333,6 +395,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'RIGHAGGR': 'ShEquity'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -347,7 +411,31 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'FINALCASHBALA': 'CashAndCashEqu'})
+        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+        return factor_derivation
+
+    @staticmethod
+    def earnings_before_interest_and_after_tax(tp_derivation, factor_derivation, dependencies=['EBIT',
+                                                                                               'INCOTAXEXPE',
+                                                                                               ]):
+        """
+        息前税后利润(MRQ)
+        息前税后利润 = 息税前利润－息税前利润所得税
+        息税前利润所得税 = 全部所得税－利息净损益所得税
+        :param dependencies:
+        :param tp_derivation:
+        :param factor_derivation:
+        :return:
+        """
+        management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
+        func = lambda x: x[0] - x[1] if x[0] is not None and x[1] is not None else None
+        management['EBIAT'] = management[dependencies].apply(func, axis=1)
+        management = management.drop(dependencies, axis=1)
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
@@ -361,6 +449,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'BIZTOTINCO': 'SalesTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -375,6 +465,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'BIZTOTCOST': 'TotalOptCostTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -389,6 +481,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'BIZINCO': 'OptIncTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -403,6 +497,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'OPGPMARGIN': 'GrossMarginTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -417,6 +513,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'SALESEXPE': 'SalesExpensesTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -431,6 +529,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'MANAEXPE': 'AdmFeeTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -445,6 +545,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'FINEXPE': 'FinFeeTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -462,6 +564,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         func = lambda x: x[0] + x[1] + x[2]
         management['PerFeeTTM'] = management[dependencies].apply(func, axis=1)
         management = management.drop(dependencies, axis=1)
@@ -478,12 +582,14 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'INTEEXPE': 'InterestExpTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
     @staticmethod
-    def minority_interest(tp_derivation, factor_derivation, dependencies=['MINYSHARRIGH']):
+    def minority_interest(tp_derivation, factor_derivation, dependencies=['minority_profit']):
         """
         少数股东损益(TTM) income
         :param dependencies:
@@ -492,7 +598,9 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
-        management = management.rename(columns={'MINYSHARRIGH': 'MinorInterestTTM'})
+        if len(management) <=0:
+            return None
+        management = management.rename(columns={'minority_profit': 'MinorInterestTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
@@ -506,6 +614,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'ASSEIMPALOSS': 'AssetImpLossTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -520,6 +630,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'MANANETR': 'NetIncFromOptActTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -534,6 +646,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'NVALCHGIT': 'NetIncFromValueChgTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -548,6 +662,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'PERPROFIT': 'OptProfitTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -563,6 +679,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         func = lambda x: x[0] - x[1]
         management['NetNonOptIncAndExpTTM'] = management[dependencies].apply(func, axis=1)
 
@@ -571,18 +689,23 @@ class Derivation(FactorBase):
         return factor_derivation
 
     @staticmethod
-    def earnings_before_interest_and_tax(tp_derivation, factor_derivation, dependencies=['WORKCAP']):
+    def earnings_before_interest_and_tax(tp_derivation, factor_derivation, dependencies=['EBIT']):
         """
-        息税前利润(TTM)1
+        息税前利润(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
-        management = management.rename(columns={'WORKCAP': 'WorkingCap'})
+
+        if len(management) <=0:
+            return None
+        management = management.rename(columns={'EBIT': 'EBITTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
+
+
 
     @staticmethod
     def income_tax(tp_derivation, factor_derivation, dependencies=['INCOTAXEXPE']):
@@ -594,7 +717,9 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
-        management = management.rename(columns={'WORKCAP': 'WorkingCap'})
+        if len(management) <=0:
+            return None
+        management = management.rename(columns={'INCOTAXEXPE': 'IncTaxTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
@@ -608,6 +733,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'TOTPROFIT': 'TotalProfTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -622,6 +749,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'NETPROFIT': 'NetIncTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -636,6 +765,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'PARENETP': 'NetProfToPSTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -650,6 +781,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'NPCUT': 'NetProfAfterNonRecGainsAndLossTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -657,13 +790,15 @@ class Derivation(FactorBase):
     @staticmethod
     def ebit(tp_derivation, factor_derivation, dependencies=['EBITFORP']):
         """
-        EBITDA(TTM)
+        ebit(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'EBITFORP': 'EBITFORPTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -678,6 +813,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'EBITDA': 'EBITDATTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -692,6 +829,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'LABORGETCASH': 'CashRecForSGAndPSTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -706,6 +845,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'MANANETR': 'NCFOTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -720,6 +861,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'INVNETCASHFLOW': 'NetCashFlowFromInvActTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -734,6 +877,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'FINNETCFLOW': 'NetCashFlowFromFundActTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -748,6 +893,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'CASHNETI': 'NetCashFlowTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -762,6 +909,8 @@ class Derivation(FactorBase):
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
+        if len(management) <=0:
+            return None
         management = management.rename(columns={'BIZTAX': 'BusTaxAndSuchgTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -784,12 +933,15 @@ def calculate(trade_date, tp_derivation, ttm_derivation, factor_name):  # 计算
     factor_derivation = derivation.net_operating_income(tp_derivation, factor_derivation)
     factor_derivation = derivation.working_capital(tp_derivation, factor_derivation)
     factor_derivation = derivation.tangible_assets(tp_derivation, factor_derivation)
+
     factor_derivation = derivation.retained_earnings(tp_derivation, factor_derivation)
     factor_derivation = derivation.interest_bearing_liabilities(tp_derivation, factor_derivation)
     factor_derivation = derivation.net_debt(tp_derivation, factor_derivation)
     factor_derivation = derivation.interest_free_current_liabilities(tp_derivation, factor_derivation)
     factor_derivation = derivation.interest_free_non_current_liabilities(tp_derivation, factor_derivation)
+
     factor_derivation = derivation.earnings_before_interest_and_after_tax(tp_derivation, factor_derivation)
+
     factor_derivation = derivation.depreciation_and_amortization(tp_derivation, factor_derivation)
     factor_derivation = derivation.equity_to_shareholders_of_parent_company(tp_derivation, factor_derivation)
     factor_derivation = derivation.total_invested_capital(tp_derivation, factor_derivation)
@@ -805,21 +957,27 @@ def calculate(trade_date, tp_derivation, ttm_derivation, factor_name):  # 计算
     factor_derivation = derivation.sales_expenses(ttm_derivation, factor_derivation)
     factor_derivation = derivation.administration_fee(ttm_derivation, factor_derivation)
     factor_derivation = derivation.financial_expenses(ttm_derivation, factor_derivation)
-    # factor_derivation = derivation.period_fee(ttm_derivation, factor_derivation)
+    factor_derivation = derivation.period_fee(ttm_derivation, factor_derivation)
     factor_derivation = derivation.interest_expense(ttm_derivation, factor_derivation)
-    # factor_derivation = derivation.minority_interest(ttm_derivation, factor_derivation)
+    factor_derivation = derivation.minority_interest(ttm_derivation, factor_derivation)
+
     factor_derivation = derivation.asset_impairment_loss(ttm_derivation, factor_derivation)
     factor_derivation = derivation.net_income_from_operating_activities(ttm_derivation, factor_derivation)
-    # factor_derivation = derivation.net_income_from_value_changes(ttm_derivation, factor_derivation)
+    factor_derivation = derivation.net_income_from_value_changes(ttm_derivation, factor_derivation)
+
     factor_derivation = derivation.operating_profit(ttm_derivation, factor_derivation)
-    # factor_derivation = derivation.net_non_operating_income_and_expenditure(ttm_derivation, factor_derivation)
-    # factor_derivation = derivation.earnings_before_interest_and_tax(ttm_derivation, factor_derivation)
-    # factor_derivation = derivation.income_tax(ttm_derivation, factor_derivation)
+    factor_derivation = derivation.net_non_operating_income_and_expenditure(ttm_derivation, factor_derivation)
+
+    factor_derivation = derivation.earnings_before_interest_and_tax(ttm_derivation, factor_derivation)
+
+    factor_derivation = derivation.income_tax(ttm_derivation, factor_derivation)
+
     factor_derivation = derivation.total_profit(ttm_derivation, factor_derivation)
     factor_derivation = derivation.net_income(ttm_derivation, factor_derivation)
     factor_derivation = derivation.net_profit_attributable_to_the_shareholders_of_parent_company(ttm_derivation, factor_derivation)
     factor_derivation = derivation.net_profit_after_non_recurring_gains_and_losses(ttm_derivation, factor_derivation)
-    # factor_derivation = derivation.ebitda(ttm_derivation, factor_derivation)
+    factor_derivation = derivation.ebitda(ttm_derivation, factor_derivation)
+
     factor_derivation = derivation.cash_received_for_selling_goods(ttm_derivation, factor_derivation)
     factor_derivation = derivation.net_cash_flow_from_operating_activities(ttm_derivation, factor_derivation)
     factor_derivation = derivation.net_cash_flow_from_investment_activities(ttm_derivation, factor_derivation)
@@ -829,8 +987,8 @@ def calculate(trade_date, tp_derivation, ttm_derivation, factor_name):  # 计算
 
     factor_derivation = factor_derivation.reset_index()
     factor_derivation['trade_date'] = str(trade_date)
-    print(factor_derivation.head())
-    # derivation._storage_data(factor_derivation, trade_date)
+    print('len_factor_derivation: %s' % len(factor_derivation))
+    derivation._storage_data(factor_derivation, trade_date)
     del derivation, factor_derivation
     gc.collect()
 
@@ -840,13 +998,14 @@ def factor_calculate(**kwargs):
     print("management_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
+    factor_name = kwargs['factor_name']
     content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
     content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
-    tp_management = json_normalize(json.loads(str(content1, encoding='utf8')))
-    ttm_management = json_normalize(json.loads(str(content2, encoding='utf8')))
-    tp_management.set_index('security_code', inplace=True)
-    ttm_management.set_index('security_code', inplace=True)
-    print("len_tp_management_data {}".format(len(tp_management)))
-    print("len_ttm_management_data {}".format(len(ttm_management)))
-    total_cash_flow_data = {'tp_management': tp_management, 'ttm_management': ttm_management}
-    calculate(date_index, total_cash_flow_data)
+    tp_derivation = json_normalize(json.loads(str(content1, encoding='utf8')))
+    ttm_derivation = json_normalize(json.loads(str(content2, encoding='utf8')))
+    tp_derivation.set_index('security_code', inplace=True)
+    ttm_derivation.set_index('security_code', inplace=True)
+    print("len_tp_management_data {}".format(len(tp_derivation)))
+    print("len_ttm_management_data {}".format(len(ttm_derivation)))
+    # total_cash_flow_data = {'tp_management': tp_derivation, 'ttm_management': ttm_derivation}
+    calculate(date_index, tp_derivation, ttm_derivation, factor_name)

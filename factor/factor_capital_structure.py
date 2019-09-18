@@ -249,6 +249,7 @@ def factor_calculate(**kwargs):
     print("management_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
+    factor_name = kwargs['factor_name']
     content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
     content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
     tp_management = json_normalize(json.loads(str(content1, encoding='utf8')))
@@ -258,4 +259,4 @@ def factor_calculate(**kwargs):
     print("len_tp_management_data {}".format(len(tp_management)))
     print("len_ttm_management_data {}".format(len(ttm_management)))
     total_cash_flow_data = {'tp_management': tp_management, 'ttm_management': ttm_management}
-    calculate(date_index, total_cash_flow_data)
+    calculate(date_index, total_cash_flow_data, factor_name)

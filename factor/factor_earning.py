@@ -1006,6 +1006,7 @@ def factor_calculate(**kwargs):
     print("constrain_kwargs: {}".format(kwargs))
     date_index = kwargs['date_index']
     session = kwargs['session']
+    factor_name = kwargs['factor_name']
     content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
     content2 = cache_data.get_cache(session + str(date_index) + "2", date_index)
     content3 = cache_data.get_cache(session + str(date_index) + "3", date_index)
@@ -1020,5 +1021,5 @@ def factor_calculate(**kwargs):
     ttm_earning.set_index('security_code', inplace=True)
     ttm_earning_5y.set_index('security_code', inplace=True)
     # total_earning_data = {'tp_earning': tp_earning, 'ttm_earning_5y': ttm_earning_5y, 'ttm_earning': ttm_earning}
-    calculate(date_index, tp_earning, ttm_earning, ttm_earning_5y)
+    calculate(date_index, tp_earning, ttm_earning, ttm_earning_5y, factor_name)
 
