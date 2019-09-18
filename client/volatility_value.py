@@ -21,7 +21,7 @@ from vision.file_unit.sk_daily_price import SKDailyPrice
 from ultron.cluster.invoke.cache_data import cache_data
 from factor import factor_volatility_value_task
 import json
-from factor.utillities.trade_date import TradeDate
+# from factor.utillities.trade_date import TradeDate
 
 
 class FactorVolatilityValue(FactorBase):

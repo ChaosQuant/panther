@@ -51,8 +51,8 @@ def get_basic_data(trade_date):
         'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
         }
     # 读取目前涉及到的因子
-    # columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
-    columns = ['PUBLISHDATE', 'ENDDATE', 'trade_date']
+    columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
+    # columns = ['PUBLISHDATE', 'ENDDATE', 'trade_date']
     balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
                                                                    [BalanceMRQ.TOTALNONCASSETS,
                                                                     BalanceMRQ.TOTASSET,

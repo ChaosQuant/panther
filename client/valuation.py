@@ -9,6 +9,8 @@
 """
 
 import gc
+import gevent
+from gevent.pool import Pool
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -282,6 +284,7 @@ def prepare_calculate_remote(trade_date):
 
 def prepare_calculate_local(trade_date, factor_name):
     # historical_value
+    print('因子计算日期： %s' % trade_date)
     tic = time.time()
     valuation_sets, sw_indu, pe_sets = get_basic_history_value_data(trade_date)
     print('data_read_time: %s' % (time.time()-tic))
@@ -298,13 +301,23 @@ def prepare_calculate_local(trade_date, factor_name):
 
 def do_update(start_date, end_date, count, factor_name):
     # 读取本地交易日
+    tic = time.time()
     syn_util = SyncUtil()
     trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count, order='DESC')
     trade_date_sets = trade_date_sets['TRADEDATE'].values
     # print('交易日：%s' % trade_date_sets)
+    # for trade_date in trade_date_sets:
+    #     prepare_calculate_local(trade_date, factor_name)
+    # 异步协程
+    # 法一
+    threads = Pool(50)
     for trade_date in trade_date_sets:
-        print('因子计算日期： %s' % trade_date)
-        prepare_calculate_local(trade_date, factor_name)
+        threads.spawn(prepare_calculate_local, trade_date, factor_name)
+    threads.join()
+    # 法二
+    # threads = [gevent.spawn(prepare_calculate_local, trade_date, factor_name) for trade_date in trade_date_sets]
+    # gevent.joinall(threads)
+    print('spend %s' % (time.time() - tic))
     print('----->')
 
 
@@ -329,4 +342,3 @@ if __name__ == '__main__':
         do_update(args.start_date, end_date, args.count, factor_name)
     if args.update:
         do_update(args.start_date, end_date, args.count, factor_name)
-    # do_update('20160819', '20190101', 10, 'factor_valuation')

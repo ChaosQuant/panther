@@ -102,10 +102,10 @@ class Valuation(FactorBase):
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
-        historical_value['LogofMktValue'] = historical_value[dependencies].apply(func)
+        historical_value['LogofMktValue'] = historical_value[dependencies].apply(func, axis=1)
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
 
     @staticmethod
@@ -121,7 +121,7 @@ class Valuation(FactorBase):
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
-        historical_value['LogofNegMktValue'] = historical_value[dependencies].apply(func)
+        historical_value['LogofNegMktValue'] = historical_value[dependencies].apply(func, axis=1)
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
@@ -139,7 +139,7 @@ class Valuation(FactorBase):
         # 对数市值
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: pow(math.log(abs(x[0])), 1/3.0) if x[0] is not None and x[0] != 0 else None
-        historical_value['NLSIZE'] = historical_value[dependencies].apply(func)
+        historical_value['NLSIZE'] = historical_value[dependencies].apply(func, axis=1)
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
@@ -155,7 +155,6 @@ class Valuation(FactorBase):
         :return:
         """
         historical_value = valuation_sets.loc[:, dependencies]
-        print(historical_value.head())
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
         historical_value['MrktCapToCorFreeCashFlow'] = historical_value[dependencies].apply(func, axis=1)
@@ -184,7 +183,6 @@ class Valuation(FactorBase):
 
         dependencies = dependencies + ['isymbol']
         historical_value = historical_value.drop(dependencies, axis=1)
-        print(historical_value.head())
 
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
 
@@ -240,14 +238,12 @@ class Valuation(FactorBase):
         :param dependencies:
         :return:
         """
-        print('8')
-
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
         historical_value['PEToAvg6M'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
 
         return factor_historical_value
 
@@ -265,7 +261,7 @@ class Valuation(FactorBase):
 
         historical_value['PEToAvg3M'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
 
         return factor_historical_value
 
@@ -283,7 +279,7 @@ class Valuation(FactorBase):
 
         historical_value['PEToAvg1M'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
 
         return factor_historical_value
 
@@ -301,7 +297,7 @@ class Valuation(FactorBase):
 
         historical_value['PEToAvg1Y'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
 
         return factor_historical_value
 
@@ -362,9 +358,9 @@ class Valuation(FactorBase):
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
-        historical_value['LogTotalAssets'] = historical_value[dependencies].apply(func)
+        historical_value['LogTotalAssets'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         # factor_historical_value['LogTotalAssets'] = historical_value['LogTotalAssets']
         return factor_historical_value
 
@@ -425,8 +421,9 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol', 'tmp']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
+
         return factor_historical_value
 
     @staticmethod
@@ -477,7 +474,7 @@ class Valuation(FactorBase):
 
         dependencies = dependencies + ['temp']
         historical_value = historical_value.drop(dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
 
         return factor_historical_value
 
@@ -494,9 +491,9 @@ class Valuation(FactorBase):
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: math.log(abs(x[0])) if x[0] is not None and x[0] != 0 else None
 
-        historical_value['LogSalesTTM'] = historical_value[dependencies].apply(func)
+        historical_value['LogSalesTTM'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         # factor_historical_value['LogSalesTTM'] = historical_value['LogSalesTTM']
         return factor_historical_value
 
@@ -514,7 +511,7 @@ class Valuation(FactorBase):
         historical_value['PCFToOptCashflowTTM'] = historical_value[dependencies].apply(func, axis=1)
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         # factor_historical_value['PCFToOptCashflowTTM'] = historical_value['PCFToOptCashflowTTM']
         return factor_historical_value
 
@@ -533,7 +530,7 @@ class Valuation(FactorBase):
                                              historical_value['net_profit'] /
                                              historical_value['market_cap'])
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         # factor_historical_value['EPTTM'] = historical_value['EPTTM']
         return factor_historical_value
 
@@ -554,7 +551,7 @@ class Valuation(FactorBase):
 
         # factor_historical_value['PECutTTM'] = historical_value['PECutTTM']
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
 
     @staticmethod
@@ -598,8 +595,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
 
         return factor_historical_value
 
@@ -622,8 +619,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
 
         return factor_historical_value
 
@@ -646,8 +643,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
 
         return factor_historical_value
 
@@ -670,8 +667,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
 
         return factor_historical_value
 
@@ -694,8 +691,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
 
         return factor_historical_value
 
@@ -776,8 +773,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol', 'tmp']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
 
         return factor_historical_value
 
@@ -807,8 +804,8 @@ class Valuation(FactorBase):
         historical_value = pd.merge(valuation_sets, historical_value_tmp, how='outer', on='isymbol')
 
         dependencies = dependencies + ['isymbol', 'tmp']
+        historical_value = historical_value.drop(dependencies, axis=1)
         factor_historical_value = pd.merge(historical_value, factor_historical_value, how='outer', on='security_code')
-        factor_historical_value = factor_historical_value.drop(dependencies, axis=1)
         return factor_historical_value
 
     @staticmethod
@@ -851,7 +848,7 @@ class Valuation(FactorBase):
         historical_value['PEG3YChgTTM'] = tmp / abs(tmp) * pow(abs(tmp), 1 / 3.0) - 1
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
 
     @staticmethod
@@ -891,7 +888,7 @@ class Valuation(FactorBase):
                                                 historical_value['market_cap'])
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
 
         return factor_historical_value
 
@@ -913,7 +910,7 @@ class Valuation(FactorBase):
                                                 historical_value['market_cap'])
 
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
 
     @staticmethod
@@ -940,7 +937,7 @@ class Valuation(FactorBase):
                                                                   historical_value['temp'])
         dependencies = dependencies + ['temp']
         historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, on="security_code")
+        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
 
 
@@ -1003,34 +1000,11 @@ def calculate(trade_date, valuation_sets, sw_industry, pe_sets, factor_name):
     factor_historical_value = historical_value.revenue_to_market_ratio_ttm(valuation_sets, factor_historical_value)
     factor_historical_value = historical_value.operating_to_enterprise_ttm(valuation_sets, factor_historical_value)
 
-    # etp5 因子没有提出， 使用该部分的时候， 数据库字段需要添加
-    # factor_historical_value = factor_historical_value[['security_code', 'PSIndu',
-    #                                                    'historical_value_etp5_ttm',
-    #                                                    'EPTTM',
-    #                                                    'PEIndu', 'PEG3YChgTTM',
-    #                                                    'PEG5YChgTTM', 'PBIndu',
-    #                                                    'historical_value_lcap_latest',
-    #                                                    'historical_value_lflo_latest',
-    #                                                    'historical_value_nlsize_latest',
-    #                                                    'PCFIndu',
-    #                                                    'CEToPTTM',
-    #                                                    'historical_value_ctop_latest',
-    #                                                    'historical_value_ctop5_latest']]
-    # factor_historical_value = factor_historical_value[['security_code',
-    #                                                    'PSIndu',
-    #                                                    'EPTTM',
-    #                                                    'PEIndu',
-    #                                                    'PEG3YChgTTM',
-    #                                                    'PEG5YChgTTM',
-    #                                                    'PBIndu',
-    #                                                    'PCFIndu',
-    #                                                    'CEToPTTM',
-    #                                                    ]]
-    factor_historical_value = factor_historical_value.reset_index()
+    # factor_historical_value = factor_historical_value.reset_index()
     factor_historical_value['trade_date'] = str(trade_date)
     print(factor_historical_value.head())
     historical_value._storage_data(factor_historical_value, trade_date)
-    del historical_value, factor_historical_value
+    del historical_value, factor_historical_value, valuation_sets
     gc.collect()
 
 

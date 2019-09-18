@@ -222,7 +222,6 @@ def calculate(trade_date, tp_management, factor_name):  # 计算对应因子
 
     # 读取目前涉及到的因子
     management = CapitalStructure(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
-
     # 因子计算
     factor_management = pd.DataFrame()
     factor_management['security_code'] = tp_management.index
@@ -238,13 +237,10 @@ def calculate(trade_date, tp_management, factor_name):  # 计算对应因子
     factor_management = management.current_assets_ratio(tp_management, factor_management)
 
     factor_management = factor_management.reset_index()
-    # factor_management['id'] = factor_management['security_code'] + str(trade_date)
     factor_management['trade_date'] = str(trade_date)
     print(factor_management.head())
-    # print(len(factor_management))
-    # print(len(factor_management) == len(set(factor_management.index.values)))
     management._storage_data(factor_management, trade_date)
-    del management
+    del management, factor_management
     gc.collect()
 
 

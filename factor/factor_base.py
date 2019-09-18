@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
 sys.path.append('..')
-from factor.utillities.trade_date import TradeDate
+# from factor.utillities.trade_date import TradeDate
 import config
 
 
