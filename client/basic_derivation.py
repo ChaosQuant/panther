@@ -99,7 +99,7 @@ def get_basic_data(trade_date):
 
     balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
                                                                    [BalanceMRQ.SHORTTERMBORR,
-                                                                    # BalanceMRQ.DUENONCLIAB,
+                                                                    BalanceMRQ.DUENONCLIAB,
                                                                     BalanceMRQ.LONGBORR,
                                                                     BalanceMRQ.BDSPAYA,
                                                                     BalanceMRQ.INTEPAYA,
@@ -113,7 +113,7 @@ def get_basic_data(trade_date):
                                                                     BalanceMRQ.GOODWILL,
                                                                     BalanceMRQ.LOGPREPEXPE,
                                                                     BalanceMRQ.DEFETAXASSET,
-                                                                    # BalanceMRQ.MINYSHARRIGH,
+                                                                    BalanceMRQ.MINYSHARRIGH,
                                                                     ], dates=[trade_date]).drop(columns, axis=1)
 
     balance_sets = balance_sets.rename(columns={
@@ -141,6 +141,10 @@ def get_basic_data(trade_date):
     tp_detivation = pd.merge(cash_flow_sets, balance_sets, how='outer', on='security_code')
     tp_detivation = pd.merge(indicator_sets, tp_detivation, how='outer', on='security_code')
 
+    balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
+                                                                       [BalanceTTM.MINYSHARRIGH,
+                                                                        ])
+
     income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                       [IncomeTTM.BIZTOTINCO,
                                                                        IncomeTTM.BIZTOTCOST,
@@ -155,11 +159,11 @@ def get_basic_data(trade_date):
                                                                        IncomeTTM.NETPROFIT,
                                                                        IncomeTTM.PARENETP,
                                                                        IncomeTTM.BIZTAX,
-                                                                       # IncomeTTM.MINYSHARRIGH,
                                                                        IncomeTTM.NONOREVE,
                                                                        IncomeTTM.NONOEXPE,
-                                                                       # IncomeTTM.INCOTAXEXPE,
-                                                                       # IncomeTTM.EBITDA,
+                                                                       IncomeTTM.MINYSHARRIGH,
+                                                                       IncomeTTM.INCOTAXEXPE,
+
                                                                        ], dates=[trade_date]).drop(columns, axis=1)
 
     cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
@@ -173,11 +177,15 @@ def get_basic_data(trade_date):
     indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                          [IndicatorTTM.OPGPMARGIN,
                                                                           IndicatorTTM.NPCUT,
-                                                                          # IndicatorTTM.NVALCHGIT,
+                                                                          IndicatorTTM.NVALCHGIT,
+                                                                          IndicatorTTM.EBITDA,
+                                                                          IndicatorTTM.EBIT,
+                                                                          IndicatorTTM.EBITFORP,
                                                                           ], dates=[trade_date]).drop(columns, axis=1)
 
     ttm_derivation = pd.merge(income_ttm_sets, cash_flow_ttm_sets, how='outer', on='security_code')
     ttm_derivation = pd.merge(indicator_ttm_sets, ttm_derivation, how='outer', on='security_code')
+    ttm_derivation = pd.merge(balance_ttm_sets, ttm_derivation, how='outer', on='security_code')
 
     return tp_detivation, ttm_derivation
 
