@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from sklearn import linear_model
 from basic_derivation.factor_base import FactorBase
-from basic_derivation.utillities.calc_tools import CalcTools
+from utilities.calc_tools import CalcTools
 from pandas.io.json import json_normalize
 
 # from basic_derivation import app

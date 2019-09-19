@@ -9,9 +9,7 @@
 """
 import gc
 import json
-import numpy as np
 import pandas as pd
-from basic_derivation.utillities.calc_tools import CalcTools
 from pandas.io.json import json_normalize
 from basic_derivation.factor_base import FactorBase
 

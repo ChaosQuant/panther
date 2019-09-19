@@ -16,10 +16,12 @@ import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base
 import sys
 
-sys.path.append('..')
-from dbmodel.model import BalanceMRQ, BalanceTTM, IndicatorReport, IndicatorMRQ
-from utillities.internal_code import InternalCode
-from utillities.sync_util import SyncUtil
+sys.path.append('../')
+sys.path.append('../../')
+sys.path.append('../../../')
+from data.model import BalanceMRQ, BalanceTTM, IndicatorReport, IndicatorMRQ
+from utilities.internal_code import InternalCode
+from utilities.sync_util import SyncUtil
 
 import config
 

@@ -7,7 +7,7 @@
 @file: factor_valuation.py
 @time: 2019-01-28 11:33
 """
-import sys
+import sys, six
 import gc
 sys.path.append("..")
 import json
@@ -15,25 +15,29 @@ import math
 import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
-import pdb
 # from basic_derivation import app
 from basic_derivation.factor_base import FactorBase
-from basic_derivation.utillities.calc_tools import CalcTools
+from utilities.calc_tools import CalcTools
+from utilities.singleton import Singleton
+
 # from ultron.cluster.invoke.cache_data import cache_data
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 
-class Valuation(FactorBase):
+@six.add_metaclass(Singleton)
+class ValuationEstimation(object):
     """
     估值
     """
-
-    def __init__(self, name):
-        super(Valuation, self).__init__(name)
-
+    def __init__(self):
+        __str__ = 'factor_valuation'
+        self.name = '估值类'
+        self.factor_type1 = '估值类'
+        self.factor_type2 = '估值类'
+        self.desciption = '估值类因子'
     # 构建因子表
-    def create_dest_tables(self):
+    def _create_dest_tables(self):
         """
         创建数据库表
         :return:
@@ -87,10 +91,10 @@ class Valuation(FactorBase):
                     constraint {0}_uindex
                     unique (`trade_date`,`security_code`)
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
-        super(Valuation, self)._create_tables(create_sql, drop_sql)
+        super(ValuationEstimation, self)._create_tables(create_sql, drop_sql)
 
     @staticmethod
-    def lcap(valuation_sets, factor_historical_value, dependencies=['market_cap']):
+    def LogofMktValue(valuation_sets, factor_historical_value, dependencies=['market_cap']):
         """
         总市值的对数
         # 对数市值 即市值的对数
@@ -109,7 +113,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def lflo(valuation_sets, factor_historical_value, dependencies=['circulating_market_cap']):
+    def LogofNegMktValue(valuation_sets, factor_historical_value, dependencies=['circulating_market_cap']):
         """
         流通总市值的对数
         # 对数市值 即流通市值的对数
@@ -128,7 +132,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def nlsize(valuation_sets, factor_historical_value, dependencies=['market_cap']):
+    def NLSIZE(valuation_sets, factor_historical_value, dependencies=['market_cap']):
         """
         对数市值开立方
         :param dependencies:
@@ -146,7 +150,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def market_cap_to_corporate_free_cash_flow(valuation_sets, factor_historical_value, dependencies=['market_cap', 'enterprise_fcfps']):
+    def MrktCapToCorFreeCashFlow(valuation_sets, factor_historical_value, dependencies=['market_cap', 'enterprise_fcfps']):
         """
         市值/企业自由现金流
         :param valuation_sets:
@@ -164,7 +168,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pb_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['pb']):
+    def PBAvgOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['pb']):
         """
         PB 均值
         :param valuation_sets:
@@ -189,7 +193,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pb_std(valuation_sets, sw_industry, factor_historical_value=None, dependencies=['pb']):
+    def PBStdOnSW1(valuation_sets, sw_industry, factor_historical_value=None, dependencies=['pb']):
         """
         PB 标准差
         :param valuation_sets:
@@ -213,7 +217,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pb_indu(valuation_sets, factor_historical_value, dependencies=['pb']):
+    def PBIndu(valuation_sets, factor_historical_value, dependencies=['pb']):
         """
         (Pb – Pb 的行业均值)/Pb 的行业标准差
         :param dependencies:
@@ -230,7 +234,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pe_to_pe_avg_over_6m(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_6m']):
+    def PEToAvg6M(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_6m']):
         """
 
         :param valuation_sets:
@@ -248,7 +252,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pe_to_pe_avg_over_3m(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_3m']):
+    def PEToAvg3M(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_3m']):
         """
 
         :param valuation_sets:
@@ -266,7 +270,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pe_to_pe_avg_over_2m(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_2m']):
+    def PEToAvg2M(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_2m']):
         """
 
         :param valuation_sets:
@@ -277,14 +281,14 @@ class Valuation(FactorBase):
         historical_value = valuation_sets.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
 
-        historical_value['PEToAvg1M'] = historical_value[dependencies].apply(func, axis=1)
+        historical_value['PEToAvg2M'] = historical_value[dependencies].apply(func, axis=1)
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
 
         return factor_historical_value
 
     @staticmethod
-    def pe_to_pe_avg_over_1y(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_1y']):
+    def PEToAvg1Y(valuation_sets, factor_historical_value, dependencies=['pe', 'pe_mean_1y']):
         """
 
         :param valuation_sets:
@@ -302,7 +306,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def total_assert(valuation_sets, factor_historical_value, dependencies=['total_assets_report']):
+    def TotalAssets(valuation_sets, factor_historical_value, dependencies=['total_assets_report']):
         """
         总资产
         :param valuation_sets:
@@ -318,7 +322,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def market_value(valuation_sets, factor_historical_value, dependencies=['market_cap']):
+    def MktValue(valuation_sets, factor_historical_value, dependencies=['market_cap']):
         """
         总市值
         :param valuation_sets:
@@ -332,7 +336,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def circulating_market_value(valuation_sets, factor_historical_value, dependencies=['circulating_market_cap']):
+    def CirMktValue(valuation_sets, factor_historical_value, dependencies=['circulating_market_cap']):
         """
         流通市值
         :param valuation_sets:
@@ -347,7 +351,7 @@ class Valuation(FactorBase):
 
     # MRQ
     @staticmethod
-    def log_total_asset_mrq(valuation_sets, factor_historical_value, dependencies=['total_assets']):
+    def LogTotalAssets(valuation_sets, factor_historical_value, dependencies=['total_assets']):
         """
         对数总资产MRQ
         :param valuation_sets:
@@ -365,7 +369,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def book_to_mrkt_to_indu_avg_value(valuation_sets, sw_industry, factor_historical_value,
+    def BMInduAvgOnSW1(valuation_sets, sw_industry, factor_historical_value,
                                        dependencies=['equities_parent_company_owners', 'market_cap']):
         """
         归属于母公司的股东权益（MRQ) / 总市值
@@ -396,7 +400,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def book_to_mrkt_to_indu_std_value(valuation_sets, sw_industry, factor_historical_value,
+    def BMInduSTDOnSW1(valuation_sets, sw_industry, factor_historical_value,
                                        dependencies=['equities_parent_company_owners', 'market_cap']):
         """
         归属于母公司的股东权益（MRQ) / 总市值
@@ -427,7 +431,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def book_to_mrkt_to_indu(valuation_sets, factor_historical_value,
+    def BookValueToIndu(valuation_sets, factor_historical_value,
                              dependencies=['equities_parent_company_owners', 'market_cap']):
         """
         归属于母公司的股东权益（MRQ) / 总市值(行业)
@@ -450,7 +454,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def total_assets_to_enterprise(valuation_sets, factor_historical_value, dependencies=['total_assets_report',
+    def TotalAssetsToEnterpriseValue(valuation_sets, factor_historical_value, dependencies=['total_assets_report',
                                                                                           'shortterm_loan',
                                                                                           'longterm_loan',
                                                                                           'market_cap',
@@ -480,7 +484,7 @@ class Valuation(FactorBase):
 
     # TTM
     @staticmethod
-    def log_sales_ttm(valuation_sets, factor_historical_value, dependencies=['total_operating_revenue']):
+    def LogSalesTTM(valuation_sets, factor_historical_value, dependencies=['total_operating_revenue']):
         """
         对数营业收入(TTM)
         :param valuation_sets:
@@ -498,7 +502,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pcf_to_operating_cash_flow_ttm(valuation_sets, factor_historical_value, dependencies=['market_cap', 'net_operate_cash_flow']):
+    def PCFToOptCashflowTTM(valuation_sets, factor_historical_value, dependencies=['market_cap', 'net_operate_cash_flow']):
         """
         市现率PCF(经营现金流TTM)
         :param valuation_sets:
@@ -516,7 +520,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def etop(valuation_sets, factor_historical_value, dependencies=['net_profit', 'market_cap']):
+    def EPTTM(valuation_sets, factor_historical_value, dependencies=['net_profit', 'market_cap']):
         """
         收益市值比 = 净利润TTM/总市值
         :param dependencies:
@@ -535,7 +539,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pe_deduction_ttm(valuation_sets, factor_historical_value, dependencies=['market_cap', 'net_profit_cut_pre']):
+    def PECutTTM(valuation_sets, factor_historical_value, dependencies=['market_cap', 'net_profit_cut_pre']):
         """
         市盈率PE(TTM)（扣除）
         :param valuation_sets:
@@ -555,7 +559,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pe_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['pe']):
+    def PEAvgOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['pe']):
         """
         PE 均值
         :param valuation_sets:
@@ -578,7 +582,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pe_std(valuation_sets, sw_industry, factor_historical_value, dependencies=['pe']):
+    def PEStdOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['pe']):
         """
         PE 标准差
         :param valuation_sets:
@@ -601,7 +605,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def ps_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['ps']):
+    def PSAvgOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['ps']):
         """
         PS 均值 TTM
         :param valuation_sets:
@@ -625,7 +629,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def ps_std(valuation_sets, sw_industry, factor_historical_value, dependencies=['ps']):
+    def PSStdOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['ps']):
         """
         PS 标准差 TTM
         :param valuation_sets:
@@ -649,7 +653,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pcf_avg(valuation_sets, sw_industry, factor_historical_value, dependencies=['pcf']):
+    def PCFAvgOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['pcf']):
         """
         PCF 均值
         :param valuation_sets:
@@ -673,7 +677,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pcf_std(valuation_sets, sw_industry, factor_historical_value, dependencies=['pcf']):
+    def PCFStdOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['pcf']):
         """
         PCF 标准差
         :param valuation_sets:
@@ -697,7 +701,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pe_indu(tp_historical_value, factor_historical_value, dependencies=['pe']):
+    def PEIndu(tp_historical_value, factor_historical_value, dependencies=['pe']):
         """
         (PE – PE 的行业均值)/PE 的行业标准差 TTM
         :param dependencies:
@@ -714,7 +718,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def ps_indu(valuation_sets, factor_historical_value, dependencies=['ps']):
+    def PSIndu(valuation_sets, factor_historical_value, dependencies=['ps']):
         """
         (Ps – Ps 的行业均值)/Ps 的行业标准差 TTM
         :param dependencies:
@@ -731,7 +735,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def pcf_indu(valuation_sets, factor_historical_value, dependencies=['pcf']):
+    def PCFIndu(valuation_sets, factor_historical_value, dependencies=['pcf']):
         """
         (Pcf – Pcf 的行业均值)/Pcf 的行业标准差 TTM
         :param dependencies:
@@ -748,7 +752,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def total_mkt_avg_to_ebidta(valuation_sets, sw_industry, factor_historical_value,
+    def TotalMrktAVGToEBIDAOnSW1(valuation_sets, sw_industry, factor_historical_value,
                                 dependencies=['market_cap', 'total_profit']):
         """
 
@@ -779,7 +783,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def total_mkt_std_to_ebidta(valuation_sets, sw_industry, factor_historical_value,
+    def TotalMrktSTDToEBIDAOnSW1(valuation_sets, sw_industry, factor_historical_value,
                                 dependencies=['market_cap', 'total_profit']):
         """
         总市值/ 利润总额TTM
@@ -809,7 +813,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def total_mkt_std_to_ebidta_indu(valuation_sets, factor_historical_value,
+    def TotalMrktToEBIDATTM(valuation_sets, factor_historical_value,
                                      dependencies=['market_cap', 'total_profit']):
 
         """
@@ -833,7 +837,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def peg_3y(valuation_sets, factor_historical_value, dependencies=['pe', 'np_parent_company_owners', 'np_parent_company_owners_3']):
+    def PEG3YChgTTM(valuation_sets, factor_historical_value, dependencies=['pe', 'np_parent_company_owners', 'np_parent_company_owners_3']):
         """
         市盈率/归属于母公司所有者净利润 3 年复合增长率
         :param dependencies:
@@ -852,7 +856,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def peg_5y(valuation_sets, factor_historical_value, dependencies=['pe', 'np_parent_company_owners', 'np_parent_company_owners_5']):
+    def PEG5YChgTTM(valuation_sets, factor_historical_value, dependencies=['pe', 'np_parent_company_owners', 'np_parent_company_owners_5']):
         """
         市盈率/归属于母公司所有者净利润 5 年复合增长率
         :param dependencies:
@@ -872,7 +876,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def cetop(valuation_sets, factor_historical_value, dependencies=['net_operate_cash_flow', 'market_cap']):
+    def CEToPTTM(valuation_sets, factor_historical_value, dependencies=['net_operate_cash_flow', 'market_cap']):
         """
         现金收益滚动收益与市值比
         经营活动产生的现金流量净额与市值比
@@ -893,7 +897,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def revenue_to_market_ratio_ttm(valuation_sets, factor_historical_value, dependencies=['operating_revenue',
+    def RevToMrktRatioTTM(valuation_sets, factor_historical_value, dependencies=['operating_revenue',
                                                                                            'market_cap']):
         """
         营收市值比(TTM)
@@ -914,7 +918,7 @@ class Valuation(FactorBase):
         return factor_historical_value
 
     @staticmethod
-    def operating_to_enterprise_ttm(valuation_sets, factor_historical_value, dependencies=['operating_revenue',
+    def OptIncToEnterpriseValueTTM(valuation_sets, factor_historical_value, dependencies=['operating_revenue',
                                                                                            'shortterm_loan',
                                                                                            'longterm_loan',
                                                                                            'market_cap',
@@ -941,81 +945,81 @@ class Valuation(FactorBase):
         return factor_historical_value
 
 
-def calculate(trade_date, valuation_sets, sw_industry, pe_sets, factor_name):
-    """
-    :param factor_name:
-    :param pe_sets:
-    :param sw_industry:
-    :param valuation_sets:
-    :param trade_date:
-    :return:
-    """
-    valuation_sets = valuation_sets.set_index('security_code')
-    pe_sets = pe_sets.set_index('security_code')
-    historical_value = Valuation(factor_name)
-
-    factor_historical_value = pd.DataFrame()
-    factor_historical_value['security_code'] = valuation_sets.index
-    factor_historical_value = factor_historical_value.set_index('security_code')
-
-    # psindu
-    factor_historical_value = historical_value.lcap(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.lflo(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.nlsize(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.market_cap_to_corporate_free_cash_flow(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.pb_avg(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.pb_std(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.pb_indu(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.total_assert(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.market_value(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.circulating_market_value(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.log_total_asset_mrq(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.book_to_mrkt_to_indu_avg_value(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.book_to_mrkt_to_indu_std_value(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.book_to_mrkt_to_indu(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.pe_to_pe_avg_over_6m(pe_sets, factor_historical_value)
-    factor_historical_value = historical_value.pe_to_pe_avg_over_3m(pe_sets, factor_historical_value)
-    factor_historical_value = historical_value.pe_to_pe_avg_over_2m(pe_sets, factor_historical_value)
-    factor_historical_value = historical_value.pe_to_pe_avg_over_1y(pe_sets, factor_historical_value)
-    factor_historical_value = historical_value.total_assets_to_enterprise(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.log_sales_ttm(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.pcf_to_operating_cash_flow_ttm(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.etop(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.pe_deduction_ttm(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.pe_avg(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.pe_std(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.ps_avg(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.ps_std(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.pcf_avg(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.pcf_std(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.pe_indu(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.ps_indu(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.pcf_indu(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.total_mkt_avg_to_ebidta(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.total_mkt_std_to_ebidta(valuation_sets, sw_industry, factor_historical_value)
-    factor_historical_value = historical_value.total_mkt_std_to_ebidta_indu(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.peg_3y(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.peg_5y(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.cetop(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.revenue_to_market_ratio_ttm(valuation_sets, factor_historical_value)
-    factor_historical_value = historical_value.operating_to_enterprise_ttm(valuation_sets, factor_historical_value)
-
-    # factor_historical_value = factor_historical_value.reset_index()
-    factor_historical_value['trade_date'] = str(trade_date)
-    print(factor_historical_value.head())
-    historical_value._storage_data(factor_historical_value, trade_date)
-    del historical_value, factor_historical_value, valuation_sets
-    gc.collect()
-
-
-# @app.task()
-def factor_calculate(**kwargs):
-    print("history_value_kwargs: {}".format(kwargs))
-    date_index = kwargs['date_index']
-    session = kwargs['session']
-    # historical_value = Valuation('factor_historical_value')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
-    content = cache_data.get_cache(session + str(date_index), date_index)
-    total_history_data = json_normalize(json.loads(str(content, encoding='utf8')))
-    print("len_history_value_data {}".format(len(total_history_data)))
-    calculate(date_index, total_history_data)
+# def calculate(trade_date, valuation_sets, sw_industry, pe_sets, factor_name):
+#     """
+#     :param factor_name:
+#     :param pe_sets:
+#     :param sw_industry:
+#     :param valuation_sets:
+#     :param trade_date:
+#     :return:
+#     """
+#     valuation_sets = valuation_sets.set_index('security_code')
+#     pe_sets = pe_sets.set_index('security_code')
+#     historical_value = Valuation(factor_name)
+#
+#     factor_historical_value = pd.DataFrame()
+#     factor_historical_value['security_code'] = valuation_sets.index
+#     factor_historical_value = factor_historical_value.set_index('security_code')
+#
+#     # psindu
+#     factor_historical_value = historical_value.lcap(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.lflo(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.nlsize(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.market_cap_to_corporate_free_cash_flow(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pb_avg(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.pb_std(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.pb_indu(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.total_assert(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.market_value(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.circulating_market_value(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.log_total_asset_mrq(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.book_to_mrkt_to_indu_avg_value(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.book_to_mrkt_to_indu_std_value(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.book_to_mrkt_to_indu(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pe_to_pe_avg_over_6m(pe_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pe_to_pe_avg_over_3m(pe_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pe_to_pe_avg_over_2m(pe_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pe_to_pe_avg_over_1y(pe_sets, factor_historical_value)
+#     factor_historical_value = historical_value.total_assets_to_enterprise(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.log_sales_ttm(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pcf_to_operating_cash_flow_ttm(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.etop(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pe_deduction_ttm(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pe_avg(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.pe_std(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.ps_avg(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.ps_std(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.pcf_avg(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.pcf_std(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.pe_indu(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.ps_indu(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.pcf_indu(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.total_mkt_avg_to_ebidta(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.total_mkt_std_to_ebidta(valuation_sets, sw_industry, factor_historical_value)
+#     factor_historical_value = historical_value.total_mkt_std_to_ebidta_indu(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.peg_3y(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.peg_5y(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.cetop(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.revenue_to_market_ratio_ttm(valuation_sets, factor_historical_value)
+#     factor_historical_value = historical_value.operating_to_enterprise_ttm(valuation_sets, factor_historical_value)
+#
+#     # factor_historical_value = factor_historical_value.reset_index()
+#     factor_historical_value['trade_date'] = str(trade_date)
+#     print(factor_historical_value.head())
+#     historical_value._storage_data(factor_historical_value, trade_date)
+#     del historical_value, factor_historical_value, valuation_sets
+#     gc.collect()
+#
+#
+# # @app.task()
+# def factor_calculate(**kwargs):
+#     print("history_value_kwargs: {}".format(kwargs))
+#     date_index = kwargs['date_index']
+#     session = kwargs['session']
+#     # historical_value = Valuation('factor_historical_value')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+#     content = cache_data.get_cache(session + str(date_index), date_index)
+#     total_history_data = json_normalize(json.loads(str(content, encoding='utf8')))
+#     print("len_history_value_data {}".format(len(total_history_data)))
+#     calculate(date_index, total_history_data)
 

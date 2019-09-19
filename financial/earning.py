@@ -21,7 +21,7 @@ from data.model import BalanceMRQ, BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
 from data.model import IndicatorReport
 from data.model import IncomeReport, IncomeTTM
-# from vision.file_unit.valuation import Valuation
+# from vision.file_unit.valuation_estimation import Valuation
 
 from data.sqlengine import sqlEngine
 from utilities.sync_util import SyncUtil
@@ -90,7 +90,7 @@ def get_basic_data(trade_date):
         # indicator
         'NETPROFITCUT':'adjusted_profit',  # 扣除非经常损益后的净利润1
 
-        # valuation
+        # valuation_estimation
         '':'circulating_market_cap'  # 流通市值1
         }
 

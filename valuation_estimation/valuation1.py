@@ -4,7 +4,7 @@
 """
 @version: ??
 @author: li
-@file: valuation.py
+@file: valuation1.py
 @time: 2019-09-05 11:05
 """
 
@@ -17,7 +17,7 @@ sys.path.append('../../../')
 import time
 import argparse
 from datetime import timedelta
-from valuation import factor_valuation
+from valuation_estimation import factor_valuation
 
 from data.model import BalanceMRQ, BalanceReport
 from data.model import CashFlowMRQ, CashFlowTTM
@@ -88,7 +88,7 @@ def get_basic_history_value_data(trade_date):
         'FCFF': 'enterprise_fcfps',  # 企业自由现金流 report
         'NETPROFITCUT': 'net_profit_cut',  # 扣除非经常性损益的净利润 ttm
 
-        # valuation
+        # valuation_estimation
         'pe': 'pe',
         'pb': 'pb',
         'ps': 'ps',
@@ -334,7 +334,7 @@ if __name__ == '__main__':
     else:
         end_date = args.end_date
     if args.rebuild:
-        processor = factor_valuation.Valuation(factor_name)
+        processor = factor_valuation.ValuationEstimation(factor_name)
         processor.create_dest_tables()
         do_update(args.start_date, end_date, args.count, factor_name)
     if args.update:

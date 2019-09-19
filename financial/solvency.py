@@ -100,7 +100,7 @@ def get_basic_data(trade_date):
         # indicator
         'NDEBT': 'net_liability',  # 净负债
 
-        # valuation
+        # valuation_estimation
         'market_cap':'market_cap', # 总市值
         }
     columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
