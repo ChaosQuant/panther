@@ -31,7 +31,7 @@ class DXAdaptation(Adaptation):
         return data.rename(columns={'preClosePrice':'pre_close','openPrice':'open_price',
                                     'highestPrice':'highest_price','lowestPrice':'lowest_price',
                                     'closePrice':'close_price','turnoverVol':'turnover_vol',
-                                    'turnoverValue':'turnover_value','accumAdjFactor':'factor',
+                                    'turnoverValue':'turnover_value','accumAdjFactor':'basic_derivation',
                                     'vwap':'vwap','negMarketValue': 'neg_mkt_value',
                                     'marketValue': 'mkt_value','chgPct': 'chg_pct','isOpen': 'is_open',
                                     'PE': 'pe_ttm','PE1': 'pe','PB': 'pb'})
@@ -50,7 +50,7 @@ class RLAdaptation(Adaptation):
         return data.rename(columns={'symbol':'code','open':'open_price','close':'close_price',
                                    'high':'highest_price','low':'lowest_price','volume':'turnover_vol',
                                    'money':'turnover_value','change_pct':'chg_pct','tot_mkt_cap':'mkt_value',
-                                   'factor':'factor'})
+                                   'basic_derivation':'basic_derivation'})
     def risk_exposure(self, data):
         return data.rename(columns={'symbol':'code'})
     

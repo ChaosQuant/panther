@@ -322,13 +322,13 @@ class Alpha101(object):
                  dependencies=['highest_price', 'highest_price'], max_window=20):
         # ((sum(HIGH, 20) / 20) < HIGH) ? (-1 * delta(HIGH, 2)) : 0
 
-        # # original factor calc method
+        # # original basic_derivation calc method
         # mark = data['high'].rolling(window=20).mean() < data['high']
         # delta_high = -1.0 * data['high_raw'].diff(2)
         # delta_high[mark==False] = 0.0
         # alpha = delta_high.iloc[-1]
 
-        # adjusted factor calc method
+        # adjusted basic_derivation calc method
         mark = data['highest_price'].rolling(window=param1).mean() < data['highest_price']
         delta_high = float(param2) * data['highest_price'].diff(param3)
         delta_high[mark==False] = delta_high[mark==False] * param4
@@ -345,7 +345,7 @@ class Alpha101(object):
         # mask = (delta((sum(CLOSE, 100) / 100), 100) / delay(CLOSE, 100))
         # mask > 0.05 ? (-1 * delta(CLOSE, 3)) : (-1 * (CLOSE - ts_min(CLOSE, 100)))
 
-        # # original factor calc method
+        # # original basic_derivation calc method
         # delta_close = data['close'].rolling(window=100).mean().diff(periods=100)
         # delay_close = data['close'].shift(periods=100)
         # mask = delta_close / delay_close
@@ -357,7 +357,7 @@ class Alpha101(object):
         # false_index = mask_se[mask_se==False].index
         # true_se.loc[false_index] = false_se.loc[false_index]
 
-        # # adjusted factor calc method
+        # # adjusted basic_derivation calc method
         delta_close = data['close_price'].rolling(window=param1).mean().diff(periods=param2)
         delay_close = data['close_price'].shift(periods=param2)
         mask = delta_close / delay_close
@@ -388,13 +388,13 @@ class Alpha101(object):
         rank_vol = data['turnover_vol'].rank(axis=1, pct=True)
         rank_vwap = data['vwap'].rank(axis=1, pct=True)
 
-        # # original factor calc method
+        # # original basic_derivation calc method
         # corr_df = rolling_corr(rank_vol, rank_vwap, win=10)
         # corr_mean = corr_df.rolling(window=2).mean()
         # alpha = corr_mean.rank(axis=1, pct=True).iloc[-1]
         # alpha = -1.0 * np.sign((alpha - 0.5))
 
-        # adjusted factor calc method
+        # adjusted basic_derivation calc method
         # sum(correlation(rank(VOLUME), rank(VWAP), 6), 2) / 2.0
         corr_df = rolling_corr(rank_vol, rank_vwap, win=param1)
         corr_mean = corr_df.rolling(window=param2).mean()
@@ -584,7 +584,7 @@ class Alpha101(object):
         numerator = (data['lowest_price'] - data['close_price'] + param1) * (data['open_price'] ** param2)
         denominator = (data['lowest_price'] - data['highest_price'] + param1) * (data['close_price'] ** param2)
 
-        # use mean average factor of ma_win bars
+        # use mean average basic_derivation of ma_win bars
         ma_win = param3
         alpha = (float(param5)* numerator / denominator).iloc[-ma_win:].mean()
         alpha[alpha==float(param5)] = np.NaN

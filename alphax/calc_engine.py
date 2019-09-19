@@ -50,8 +50,8 @@ class CalcEngine(object):
     def calc_factor_by_date(self, data, trade_date):
         trade_date_list = list(set(data.trade_date))
         trade_date_list.sort(reverse=False)
-        benchmark_factor = data.set_index('trade_date').loc[trade_date_list[-1]][['code','factor']]
-        benchmark_factor.rename(columns={'factor':'benchmark_factor'},inplace=True)
+        benchmark_factor = data.set_index('trade_date').loc[trade_date_list[-1]][['code','basic_derivation']]
+        benchmark_factor.rename(columns={'basic_derivation':'benchmark_factor'},inplace=True)
         mkt_df = data.merge(benchmark_factor, on=['code'])
         mkt_df = mkt_df.set_index(['trade_date', 'code'])
         mkt_df = mkt_df[mkt_df['turnover_vol'] > 0]
@@ -59,7 +59,7 @@ class CalcEngine(object):
         #
         for p in mkt_df.columns:
             if p in ['open_price', 'highest_price', 'lowest_price', 'close_price', 'vwap']:
-                mkt_df[p] = mkt_df[p] * mkt_df['factor'] / mkt_df['benchmark_factor']
+                mkt_df[p] = mkt_df[p] * mkt_df['basic_derivation'] / mkt_df['benchmark_factor']
         indu_dict = {}
         indu_names = self._INDU_STYLES + ['COUNTRY']
         for date in trade_date_list:
