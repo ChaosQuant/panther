@@ -10,6 +10,7 @@
 
 import gc
 import gevent
+import signal
 from gevent.pool import Pool
 import sys
 sys.path.append('../')
@@ -306,14 +307,14 @@ def do_update(start_date, end_date, count, factor_name):
     trade_date_sets = syn_util.get_trades_ago('001002', start_date, end_date, count, order='DESC')
     trade_date_sets = trade_date_sets['TRADEDATE'].values
     # print('交易日：%s' % trade_date_sets)
-    # for trade_date in trade_date_sets:
-    #     prepare_calculate_local(trade_date, factor_name)
+    for trade_date in trade_date_sets:
+        prepare_calculate_local(trade_date, factor_name)
     # 异步协程
     # 法一
-    threads = Pool(50)
-    for trade_date in trade_date_sets:
-        threads.spawn(prepare_calculate_local, trade_date, factor_name)
-    threads.join()
+    # threads = Pool(50)
+    # for trade_date in trade_date_sets:
+    #     threads.spawn(prepare_calculate_local, trade_date, factor_name)
+    # threads.join()
     # 法二
     # threads = [gevent.spawn(prepare_calculate_local, trade_date, factor_name) for trade_date in trade_date_sets]
     # gevent.joinall(threads)
