@@ -7,7 +7,7 @@
 @file: factor_operation_capacity.py
 @time: 2019-05-30
 """
-import gc
+import gc, six
 import sys
 sys.path.append('../')
 sys.path.append('../../')
@@ -18,46 +18,26 @@ import pandas as pd
 from basic_derivation.factor_base import FactorBase
 from pandas.io.json import json_normalize
 from utilities.calc_tools import CalcTools
+from utilities.singleton import Singleton
 
 # from basic_derivation import app
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
-class OperationCapacity(FactorBase):
+@six.add_metaclass(Singleton)
+class OperationCapacity(object):
     """
     营运能力
     """
-    def __init__(self, name):
-        super(OperationCapacity, self).__init__(name)
-
-    def create_dest_tables(self):
-        """
-        创建数据库表
-        :return:
-        """
-        drop_sql = """drop table if exists `{0}`""".format(self._name)
-        create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-                    `security_code` varchar(24) NOT NULL,
-                    `trade_date` date NOT NULL,
-                    `AccPayablesRateTTM` decimal(19,4),
-                    `AccPayablesDaysTTM` decimal(19,4),
-                    `ARRateTTM` decimal(19,4),
-                    `ARDaysTTM` decimal(19,4),
-                    `CashCovCycle` decimal(19,4),
-                    `CurAssetsRtTTM` decimal(19,4),
-                    `FixAssetsRtTTM` decimal(19,4),
-                    `InvRateTTM` decimal(19,4),
-                    `InvDaysTTM` decimal(19,4),
-                    `OptCycle` decimal(19,4),
-                    `TotaAssetRtTTM` decimal(19,4),
-                    constraint {0}_uindex
-                    unique (`trade_date`,`security_code`)
-                    )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
-        super(OperationCapacity, self)._create_tables(create_sql, drop_sql)
+    def __init__(self):
+        __str__ = 'factor_operation_capacity'
+        self.name = '财务指标'
+        self.factor_type1 = '财务指标'
+        self.factor_type2 = '营运能力'
+        self.desciption = '财务指标的二级指标， 营运能力'
 
     @staticmethod
-    def accounts_payables_t_rate_ttm(ttm_management, factor_management, dependencies=['operating_cost',
+    def AccPayablesRateTTM(ttm_management, factor_management, dependencies=['operating_cost',
                                                                                       'accounts_payable',
                                                                                       'notes_payable',
                                                                                       'advance_payment']):
@@ -85,7 +65,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def accounts_payables_t_days_ttm(ttm_management, factor_management, dependencies=['operating_cost',
+    def AccPayablesDaysTTM(ttm_management, factor_management, dependencies=['operating_cost',
                                                                                       'accounts_payable',
                                                                                       'notes_payable',
                                                                                       'advance_payment']):
@@ -112,7 +92,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def ar_t_rate_ttm(ttm_management, factor_management, dependencies=['operating_revenue', 'account_receivable',
+    def ARRateTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'account_receivable',
                                                                        'bill_receivable', 'advance_peceipts']):
         """
         应收账款周转率
@@ -137,7 +117,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def ar_t_days_ttm(ttm_management, factor_management, dependencies=['operating_revenue', 'bill_receivable',
+    def ARDaysTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'bill_receivable',
                                                                        'account_receivable', 'advance_peceipts']):
         """
         应收账款周转天数
@@ -161,7 +141,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def inventory_t_rate_ttm(ttm_management, factor_management, dependencies=['operating_cost', 'inventories']):
+    def InvRateTTM(ttm_management, factor_management, dependencies=['operating_cost', 'inventories']):
         """
         存货周转率
         存货周转率 = 营业成本/存货
@@ -181,7 +161,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def inventory_t_days_ttm(ttm_management, factor_management, dependencies=['operating_cost', 'inventories']):
+    def InvDaysTTM(ttm_management, factor_management, dependencies=['operating_cost', 'inventories']):
         """
         存货周转天数
         存货周转天数 = 360/存货周转率
@@ -201,7 +181,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def cash_conversion_cycle(factor_management):
+    def CashCovCycle(factor_management):
         """
         现金转换周期
         现金转换周期 = 应收账款周转天数 + 存货周转天数 - 应付账款周转天数
@@ -214,7 +194,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def current_assets_t_rate_ttm(ttm_management, factor_management, dependencies=['operating_revenue', 'total_current_assets']):
+    def CurAssetsRtTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'total_current_assets']):
         """
         流动资产周转率
         流动资产周转率 = 营业收入/流动资产合计
@@ -234,7 +214,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def fixed_assets_t_rate_ttm(ttm_management, factor_management, dependencies=['operating_revenue',
+    def FixAssetsRtTTM(ttm_management, factor_management, dependencies=['operating_revenue',
                                                                                  'fixed_assets',
                                                                                  'construction_materials',
                                                                                  'constru_in_process']):
@@ -262,7 +242,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def operating_cycle(factor_management):
+    def OptCycle(factor_management):
         """
         营业周期
         营业周期 = 应收账款周转天数 + 存货周转天数
@@ -274,7 +254,7 @@ class OperationCapacity(FactorBase):
         return factor_management
 
     @staticmethod
-    def total_assets_t_rate_ttm(ttm_management, factor_management, dependencies=['operating_revenue',
+    def TotaAssetRtTTM(ttm_management, factor_management, dependencies=['operating_revenue',
                                                                                  'total_assets']):
         """
         总资产周转率
@@ -292,46 +272,3 @@ class OperationCapacity(FactorBase):
         management = management.drop(dependencies, axis=1)
         factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
-
-
-def calculate(trade_date, ttm_operation_capacity, factor_name):  # 计算对应因子
-    ttm_operation_capacity = ttm_operation_capacity.set_index('security_code')
-    capacity = OperationCapacity(factor_name)  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
-    # 读取目前涉及到的因子
-
-    # 因子计算
-    factor_management = pd.DataFrame()
-    factor_management['security_code'] = ttm_operation_capacity.index
-    factor_management = factor_management.set_index('security_code')
-
-    factor_management = capacity.accounts_payables_t_rate_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.accounts_payables_t_days_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.ar_t_rate_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.ar_t_days_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.inventory_t_rate_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.inventory_t_days_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.cash_conversion_cycle(factor_management)
-    factor_management = capacity.current_assets_t_rate_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.fixed_assets_t_rate_ttm(ttm_operation_capacity, factor_management)
-    factor_management = capacity.operating_cycle(factor_management)
-    factor_management = capacity.total_assets_t_rate_ttm(ttm_operation_capacity, factor_management)
-
-    factor_management = factor_management.reset_index()
-    # factor_management['id'] = factor_management['security_code'] + str(trade_date)
-    factor_management['trade_date'] = str(trade_date)
-    print(factor_management.head())
-    capacity._storage_data(factor_management, trade_date)
-    del capacity
-    gc.collect()
-
-
-# @app.task()
-def factor_calculate(**kwargs):
-    print("management_kwargs: {}".format(kwargs))
-    date_index = kwargs['date_index']
-    session = kwargs['session']
-    content1 = cache_data.get_cache(session + str(date_index) + "1", date_index)
-    ttm_operation_capacity = json_normalize(json.loads(str(content1, encoding='utf8')))
-    ttm_operation_capacity.set_index('security_code', inplace=True)
-    print("len_tp_management_data {}".format(len(ttm_operation_capacity)))
-    calculate(date_index, ttm_operation_capacity)

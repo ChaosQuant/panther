@@ -116,7 +116,7 @@ def get_basic_data(trade_date):
                                                                     BalanceMRQ.FIXEDASSENET,
                                                                     BalanceMRQ.PARESHARRIGH,
                                                                     BalanceMRQ.SHORTTERMBORR,
-                                                                    # BalanceMRQ.DUENONCLIAB,
+                                                                    BalanceMRQ.DUENONCLIAB,
                                                                     BalanceMRQ.LONGBORR,
                                                                     BalanceMRQ.BDSPAYA,
                                                                     BalanceMRQ.INTEPAYA,
@@ -185,7 +185,7 @@ def get_basic_data(trade_date):
 
     balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                        [BalanceTTM.TOTALCURRLIAB,
-                                                                        # BalanceTTM.DUENONCLIAB,
+                                                                        BalanceTTM.DUENONCLIAB,
                                                                         ], dates=[trade_date]).drop(columns, axis=1)
     balance_ttm_sets = balance_ttm_sets.rename(columns={
         'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计

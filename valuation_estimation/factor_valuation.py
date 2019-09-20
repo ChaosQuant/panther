@@ -15,11 +15,11 @@ import math
 import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
-# from basic_derivation import app
 from basic_derivation.factor_base import FactorBase
 from utilities.calc_tools import CalcTools
 from utilities.singleton import Singleton
 
+# from basic_derivation import app
 # from ultron.cluster.invoke.cache_data import cache_data
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -36,62 +36,6 @@ class ValuationEstimation(object):
         self.factor_type1 = '估值类'
         self.factor_type2 = '估值类'
         self.desciption = '估值类因子'
-    # 构建因子表
-    def _create_dest_tables(self):
-        """
-        创建数据库表
-        :return:
-        """
-        drop_sql = """drop table if exists `{0}`""".format(self._name)
-
-        create_sql = """create table `{0}`(
-                    `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-                    `security_code` varchar(32) NOT NULL,
-                    `trade_date` date NOT NULL,
-                    `LogofMktValue` decimal(19,4) NOT NULL,
-                    `LogofNegMktValue` decimal(19,4),
-                    `NLSIZE` decimal(19,4),
-                    `MrktCapToCorFreeCashFlow` decimal(19,4),
-                    `PECutTTM` decimal(19,4),
-                    `PBAvgOnSW1` decimal(19, 4),
-                    `PBStdOnSW1` decimal(19,4),
-                    `PEToAvg6M` decimal(19,4),
-                    `PEToAvg3M` decimal(19,4),
-                    `PEToAvg1M` decimal(19,4),
-                    `PEToAvg1Y` decimal(19,4),
-                    `TotalAssets` decimal(19,4),
-                    `MktValue` decimal(19,4),
-                    `CirMktValue` decimal(19,4),
-                    `LogTotalAssets` decimal(19,4),
-                    `BMInduAvgOnSW1` decimal(19,4),
-                    `BMInduSTDOnSW1` decimal(19,4),
-                    `BookValueToIndu` decimal(19,4),
-                    `TotalAssetsToEnterpriseValue` decimal(19,4),
-                    `LogSalesTTM` decimal(19,4),
-                    `PCFToOptCashflowTTM` decimal(19,4),
-                    `EPTTM` decimal(19,4),
-                    `PEAvgOnSW1` decimal(19,4),
-                    `PEStdOnSW1` decimal(19,4),
-                    `PSAvgOnSW1` decimal(19,4),
-                    `PSStdOnSW1` decimal(19,4),
-                    `PCFAvgOnSW1` decimal(19,4),
-                    `PCFStdOnSW1` decimal(19,4),
-                    `PEIndu` decimal(19,4),
-                    `PBIndu` decimal(19,4),
-                    `PSIndu` decimal(19,4),
-                    `PCFIndu` decimal(19,4),
-                    `TotalMrktAVGToEBIDAOnSW1` decimal(19,4),
-                    `TotalMrktSTDToEBIDAOnSW1` decimal(19,4),
-                    `TotalMrktToEBIDATTM` decimal(19,4),
-                    `PEG3YChgTTM` decimal(19,4),
-                    `PEG5YChgTTM` decimal(19,4),
-                    `CEToPTTM` decimal(19,4),
-                    `RevToMrktRatioTTM` decimal(19,4),
-                    `OptIncToEnterpriseValueTTM` decimal(19,4),
-                    constraint {0}_uindex
-                    unique (`trade_date`,`security_code`)
-                    )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
-        super(ValuationEstimation, self)._create_tables(create_sql, drop_sql)
 
     @staticmethod
     def LogofMktValue(valuation_sets, factor_historical_value, dependencies=['market_cap']):
@@ -943,83 +887,3 @@ class ValuationEstimation(object):
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
-
-
-# def calculate(trade_date, valuation_sets, sw_industry, pe_sets, factor_name):
-#     """
-#     :param factor_name:
-#     :param pe_sets:
-#     :param sw_industry:
-#     :param valuation_sets:
-#     :param trade_date:
-#     :return:
-#     """
-#     valuation_sets = valuation_sets.set_index('security_code')
-#     pe_sets = pe_sets.set_index('security_code')
-#     historical_value = Valuation(factor_name)
-#
-#     factor_historical_value = pd.DataFrame()
-#     factor_historical_value['security_code'] = valuation_sets.index
-#     factor_historical_value = factor_historical_value.set_index('security_code')
-#
-#     # psindu
-#     factor_historical_value = historical_value.lcap(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.lflo(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.nlsize(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.market_cap_to_corporate_free_cash_flow(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pb_avg(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.pb_std(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.pb_indu(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.total_assert(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.market_value(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.circulating_market_value(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.log_total_asset_mrq(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.book_to_mrkt_to_indu_avg_value(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.book_to_mrkt_to_indu_std_value(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.book_to_mrkt_to_indu(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pe_to_pe_avg_over_6m(pe_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pe_to_pe_avg_over_3m(pe_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pe_to_pe_avg_over_2m(pe_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pe_to_pe_avg_over_1y(pe_sets, factor_historical_value)
-#     factor_historical_value = historical_value.total_assets_to_enterprise(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.log_sales_ttm(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pcf_to_operating_cash_flow_ttm(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.etop(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pe_deduction_ttm(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pe_avg(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.pe_std(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.ps_avg(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.ps_std(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.pcf_avg(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.pcf_std(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.pe_indu(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.ps_indu(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.pcf_indu(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.total_mkt_avg_to_ebidta(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.total_mkt_std_to_ebidta(valuation_sets, sw_industry, factor_historical_value)
-#     factor_historical_value = historical_value.total_mkt_std_to_ebidta_indu(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.peg_3y(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.peg_5y(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.cetop(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.revenue_to_market_ratio_ttm(valuation_sets, factor_historical_value)
-#     factor_historical_value = historical_value.operating_to_enterprise_ttm(valuation_sets, factor_historical_value)
-#
-#     # factor_historical_value = factor_historical_value.reset_index()
-#     factor_historical_value['trade_date'] = str(trade_date)
-#     print(factor_historical_value.head())
-#     historical_value._storage_data(factor_historical_value, trade_date)
-#     del historical_value, factor_historical_value, valuation_sets
-#     gc.collect()
-#
-#
-# # @app.task()
-# def factor_calculate(**kwargs):
-#     print("history_value_kwargs: {}".format(kwargs))
-#     date_index = kwargs['date_index']
-#     session = kwargs['session']
-#     # historical_value = Valuation('factor_historical_value')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
-#     content = cache_data.get_cache(session + str(date_index), date_index)
-#     total_history_data = json_normalize(json.loads(str(content, encoding='utf8')))
-#     print("len_history_value_data {}".format(len(total_history_data)))
-#     calculate(date_index, total_history_data)
-

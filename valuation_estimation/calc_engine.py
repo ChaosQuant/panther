@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
-import multiprocessing
+
 import pdb,importlib,inspect,time,datetime,json
 # from PyFin.api import advanceDateByCalendar
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-import argparse
 from datetime import timedelta
 from valuation_estimation import factor_valuation
 
@@ -21,7 +18,6 @@ from vision.vision.table.valuation import Valuation
 from vision.vision.table.industry import Industry
 from data.sqlengine import sqlEngine
 from utilities.sync_util import SyncUtil
-# from ultron.cluster.invoke.cache_data import cache_data
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 # from ultron.cluster.invoke.cache_data import cache_data
@@ -46,10 +42,9 @@ class CalcEngine(object):
         trade_date_sets = syn_util.get_all_trades('001002', '19900101', trade_date)
         trade_date_sets = trade_date_sets['TRADEDATE'].values
 
-        time_array = datetime.strptime(str(trade_date), "%Y-%m-%d")
+        time_array = datetime.strptime(str(trade_date), "%Y%m%d")
         time_array = time_array - timedelta(days=days) * n
         date_time = int(datetime.strftime(time_array, "%Y%m%d"))
-        print(date_time)
         if str(date_time) < min(trade_date_sets):
             # print('date_time %s is out of trade_date_sets' % date_time)
             return str(date_time)
@@ -101,13 +96,16 @@ class CalcEngine(object):
             'market_cap': 'market_cap',  # 总市值
             'circulating_market_cap': 'circulating_market_cap'
         }
-
+        time_array = datetime.strptime(trade_date, "%Y-%m-%d")
+        trade_date = datetime.strftime(time_array, '%Y%m%d')
         columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
         engine = sqlEngine()
         trade_date_1y = self.get_trade_date(trade_date, 1)
         trade_date_3y = self.get_trade_date(trade_date, 3)
         trade_date_4y = self.get_trade_date(trade_date, 4)
         trade_date_5y = self.get_trade_date(trade_date, 5)
+        print(trade_date_3y)
+        print(trade_date_5y)
 
         # report data
         indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
@@ -290,28 +288,25 @@ class CalcEngine(object):
         factor_historical_value = historical_value.LogofMktValue(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.LogofNegMktValue(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.NLSIZE(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.MrktCapToCorFreeCashFlow(valuation_sets,
-                                                                                          factor_historical_value)
+        factor_historical_value = historical_value.MrktCapToCorFreeCashFlow(valuation_sets, factor_historical_value)
+
         factor_historical_value = historical_value.PBAvgOnSW1(valuation_sets, sw_industry, factor_historical_value)
         factor_historical_value = historical_value.PBStdOnSW1(valuation_sets, sw_industry, factor_historical_value)
         factor_historical_value = historical_value.PBIndu(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.PEToAvg6M(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.PEToAvg3M(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.PEToAvg2M(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.PEToAvg2M(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.TotalAssets(valuation_sets, sw_industry,
-                                                               factor_historical_value)
-        factor_historical_value = historical_value.MktValue(valuation_sets, sw_industry,
-                                                                                  factor_historical_value)
+        factor_historical_value = historical_value.PEToAvg6M(pe_sets, factor_historical_value)
+        factor_historical_value = historical_value.PEToAvg3M(pe_sets, factor_historical_value)
+        factor_historical_value = historical_value.PEToAvg2M(pe_sets, factor_historical_value)
+        factor_historical_value = historical_value.PEToAvg1Y(pe_sets, factor_historical_value)
+        factor_historical_value = historical_value.TotalAssets(valuation_sets, factor_historical_value)
+        factor_historical_value = historical_value.MktValue(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.CirMktValue(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.LogTotalAssets(pe_sets, factor_historical_value)
-        factor_historical_value = historical_value.BMInduAvgOnSW1(pe_sets, factor_historical_value)
-        factor_historical_value = historical_value.BMInduSTDOnSW1(pe_sets, factor_historical_value)
-        factor_historical_value = historical_value.BookValueToIndu(pe_sets, factor_historical_value)
+        factor_historical_value = historical_value.LogTotalAssets(valuation_sets, factor_historical_value)
+        factor_historical_value = historical_value.BMInduAvgOnSW1(valuation_sets, sw_industry, factor_historical_value)
+        factor_historical_value = historical_value.BMInduSTDOnSW1(valuation_sets, sw_industry, factor_historical_value)
+        factor_historical_value = historical_value.BookValueToIndu(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.TotalAssetsToEnterpriseValue(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.LogSalesTTM(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.PCFToOptCashflowTTM(valuation_sets,
-                                                                                  factor_historical_value)
+        factor_historical_value = historical_value.PCFToOptCashflowTTM(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.EPTTM(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.PECutTTM(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.PEAvgOnSW1(valuation_sets, sw_industry, factor_historical_value)
@@ -320,13 +315,11 @@ class CalcEngine(object):
         factor_historical_value = historical_value.PSStdOnSW1(valuation_sets, sw_industry, factor_historical_value)
         factor_historical_value = historical_value.PCFAvgOnSW1(valuation_sets, sw_industry, factor_historical_value)
         factor_historical_value = historical_value.PCFStdOnSW1(valuation_sets, sw_industry, factor_historical_value)
-        factor_historical_value = historical_value.PCFStdOnSW1(valuation_sets, factor_historical_value)
+        factor_historical_value = historical_value.PEIndu(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.PSIndu(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.PCFIndu(valuation_sets, factor_historical_value)
-        factor_historical_value = historical_value.TotalMrktAVGToEBIDAOnSW1(valuation_sets, sw_industry,
-                                                                           factor_historical_value)
-        factor_historical_value = historical_value.TotalMrktSTDToEBIDAOnSW1(valuation_sets, sw_industry,
-                                                                           factor_historical_value)
+        factor_historical_value = historical_value.TotalMrktAVGToEBIDAOnSW1(valuation_sets, sw_industry, factor_historical_value)
+        factor_historical_value = historical_value.TotalMrktSTDToEBIDAOnSW1(valuation_sets, sw_industry, factor_historical_value)
         factor_historical_value = historical_value.TotalMrktToEBIDATTM(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.PEG3YChgTTM(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.PEG5YChgTTM(valuation_sets, factor_historical_value)
@@ -338,49 +331,19 @@ class CalcEngine(object):
         factor_historical_value['trade_date'] = str(trade_date)
         print(factor_historical_value.head())
         return factor_historical_value
-
-    # #计算因子
-    # def calc_factor(self, packet_name, class_name, mkt_df, trade_date):
-    #     result = pd.DataFrame()
-    #     class_method = importlib.import_module(packet_name).__getattribute__(class_name)
-    #     alpha_max_window = 0
-    #     func_sets = self._func_sets(class_method)
-    #
-    #     start_time = time.time()
-    #     for func in func_sets:
-    #         print(func)
-    #         func_method = getattr(class_method,func)
-    #         fun_param = inspect.signature(func_method).parameters
-    #         dependencies = fun_param['dependencies'].default
-    #         max_window = fun_param['max_window'].default
-    #         begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window))
-    #         data = {}
-    #         for dep in dependencies:
-    #             if dep not in ['indu']:
-    #                 data[dep] = mkt_df[dep].loc[begin.strftime("%Y-%m-%d"):trade_date]
-    #             else:
-    #                 data['indu'] = mkt_df['indu']
-    #         res = getattr(class_method(),func)(data)
-    #         res = pd.DataFrame(res)
-    #         res.columns=[func]
-    #         #res = res.reset_index().sort_values(by='code',ascending=True)
-    #         res = res.reset_index().sort_values(by='security_code', ascending=True)
-    #         result[func] = res[func]
-    #     #result['symbol'] = res['code']
-    #     result['security_code'] = res['security_code']
-    #     result['trade_date'] = trade_date
-    #     print(time.time() - start_time)
-    #     return result.replace([np.inf, -np.inf], np.nan)
     
     def local_run(self, trade_date):
         print('trade_date %s' % trade_date)
+        tic = time.time()
         valuation_sets, sw_industry, pe_sets = self.loading_data(trade_date)
+        print('data load time %s' % (time.time()-tic))
         # 保存
         storage_engine = StorageEngine(self._url)
-        for method in self._methods:
-            result = self.process_calc_factor(trade_date, valuation_sets, pe_sets, sw_industry)
-            # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        
+        result = self.process_calc_factor(trade_date, valuation_sets, pe_sets, sw_industry)
+        print('cal_time %s' % (time.time() - tic))
+        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
+        storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+
         
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)
@@ -399,3 +362,15 @@ class CalcEngine(object):
 #     content = cache_data.get_cache(session, factor_name)
 #     total_data = json_normalize(json.loads(content))
 #     calc_engine.distributed_factor(total_data)
+
+# # @app.task()
+# def factor_calculate(**kwargs):
+#     print("history_value_kwargs: {}".format(kwargs))
+#     date_index = kwargs['date_index']
+#     session = kwargs['session']
+#     # historical_value = Valuation('factor_historical_value')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
+#     content = cache_data.get_cache(session + str(date_index), date_index)
+#     total_history_data = json_normalize(json.loads(str(content, encoding='utf8')))
+#     print("len_history_value_data {}".format(len(total_history_data)))
+#     calculate(date_index, total_history_data)
+
