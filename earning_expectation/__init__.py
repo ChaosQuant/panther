@@ -1,9 +1,5 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-@version: ??
-@author: li
-@file: __init__.py.py
-@time: 2019-09-19 18:59
-"""
+from ultron.cluster.invoke.app_engine import create_app
+
+app = create_app('earning_expectation',['calc_engine'])
