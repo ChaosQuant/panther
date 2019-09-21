@@ -9,7 +9,6 @@
 """
 import argparse
 import json
-import sys
 
 from dateutil.relativedelta import relativedelta
 import time
@@ -18,15 +17,12 @@ from factor_earning_expectation import FactorEarningExpectation
 from data.storage_engine import StorageEngine
 from PyFin.api import *
 from ultron.cluster.invoke.cache_data import cache_data
-from earning_expectation import factor_earning_expectation
 from vision.table.stk_consensus_expectation import StkConsensusExpectation
 from vision.table.stk_consensus_rating import StkConsensusRating
 from vision.db.signletion_engine import *
+from earning_expectation import app
 
-from utilities.sync_util import SyncUtil
 
-
-# from ultron.cluster.invoke.cache_data import cache_data
 class CalcEngine(object):
     def __init__(self, name, url, methods=[
         {'packet': 'earning_expectation.factor_earning_expectation', 'class': 'FactorEarningExpectation'},
@@ -41,30 +37,17 @@ class CalcEngine(object):
 
     def get_trade_date(self, trade_date, delta):
         """
-        获取当前时间前n年的时间点，且为交易日，如果非交易日，则往前提取最近的一天。
+        获取当前时间相对某时间之前的日期，且为交易日，如果非交易日，则往前提取最近的一天。
         :param trade_date: 当前交易日
         :param n:
         :return:
         """
-        syn_util = SyncUtil()
-        trade_date_sets = syn_util.get_all_trades('001002', '19900101', trade_date)
-        trade_date_sets = trade_date_sets['TRADEDATE'].values
-        # begin_date = '2007-01-01'
-        # end_date = trade_date
-        # freq = '1b'
-        # rebalance_dates = makeSchedule(begin_date, end_date, freq, 'china.sse', BizDayConventions.Preceding)
-        # rebalance_dates.reverse()
-        time_array = datetime.strptime(str(trade_date), "%Y-%m-%d")
-        time_array = time_array - delta
-        date_time = int(datetime.strftime(time_array, "%Y%m%d"))
-        if str(date_time) < min(trade_date_sets):
-            # print('date_time %s is out of trade_date_sets' % date_time)
-            return str(date_time)
-        else:
-            while str(date_time) not in trade_date_sets:
-                date_time = date_time - 1
-            # print('trade_date pre %s year %s' % (n, date_time))
-            return str(date_time)
+        end_date = datetime.strptime(str(trade_date), "%Y-%m-%d") - delta
+        begin_date = end_date - relativedelta(weeks=+2)
+        freq = '1b'
+        dates = makeSchedule(begin_date, end_date, freq, 'china.sse', BizDayConventions.Preceding)
+        dates.reverse()
+        return dates[0].strftime('%Y%m%d')
 
     def loadon_data(self, trade_date):
         # 读取目前涉及到的因子
@@ -125,10 +108,6 @@ class CalcEngine(object):
 
     def process_calc_factor(self, tp_earning, trade_date):  # 计算对应因子
         print(trade_date)
-        # tp_earning = earning_sets_dic['tp_earning']
-        # ttm_earning = earning_sets_dic['ttm_earning']
-        # ttm_earning_5y = earning_sets_dic['ttm_earning_5y']
-        # tp_earning = tp_earning.set_index('security_code')
 
         earning = FactorEarningExpectation()  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
         tp_earning = tp_earning.set_index('security_code')
@@ -209,9 +188,9 @@ if __name__ == '__main__':
         end_date = int(datetime.now().date().strftime('%Y%m%d'))
     else:
         end_date = args.end_date
-    if args.rebuild:
-        processor = CalcEngine()
-        processor.create_dest_tables()
-        processor.do_update(args.start_date, end_date, args.count)
-    if args.update:
-        processor.do_update(args.start_date, end_date, args.count)
+    # if args.rebuild:
+    #     processor = CalcEngine()
+    #     processor.create_dest_tables()
+    #     processor.do_update(args.start_date, end_date, args.count)
+    # if args.update:
+    #     processor.do_update(args.start_date, end_date, args.count)
