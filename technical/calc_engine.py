@@ -85,7 +85,7 @@ class CalcEngine(object):
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
         begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
-        total_data = db_polymerize.fetch_data(begin_date, trade_date,'1b')
+        total_data = db_polymerize.fetch_technical_data(begin_date, trade_date,'1b')
         return total_data
     
     def process_calc(self, params):

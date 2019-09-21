@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pdb
-from .fech_data import MarketFactory, ExposureFactory, FetchEngine
+from .fech_data import MarketFactory, ExposureFactory, IndexFactory, IndustryFactory, FactorFactory, SecurityFactory, IndexMarketFactory, FetchEngine
 #提取对应数据，并且进行预处理
 
 #适配
@@ -65,15 +65,60 @@ class DBPolymerize(object):
         self._name = name
         self._factory_sets = {
             'market': MarketFactory(FetchEngine.create_engine(name)),
-            'exposure':ExposureFactory(FetchEngine.create_engine(name))
+            'exposure':ExposureFactory(FetchEngine.create_engine(name)),
+            'index':IndexFactory(FetchEngine.create_engine(name)),
+            'industry':IndustryFactory(FetchEngine.create_engine(name)),
+            'factor':FactorFactory(FetchEngine.create_engine(name)),
+            'security':SecurityFactory(FetchEngine.create_engine(name)),
+            'index_market':IndexMarketFactory(FetchEngine.create_engine(name))
         }
         self._adaptation = Adaptation.create_adaptation(name)
         
      
-    def fetch_data(self, begin_date, end_date, freq=None):
+    def fetch_technical_data(self, begin_date, end_date, freq=None):
         market_data = self._factory_sets['market'].result(begin_date, end_date, freq)
         exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
         market_data = self._adaptation.market(market_data)
         exposure_data = self._adaptation.risk_exposure(exposure_data)
         total_data = market_data.merge(exposure_data, on=['security_code','trade_date'])
-        return self._adaptation.calc_adaptation(total_data)      
+        return self._adaptation.calc_adaptation(total_data)
+    
+    def fetch_performance_data(self, benchmark, begin_date, end_date, freq=None):
+        #目前只有三个基准，故内码先固定
+        security_code_dict = {'000905':'2070000187','000300':'2070000060'}
+        
+        sw_industry = ['801010', '801020', '801030', '801040', '801050',
+                       '801080', '801110', '801120', '801130', '801150', '801160', '801170',
+                       '801180', '801200', '801210', '801230', '801710', '801720', '801730',
+                       '801740', '801750', '801760', '801770', '801790', '801880']
+        
+        #对应的行业
+        benchmark_industry_data = self._factory_sets['industry'].result(sw_industry, begin_date, end_date, freq).rename(
+            columns={'isymbol':'industry_code','iname':'industry'})
+        #对应的权重
+        benchmark_index_data = self._factory_sets['index'].result(benchmark, begin_date, end_date, freq).rename(
+            columns={'isymbol':'index_code','iname':'index_name'})
+        benchmark_data = benchmark_industry_data.merge(benchmark_index_data, on=['trade_date','symbol'])
+        #读取内码
+        benchmark_data['code'] = benchmark_data['symbol'].apply(lambda x : str(x.split('.')[0]))
+        security_code = self._factory_sets['security'].result(list(benchmark_data.code)).rename(columns={'symbol':'code'})
+        benchmark_data = benchmark_data.merge(security_code, on=['code']).drop(['code','symbol'], axis=1)
+        
+        
+        index_data = self._factory_sets['index_market'].result(security_code_dict.values(), begin_date, end_date, freq)
+        
+        market_data = self._factory_sets['market'].result_code(list(set(security_code.security_code)),begin_date, end_date, freq)
+        
+        
+        #读取因子数据
+        factor_category = 'FactorReversal'
+        factor_name = ['CMO20D','KDJK9D']
+        factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
+        exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
+        
+        cov_data = exposure_data
+        
+        return benchmark_data, index_data, market_data, factor_data, exposure_data
+        
+        
+        
