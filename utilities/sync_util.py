@@ -18,7 +18,7 @@ class SyncUtil(object):
     # 获取交易日
     def get_all_trades(self, exchange, start_date, end_date):
         sql = """select TRADEDATE FROM TQ_OA_TRDSCHEDULE WHERE EXCHANGE = '{0}'
-                AND ISVALID = 1 AND TRADEDATE >= {1} and TRADEDATE <= {2} ORDER BY TRADEDATE DESC;""".format(exchange,
+                AND ISVALID = 1 AND TRADEDATE >= '{1}' and TRADEDATE <= '{2}' ORDER BY TRADEDATE DESC;""".format(exchange,
                                                                                                              start_date,
                                                                                                              end_date)
         trades_sets = pd.read_sql(sql, self.source)

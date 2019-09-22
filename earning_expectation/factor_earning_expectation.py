@@ -3,94 +3,25 @@
 
 """
 @version:
-@author: Wang
-@file: factor_operation_capacity.py
-@time: 2019-05-31
+@author: zzh
+@file: factor_earning_expectation.py
+@time: 2019-9-19
 """
-import sys
-from datetime import datetime
 
-sys.path.append("../")
-sys.path.append("../../")
-sys.path.append("../../../")
-
-import json
 import pandas as pd
-from basic_derivation.factor_base import FactorBase
-from pandas.io.json import json_normalize
 
 
-# from basic_derivation import app
-# from ultron.ultron.cluster.invoke.cache_data import cache_data
-
-
-class FactorEarningExpectation(FactorBase):
+class FactorEarningExpectation():
     """
     盈利预期
     """
 
-    def __init__(self, name):
-        super(FactorEarningExpectation, self).__init__(name)
-
-    def create_dest_tables(self):
-        """
-        创建数据库表
-        :return:
-        """
-        drop_sql = """drop table if exists `{0}`""".format(self._name)
-        create_sql = """create table `{0}`(
-                    `id`	INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-                    `security_code` varchar(24) NOT NULL,
-                    `trade_date` date NOT NULL,
-                    `NPFY1` decimal(19,4),
-                    `NPFY2` decimal(19,4),
-                    `EPSFY1` decimal(19,4),
-                    `EPSFY2` decimal(19,4),
-                    `OptIncFY1` decimal(19,4),
-                    `OptIncFY2` decimal(19,4),
-                    `CEPEFY1` decimal(19,4),
-                    `CEPEFY2` decimal(19,4),
-                    `CEPBFY1` decimal(19,4),
-                    `CEPBFY2` decimal(19,4),
-                    `CEPEGFY1` decimal(19,4),
-                    `CEPEGFY2` decimal(19,4),
-                    `NPFY11WRT` decimal(19,4),
-                    `NPFY11MRT` decimal(19,4),
-                    `NPFY13MRT` decimal(19,4),
-                    `NPFY16MRT` decimal(19,4),
-                    `NPFY11WChg` decimal(19,4),
-                    `NPFY11MChg` decimal(19,4),
-                    `NPFY13MChg` decimal(19,4),
-                    `NPFY16MChg` decimal(19,4),
-                    `NPFY1SDT` decimal(19,4),
-                    `EPSFY11WRT` decimal(19,4),
-                    `EPSFY11MRT` decimal(19,4),
-                    `EPSFY13MRT` decimal(19,4),
-                    `EPSFY16MRT` decimal(19,4),
-                    `EPSFY11WChg` decimal(19,4),
-                    `EPSFY11MChg` decimal(19,4),
-                    `EPSFY13MChg` decimal(19,4),
-                    `EPSFY16MChg` decimal(19,4),
-                    `EPSFY1SDT` decimal(19,4),
-                    `ChgNPFY1FY2` decimal(19,4),
-                    `ChgEPSFY1FY2` decimal(19,4),
-                    `OptIncFY11WRT` decimal(19,4),
-                    `OptIncFY11MRT` decimal(19,4),
-                    `OptIncFY13MRT` decimal(19,4),
-                    `OptIncFY16MRT` decimal(19,4),
-                    `OptIncFY11WChg` decimal(19,4),
-                    `OptIncFY11MChg` decimal(19,4),
-                    `OptIncFY13MChg` decimal(19,4),
-                    `OptIncFY16MChg` decimal(19,4),
-                    `OptIncFY1SDT` decimal(19,4),
-                    `CERATINGRATE1W` decimal(19,4),
-                    `CERATINGRATE1M` decimal(19,4),
-                    `CERATINGRATE3M` decimal(19,4),
-                    `CERATINGRATE6M` decimal(19,4),
-                    constraint {0}_uindex
-                    unique (`trade_date`,`security_code`)
-                    )ENGINE=InnoDB DEFAULT CHARSET=utf8;""".format(self._name)
-        super(FactorEarningExpectation, self)._create_tables(create_sql, drop_sql)
+    def __init__(self):
+        __str__ = 'factor_earning_expectation'
+        self.name = 'FactorEarningExpectation'
+        self.factor_type1 = 'EarningExpectation'
+        self.factor_type2 = 'EarningExpectation'
+        self.desciption = 'stock earning expectation'
 
     @staticmethod
     def NPFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['net_profit_fy1']):
@@ -780,80 +711,3 @@ class FactorEarningExpectation(FactorBase):
                                                                    'CERATINGRATE6M')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
         return factor_earning_expect
-
-
-def calculate(trade_date, tp_earning):  # 计算对应因子
-    print(trade_date)
-    # tp_earning = earning_sets_dic['tp_earning']
-    # ttm_earning = earning_sets_dic['ttm_earning']
-    # ttm_earning_5y = earning_sets_dic['ttm_earning_5y']
-    # tp_earning = tp_earning.set_index('security_code')
-
-    earning = FactorEarningExpectation('factor_earning_expectation')  # 注意, 这里的name要与client中新建table时的name一致, 不然回报错
-    tp_earning = tp_earning.set_index('security_code')
-    # 因子计算
-    factor_earning_expect = pd.DataFrame()
-    factor_earning_expect['security_code'] = tp_earning[
-        tp_earning['publish_date'] == datetime.strptime(trade_date, "%Y%m%d")].index
-
-    factor_earning_expect = earning.NPFY1(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY1(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY1(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CEPEFY1(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CEPEFY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CEPBFY1(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CEPBFY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CEPEGFY1(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CEPEGFY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY11WRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY11MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY13MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY16MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY11WChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY11MChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY13MChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.NPFY16MChg(tp_earning, factor_earning_expect, trade_date)
-    # factor_earning_expect = earning.NPFY1SDT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY11WRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY11MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY13MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY16MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY11WChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY11MChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY13MChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.EPSFY16MChg(tp_earning, factor_earning_expect, trade_date)
-    # factor_earning_expect = earning.EPSFY1SDT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.ChgNPFY1FY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.ChgEPSFY1FY2(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY11WRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY11MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY13MRT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY16MRT(tp_earning, factor_earning_expect, trade_date)
-    # factor_earning_expect = earning.OptIncFY11WChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY11MChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY13MChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY16MChg(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.OptIncFY1SDT(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CERATINGRATE1W(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CERATINGRATE1M(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CERATINGRATE3M(tp_earning, factor_earning_expect, trade_date)
-    factor_earning_expect = earning.CERATINGRATE6M(tp_earning, factor_earning_expect, trade_date)
-
-    factor_earning_expect['trade_date'] = str(trade_date)
-    earning._storage_data(factor_earning_expect, trade_date)
-
-
-# @app.task()
-def factor_calculate(**kwargs):
-    print("constrain_kwargs: {}".format(kwargs))
-    date_index = kwargs['date_index']
-    session = kwargs['session']
-    content1 = cache_data.get_cache(session + str(date_index), date_index)
-    print("len_con1: %s" % len(content1))
-    tp_earning = json_normalize(json.loads(str(content1, encoding='utf8')))
-    # cache_date.get_cache使得index的名字丢失， 所以数据需要按照下面的方式设置index
-    tp_earning.set_index('security_code', inplace=True)
-    calculate(date_index, tp_earning)
