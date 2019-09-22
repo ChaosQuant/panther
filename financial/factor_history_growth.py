@@ -4,7 +4,7 @@
 """
 @version: 0.1
 @author: li
-@file: factor_historical_growth.py
+@file: factor_history_growth.py
 @time: 2019-02-12 10:03
 """
 import gc, six
@@ -25,7 +25,7 @@ class Growth(object):
     历史成长
     """
     def __init__(self):
-        __str__ = 'factor_historical_growth'
+        __str__ = 'factor_history_growth'
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '历史成长'
@@ -40,21 +40,25 @@ class Growth(object):
         :param tp_historical_growth:
         :return:
         """
+        print('1')
         historical_growth = tp_historical_growth.loc[:, dependencies]
 
         if len(historical_growth) <= 0:
             return
 
         fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-
         historical_growth['NetAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
+        print(len(historical_growth))
+        print(len(factor_historical_growth))
         factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        print(factor_historical_growth)
         return factor_historical_growth
 
     @staticmethod
-    def TotalAsset1YChg(tp_historical_growth, factor_historical_growth, dependencies=['total_assets', 'total_assets_pre_year']):
+    def TotalAsset1YChg(tp_historical_growth, factor_historical_growth,
+                        dependencies=['total_assets', 'total_assets_pre_year']):
         """
         总资产增长率
         :param dependencies:
@@ -62,19 +66,28 @@ class Growth(object):
         :param factor_historical_growth:
         :return:
         """
+        print('2')
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
-
+        print('3')
+        print(historical_growth.head())
+        print(factor_historical_growth.head())
         fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['TotalAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
-
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
-        return factor_historical_growth
+        print('4')
+        print(historical_growth.head())
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        print('5')
+        print(len(historical_growth))
+        print(len(factor_historical_growth))
+        print(historical_growth.head())
+        print(factor_historical_growth.head())
+        res = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        print(res.head())
+        return res
 
     @staticmethod
-    def FCF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_finance_cash_flow', 'net_finance_cash_flow_pre_year']):
+    def FCF1YChgTTM(tp_historical_growth, factor_historical_growth,
+                    dependencies=['net_finance_cash_flow', 'net_finance_cash_flow_pre_year']):
         """
         筹资活动产生的现金流量净额增长率
         :param dependencies:
@@ -83,14 +96,11 @@ class Growth(object):
         :return:
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
         historical_growth['FCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies,
-                                                   axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -103,13 +113,12 @@ class Growth(object):
         :return:
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
+
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['GrPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -123,14 +132,12 @@ class Growth(object):
         """
 
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
+
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
         historical_growth['ICF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies,
-                                                   axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -144,17 +151,17 @@ class Growth(object):
         :return:
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
+
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
-    def NetPftAP1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['np_parent_company_owners', 'np_parent_company_owners_pre_year']):
+    def NetPftAP1YChgTTM(tp_historical_growth, factor_historical_growth,
+                         dependencies=['np_parent_company_owners', 'np_parent_company_owners_pre_year']):
         """
         归属母公司股东的净利润增长率
         :param dependencies:
@@ -163,14 +170,12 @@ class Growth(object):
         :return:
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
 
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPftAP1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -184,13 +189,12 @@ class Growth(object):
         :return:
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
+
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPftAPNNRec1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -209,12 +213,13 @@ class Growth(object):
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
-    def OCF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_operate_cash_flow', 'net_operate_cash_flow_pre_year']):
+    def OCF1YChgTTM(tp_historical_growth, factor_historical_growth,
+                    dependencies=['net_operate_cash_flow', 'net_operate_cash_flow_pre_year']):
         """
         经营活动产生的现金流量净额
         :param dependencies:
@@ -229,9 +234,8 @@ class Growth(object):
         fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
         historical_growth['OCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies,
-                                                   axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -250,8 +254,8 @@ class Growth(object):
         fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['OPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -265,18 +269,18 @@ class Growth(object):
         """
 
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
 
         fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['ORev1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        historical_growth = historical_growth.drop(dependencies, axis=1)
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
-    def StdUxpErn1YTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit', 'net_profit_pre_year', 'net_profit_pre_year_2', 'net_profit_pre_year_3', 'net_profit_pre_year_4']):
+    def StdUxpErn1YTTM(tp_historical_growth, factor_historical_growth,
+                       dependencies=['net_profit', 'net_profit_pre_year',
+                                     'net_profit_pre_year_2', 'net_profit_pre_year_3', 'net_profit_pre_year_4']):
         """
         未预期盈余
         :param dependencies:
@@ -297,7 +301,7 @@ class Growth(object):
 
         # historical_growth = historical_growth.drop(columns=['net_profit', 'std', 'mean'], axis=1)
         historical_growth = historical_growth[['StdUxpErn1YTTM']]
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
 
         return factor_historical_growth
 
@@ -334,7 +338,7 @@ class Growth(object):
         historical_growth['StdUxpGrPft1YTTM'] = historical_growth[['gi_1', 'mean', 'std']].apply(fun, axis=1)
 
         historical_growth = historical_growth[['StdUxpGrPft1YTTM']]
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
 
         return factor_historical_growth
 
@@ -349,13 +353,12 @@ class Growth(object):
         """
 
         historical_growth = tp_historical_growth.loc[:, dependencies]
-        if len(historical_growth) <= 0:
-            return
+
         fun = lambda x: (pow((x[0] / x[1]), 1 / 3.0) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPft3YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -375,7 +378,7 @@ class Growth(object):
         historical_growth['NetPft5YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -396,7 +399,7 @@ class Growth(object):
         historical_growth['ORev3YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(columns=dependencies, axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
 
     @staticmethod
@@ -418,5 +421,5 @@ class Growth(object):
 
         historical_growth = historical_growth.drop(columns=dependencies,
                                                    axis=1)
-        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, on='security_code')
+        factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth

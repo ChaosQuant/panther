@@ -6,7 +6,7 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 from datetime import timedelta
-from financial import factor_historical_growth
+from financial import factor_history_growth
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
@@ -120,10 +120,10 @@ class CalcEngine(object):
                                                                               ],
                                                                              dates=[trade_date]).drop(columns, axis=1)
 
-        field_key = ttm_cash_flow_sets.keys()
-        for i in field_key:
-            ttm_factor_sets[i] = ttm_cash_flow_sets[i]
-        # ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets, on='security_code')
+        # field_key = ttm_cash_flow_sets.keys()
+        # for i in field_key:
+        #     ttm_factor_sets[i] = ttm_cash_flow_sets[i]
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets, how='outer', on='security_code')
 
         ttm_factor_sets = ttm_factor_sets.rename(
             columns={"BIZINCO": "operating_revenue",
@@ -158,9 +158,12 @@ class CalcEngine(object):
                      "PARENETP": "np_parent_company_owners_pre_year",
                      })
 
-        field_key = ttm_factor_sets_pre.keys()
-        for i in field_key:
-            ttm_factor_sets[i] = ttm_factor_sets_pre[i]
+        # field_key = ttm_factor_sets_pre.keys()
+        # for i in field_key:
+        #     ttm_factor_sets[i] = ttm_factor_sets_pre[i]
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre, how='outer', on='security_code')
+
+
 
         ttm_cash_flow_sets_pre = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                                  [CashFlowTTM.FINNETCFLOW,
@@ -179,10 +182,10 @@ class CalcEngine(object):
                      'CASHNETI': 'n_change_in_cash_pre_year',
                      })
 
-        field_key = ttm_cash_flow_sets_pre.keys()
-        for i in field_key:
-            ttm_factor_sets[i] = ttm_cash_flow_sets_pre[i]
-        # ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets, on='security_code')
+        # field_key = ttm_cash_flow_sets_pre.keys()
+        # for i in field_key:
+        #     ttm_factor_sets[i] = ttm_cash_flow_sets_pre[i]
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets, how='outer', on='security_code')
         print('get_ttm_factor_sets_pre')
 
         # ttm 连续
@@ -199,10 +202,10 @@ class CalcEngine(object):
                      "BIZCOST": "operating_cost_pre_year_2",
                      "NETPROFIT": "net_profit_pre_year_2",
                      })
-        # ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_2, on="security_code")
-        field_key = ttm_factor_sets_pre_year_2.keys()
-        for i in field_key:
-            ttm_factor_sets[i] = ttm_factor_sets_pre_year_2[i]
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_2, how='outer', on="security_code")
+        # field_key = ttm_factor_sets_pre_year_2.keys()
+        # for i in field_key:
+        #     ttm_factor_sets[i] = ttm_factor_sets_pre_year_2[i]
         print('get_ttm_factor_sets_2')
 
         ttm_factor_sets_pre_year_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
@@ -218,10 +221,10 @@ class CalcEngine(object):
                      "BIZCOST": "operating_cost_pre_year_3",
                      "NETPROFIT": "net_profit_pre_year_3",
                      })
-        # ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_3, on="security_code")
-        field_key = ttm_factor_sets_pre_year_3.keys()
-        for i in field_key:
-            ttm_factor_sets[i] = ttm_factor_sets_pre_year_3[i]
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_3, how='outer', on="security_code")
+        # field_key = ttm_factor_sets_pre_year_3.keys()
+        # for i in field_key:
+        #     ttm_factor_sets[i] = ttm_factor_sets_pre_year_3[i]
 
         print('get_ttm_factor_sets_3')
 
@@ -238,10 +241,10 @@ class CalcEngine(object):
                      "BIZCOST": "operating_cost_pre_year_4",
                      "NETPROFIT": "net_profit_pre_year_4",
                      })
-        # ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_4, on="security_code")
-        field_key = ttm_factor_sets_pre_year_4.keys()
-        for i in field_key:
-            ttm_factor_sets[i] = ttm_factor_sets_pre_year_4[i]
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_4, how='outer', on="security_code")
+        # field_key = ttm_factor_sets_pre_year_4.keys()
+        # for i in field_key:
+        #     ttm_factor_sets[i] = ttm_factor_sets_pre_year_4[i]
         print('get_ttm_factor_sets_4')
 
         ttm_factor_sets_pre_year_5 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
@@ -258,22 +261,24 @@ class CalcEngine(object):
                      "BIZCOST": "operating_cost_pre_year_5",
                      "NETPROFIT": "net_profit_pre_year_5",
                      })
-        # ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_5, on="security_code")
-        field_key = ttm_factor_sets_pre_year_5.keys()
-        for i in field_key:
-            ttm_factor_sets[i] = ttm_factor_sets_pre_year_5[i]
-        print('get_ttm_factor_sets_5')
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_5, how='outer', on="security_code")
+        # field_key = ttm_factor_sets_pre_year_5.keys()
+        # for i in field_key:
+        #     ttm_factor_sets[i] = ttm_factor_sets_pre_year_5[i]
+        # print('get_ttm_factor_sets_5')
 
         growth_sets = pd.merge(ttm_factor_sets, balance_sets, how='outer', on='security_code')
         return growth_sets
 
     def process_calc_factor(self, trade_date, growth_sets):
         growth_sets = growth_sets.set_index('security_code')
-        growth = factor_historical_growth.Growth()
+        # print(growth_sets.head())
+        print(len(growth_sets))
+        print(growth_sets.keys())
+        growth = factor_history_growth.Growth()
         if len(growth_sets) <= 0:
             print("%s has no data" % trade_date)
             return
-
         historical_growth_sets = pd.DataFrame()
         historical_growth_sets['security_code'] = growth_sets.index
         historical_growth_sets = historical_growth_sets.set_index('security_code')

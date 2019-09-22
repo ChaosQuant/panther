@@ -29,7 +29,7 @@ class Solvency(object):
         self.desciption = '财务指标的二级指标， 偿债能力'
 
     @staticmethod
-    def Solvency(tp_solvency, factor_solvency, dependencies=['bonds_payable', 'total_assets']):
+    def BondsToAsset(tp_solvency, factor_solvency, dependencies=['bonds_payable', 'total_assets']):
         """
         应付债券与总资产之比
         应付债券与总资产之比 = 应付债券 / 总资产

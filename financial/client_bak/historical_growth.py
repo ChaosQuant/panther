@@ -16,7 +16,7 @@ import time
 import argparse
 import pandas as pd
 from datetime import datetime, timedelta
-from financial import factor_historical_growth
+from financial import factor_history_growth
 from data.model import BalanceReport
 from data.model import CashFlowTTM
 from data.model import IncomeTTM
@@ -274,7 +274,7 @@ def prepare_calculate_local(trade_date, factor_name):
         print("%s has no data" % trade_date)
         return
     else:
-        factor_historical_growth.calculate(trade_date, growth_sets, factor_name)
+        factor_history_growth.calculate(trade_date, growth_sets, factor_name)
     time1 = time.time()
     print('growth_cal_time:{}'.format(time1 - tic))
     del ttm_factor_sets, balance_sets
@@ -295,7 +295,7 @@ def prepare_calculate_remote(trade_date):
     else:
         session = str(int(time.time() * 1000000 + datetime.now().microsecond))
         cache_data.set_cache(session, "growth" + str(trade_date), growth_sets.to_json(orient='records'))
-        factor_historical_growth.factor_calculate.delay(date_index=trade_date, session=session)
+        factor_history_growth.factor_calculate.delay(date_index=trade_date, session=session)
     time1 = time.time()
     print('growth_cal_time:{}'.format(time1 - tic))
 
@@ -328,7 +328,7 @@ if __name__ == '__main__':
     else:
         end_date = args.end_date
     if args.rebuild:
-        processor = factor_historical_growth.Growth(factor_name)
+        processor = factor_history_growth.Growth(factor_name)
         processor.create_dest_tables()
         do_update(args.start_date, end_date, args.count, factor_name)
     if args.update:
