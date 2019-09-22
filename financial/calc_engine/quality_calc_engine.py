@@ -227,7 +227,6 @@ class CalcEngine(object):
         print('trade_date %s' % trade_date)
         tic = time.time()
         tp_revenue_quanlity, ttm_revenue_quanlity = self.loading_data(trade_date)
-
         print('data load time %s' % (time.time()-tic))
 
         storage_engine = StorageEngine(self._url)

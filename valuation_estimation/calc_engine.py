@@ -344,7 +344,6 @@ class CalcEngine(object):
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
         storage_engine.update_destdb('test_factor_valuation', trade_date, result)
 
-        
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)
     #     #存储数据
