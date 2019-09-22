@@ -5,6 +5,53 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 metadata = Base.metadata
 
+class GLInternalCode(Base):
+    __tablename__ = 'gl_internal_code'
+    __table_args__ = (
+        Index('id', 'security_code', 'symbol', unique=True),
+    )
+    
+    id = Column(VARCHAR(32), primary_key=True)
+    security_code = Column(VARCHAR(24), primary_key=True)
+    symbol = Column(VARCHAR(24), primary_key=True)
+    
+    
+class Industry(Base):
+    __tablename__ = 'sw_industry'
+    __table_args__ = (
+        Index('id', 'trade_date', 'isymbol', unique=True),
+    )
+    id = Column(VARCHAR(32), primary_key=True)
+    isymbol = Column(VARCHAR(24))
+    trade_date = Column(DATE)
+    iname = Column(VARCHAR(128))
+    symbol = Column(VARCHAR(32))
+    sname = Column(VARCHAR(128))
+    weighing = Column(DECIMAL(8, 2))
+   
+
+class IndexMarket(Base):
+    __tablename__ = 'index_daily_price'
+    __table_args__ = (
+        Index('id', 'trade_date', 'security_code', unique=True),
+    )
+    id = Column(VARCHAR(32), primary_key=True)
+    security_code = Column(VARCHAR(24), primary_key=True)
+    trade_date = Column(DATE, primary_key=True)
+    name = Column(VARCHAR(50))
+    pre_close = Column(DECIMAL(15, 6))
+    open = Column(DECIMAL(15, 6))
+    close = Column(DECIMAL(15, 6))
+    high = Column(DECIMAL(15, 6))
+    low = Column(DECIMAL(15, 6))
+    volume = Column(DECIMAL(20, 2))
+    money = Column(DECIMAL(18, 3))
+    deals = Column(DECIMAL(10, 0))
+    change = Column(DECIMAL(9, 4))
+    change_pct = Column(DECIMAL(8, 4))
+    circulating_market_cap = Column(DECIMAL(18, 4))
+    market_cap = Column(DECIMAL(9, 4))
+    
 class Market(Base):
     __tablename__ = 'sk_daily_price_new'
     __table_args__ = (
@@ -80,3 +127,16 @@ class Exposure(Base):
     AERODEF = Column(Float(53))
     Conglomerates = Column(Float(53))
     COUNTRY = Column(Float(53))
+    
+class Index(Base):
+    __tablename__ = 'index'
+    __table_args__ = (
+        Index('id', 'trade_date', 'isymbol', unique=True),
+    )
+    id = Column(VARCHAR(32), primary_key=True)
+    isymbol = Column(VARCHAR(24))
+    trade_date = Column(DATE)
+    iname = Column(VARCHAR(128))
+    symbol = Column(VARCHAR(32))
+    sname = Column(VARCHAR(128))
+    weighing = Column(DECIMAL(8, 2))
