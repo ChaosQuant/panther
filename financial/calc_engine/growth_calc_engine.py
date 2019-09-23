@@ -6,11 +6,11 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 from datetime import timedelta
-from financial import factor_history_growth
+from financial import factor_historical_growth
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
-from data.model import IndicatorReport
+from data.model import IndicatorReport, IndicatorMRQ, IndicatorTTM
 from data.model import IncomeReport, IncomeTTM
 
 from vision.vision.db.signletion_engine import *
@@ -70,12 +70,6 @@ class CalcEngine(object):
         trade_date_pre_year_3 = self.get_trade_date(trade_date, 3)
         trade_date_pre_year_4 = self.get_trade_date(trade_date, 4)
         trade_date_pre_year_5 = self.get_trade_date(trade_date, 5)
-        # print('trade_date %s' % trade_date)
-        # print('trade_date_pre_year %s' % trade_date_pre_year)
-        # print('trade_date_pre_year_2 %s' % trade_date_pre_year_2)
-        # print('trade_date_pre_year_3 %s' % trade_date_pre_year_3)
-        # print('trade_date_pre_year_4 %s' % trade_date_pre_year_4)
-        # print('trade_date_pre_year_5 %s' % trade_date_pre_year_5)
 
         engine = sqlEngine()
         columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
@@ -99,7 +93,7 @@ class CalcEngine(object):
                                                                       "RIGHAGGR": "total_owner_equities_pre_year"})
 
         balance_sets = pd.merge(balance_sets, balance_sets_pre_year, on='security_code')
-        print('get_balabce_sets')
+        # print('get_balabce_sets')
 
         # ttm 计算
         ttm_factor_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
@@ -117,13 +111,18 @@ class CalcEngine(object):
                                                                               CashFlowTTM.INVNETCASHFLOW,
                                                                               # 投资活动产生的现金流量净额
                                                                               CashFlowTTM.CASHNETI,  # 现金及现金等价物的净增加额
-                                                                              ],
-                                                                             dates=[trade_date]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date]).drop(columns, axis=1)
+        ttm_indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
+                                                                             [IndicatorTTM.NPCUT,
+                                                                              ], dates=[trade_date]).drop(columns, axis=1)
+
+        ttm_indicator_sets = ttm_indicator_sets.rename(columns={'NPCUT': 'ni_attr_p_cut'})
 
         # field_key = ttm_cash_flow_sets.keys()
         # for i in field_key:
         #     ttm_factor_sets[i] = ttm_cash_flow_sets[i]
         ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets, how='outer', on='security_code')
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_indicator_sets, how='outer', on='security_code')
 
         ttm_factor_sets = ttm_factor_sets.rename(
             columns={"BIZINCO": "operating_revenue",
@@ -158,12 +157,16 @@ class CalcEngine(object):
                      "PARENETP": "np_parent_company_owners_pre_year",
                      })
 
+        ttm_indicator_sets_pre = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
+                                                                                 [IndicatorTTM.NPCUT,
+                                                                                  ],
+                                                                                 dates=[trade_date_pre_year]).drop(columns, axis=1)
+        ttm_indicator_sets_pre = ttm_indicator_sets_pre.rename(columns={'NPCUT': 'ni_attr_p_cut_pre'})
         # field_key = ttm_factor_sets_pre.keys()
         # for i in field_key:
         #     ttm_factor_sets[i] = ttm_factor_sets_pre[i]
         ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre, how='outer', on='security_code')
-
-
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_indicator_sets_pre, how='outer', on='security_code')
 
         ttm_cash_flow_sets_pre = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                                  [CashFlowTTM.FINNETCFLOW,
@@ -185,8 +188,8 @@ class CalcEngine(object):
         # field_key = ttm_cash_flow_sets_pre.keys()
         # for i in field_key:
         #     ttm_factor_sets[i] = ttm_cash_flow_sets_pre[i]
-        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets, how='outer', on='security_code')
-        print('get_ttm_factor_sets_pre')
+        ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets_pre, how='outer', on='security_code')
+        # print('get_ttm_factor_sets_pre')
 
         # ttm 连续
         ttm_factor_sets_pre_year_2 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
@@ -206,7 +209,7 @@ class CalcEngine(object):
         # field_key = ttm_factor_sets_pre_year_2.keys()
         # for i in field_key:
         #     ttm_factor_sets[i] = ttm_factor_sets_pre_year_2[i]
-        print('get_ttm_factor_sets_2')
+        # print('get_ttm_factor_sets_2')
 
         ttm_factor_sets_pre_year_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.NETPROFIT,
@@ -225,8 +228,7 @@ class CalcEngine(object):
         # field_key = ttm_factor_sets_pre_year_3.keys()
         # for i in field_key:
         #     ttm_factor_sets[i] = ttm_factor_sets_pre_year_3[i]
-
-        print('get_ttm_factor_sets_3')
+        # print('get_ttm_factor_sets_3')
 
         ttm_factor_sets_pre_year_4 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.NETPROFIT,
@@ -245,7 +247,7 @@ class CalcEngine(object):
         # field_key = ttm_factor_sets_pre_year_4.keys()
         # for i in field_key:
         #     ttm_factor_sets[i] = ttm_factor_sets_pre_year_4[i]
-        print('get_ttm_factor_sets_4')
+        # print('get_ttm_factor_sets_4')
 
         ttm_factor_sets_pre_year_5 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.NETPROFIT,
@@ -272,10 +274,7 @@ class CalcEngine(object):
 
     def process_calc_factor(self, trade_date, growth_sets):
         growth_sets = growth_sets.set_index('security_code')
-        # print(growth_sets.head())
-        print(len(growth_sets))
-        print(growth_sets.keys())
-        growth = factor_history_growth.Growth()
+        growth = factor_historical_growth.Growth()
         if len(growth_sets) <= 0:
             print("%s has no data" % trade_date)
             return
@@ -295,7 +294,7 @@ class CalcEngine(object):
         historical_growth_sets = growth.ORev3YChgTTM(growth_sets, historical_growth_sets)
         historical_growth_sets = growth.ORev5YChgTTM(growth_sets, historical_growth_sets)
         historical_growth_sets = growth.NetCF1YChgTTM(growth_sets, historical_growth_sets)
-        # factor_historical_growth = growth.NetPftAPNNRec1YChgTTM(growth_sets, factor_historical_growth)
+        historical_growth_sets = growth.NetPftAPNNRec1YChgTTM(growth_sets, historical_growth_sets)
         historical_growth_sets = growth.StdUxpErn1YTTM(growth_sets, historical_growth_sets)
         historical_growth_sets = growth.StdUxpGrPft1YTTM(growth_sets, historical_growth_sets)
         historical_growth_sets = growth.FCF1YChgTTM(growth_sets, historical_growth_sets)
@@ -318,9 +317,8 @@ class CalcEngine(object):
         result = self.process_calc_factor(trade_date, growth_sets)
         print('cal_time %s' % (time.time() - tic))
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        # storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+        storage_engine.update_destdb('factor_historical_growth', trade_date, result)
 
-        
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)
     #     #存储数据
@@ -331,7 +329,7 @@ class CalcEngine(object):
     # def distributed_factor(self, total_data):
     #     mkt_df = self.calc_factor_by_date(total_data,trade_date)
     #     result = self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
-        
+#
 # @app.task
 # def distributed_factor(session, trade_date, packet_sets, name):
 #     calc_engine = CalcEngine(name, packet_sets)

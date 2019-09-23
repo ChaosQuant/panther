@@ -40,7 +40,8 @@ class Derivation(object):
     @staticmethod
     def FCFF(tp_derivation, factor_derivation, dependencies=['FCFF']):
         """
-        企业自由现金流量(MRQ)
+        :name: 企业自由现金流量(MRQ)
+        :desc: 企业自由现金流量(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -55,14 +56,15 @@ class Derivation(object):
     @staticmethod
     def FCFE(tp_derivation, factor_derivation, dependencies=['FCFE']):
         """
-        股东自由现金流量(MRQ)
+        :name: 股东自由现金流量(MRQ)
+        :desc: 股东自由现金流量(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
+        if len(management) <= 0:
             return None
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
@@ -70,7 +72,8 @@ class Derivation(object):
     @staticmethod
     def NonRecGainLoss(tp_derivation, factor_derivation, dependencies=['NEGAL']):
         """
-        非经常性损益(MRQ)
+        :name: 非经常性损益(MRQ)
+        :desc: 非经常性损益(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -86,7 +89,9 @@ class Derivation(object):
     @staticmethod
     def NetOptInc(tp_derivation, factor_derivation, dependencies=['NOPI']):
         """
-        经营活动净收益(MRQ) indicator
+
+        :name: 经营活动净收益(MRQ)
+        :desc: 经营活动净收益(MRQ) indicator
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -102,7 +107,9 @@ class Derivation(object):
     @staticmethod
     def WorkingCap(tp_derivation, factor_derivation, dependencies=['WORKCAP']):
         """
-        运营资本(MRQ)
+
+        :name:  运营资本(MRQ)
+        :desc:  运营资本(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -124,8 +131,8 @@ class Derivation(object):
                                                                         'LOGPREPEXPE',
                                                                         'DEFETAXASSET']):
         """
-        有形资产(MRQ)
-        股东权益（不含少数股东权益）-无形资产+开发支出+商誉+长期待摊费用+递延所得税资产）
+        :name: 有形资产(MRQ)
+        :desc: 股东权益（不含少数股东权益）-无形资产+开发支出+商誉+长期待摊费用+递延所得税资产）
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -144,7 +151,8 @@ class Derivation(object):
     @staticmethod
     def RetainedEarnings(tp_derivation, factor_derivation, dependencies=['RETAINEDEAR']):
         """
-        留存收益(MRQ)
+        :name: 留存收益(MRQ)
+        :desc: 留存收益(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -164,8 +172,8 @@ class Derivation(object):
                                                                                      'bonds_payable',
                                                                                      'interest_payable']):
         """
-        带息负债(MRQ) balance
-        带息负债 = 短期借款+一年内到期的长期负债+长期借款+应付债券+应付利息
+        :name: 带息负债(MRQ)
+        :desc: 带息负债 = 短期借款+一年内到期的长期负债+长期借款+应付债券+应付利息
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -184,7 +192,8 @@ class Derivation(object):
     @staticmethod
     def NetDebt(tp_derivation, factor_derivation, dependencies=['NDEBT']):
         """
-        净债务(MRQ)
+        :name: 净债务(MRQ)
+        :desc: 净债务(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -200,7 +209,8 @@ class Derivation(object):
     @staticmethod
     def InterestFreeCurLb(tp_derivation, factor_derivation, dependencies=['NONINTCURLIABS']):
         """
-        无息流动负债(MRQ)
+        :name: 无息流动负债(MRQ)
+        :desc: 无息流动负债(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -216,7 +226,8 @@ class Derivation(object):
     @staticmethod
     def InterestFreeNonCurLb(tp_derivation, factor_derivation, dependencies=['NONINTNONCURLIAB']):
         """
-        无息非流动负债(MRQ)
+        :name: 无息非流动负债(MRQ)
+        :desc: 无息非流动负债(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -232,7 +243,8 @@ class Derivation(object):
     @staticmethod
     def DepAndAmo(tp_derivation, factor_derivation, dependencies=['CURDEPANDAMOR']):
         """
-        折旧和摊销(MRQ)
+        :name: 折旧和摊销(MRQ)
+        :desc: 折旧和摊销(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -248,7 +260,8 @@ class Derivation(object):
     @staticmethod
     def EquityPC(tp_derivation, factor_derivation, dependencies=['PARESHARRIGH']):
         """
-        归属于母公司的股东权益(MRQ) balance
+        :name: 归属于母公司的股东权益(MRQ)
+        :desc: 归属于母公司的股东权益(MRQ) balance
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -264,7 +277,8 @@ class Derivation(object):
     @staticmethod
     def TotalInvestedCap(tp_derivation, factor_derivation, dependencies=['TOTIC']):
         """
-        全部投入资本(MRQ)
+        :name: 全部投入资本(MRQ)
+        :desc: 全部投入资本(MRQ)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -280,7 +294,8 @@ class Derivation(object):
     @staticmethod
     def TotalAssets(tp_derivation, factor_derivation, dependencies=['TOTASSET']):
         """
-        资产总计(MRQ) balance
+        :name: 资产总计(MRQ)
+        :desc: 资产总计(MRQ) balance
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -296,7 +311,8 @@ class Derivation(object):
     @staticmethod
     def TotalFixedAssets(tp_derivation, factor_derivation, dependencies=['FIXEDASSECLEATOT']):
         """
-        固定资产合计(MRQ)balance
+        :name: 固定资产合计(MRQ)
+        :desc: 固定资产合计(MRQ)balance
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -312,7 +328,8 @@ class Derivation(object):
     @staticmethod
     def TotalLib(tp_derivation, factor_derivation, dependencies=['TOTLIAB']):
         """
-        负债合计(MRQ)balance
+        :name: 负债合计(MRQ)
+        :desc: 负债合计(MRQ)balance
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -328,7 +345,8 @@ class Derivation(object):
     @staticmethod
     def ShEquity(tp_derivation, factor_derivation, dependencies=['RIGHAGGR']):
         """
-        股东权益(MRQ) balance
+        :name: 股东权益(MRQ)
+        :desc: 股东权益(MRQ) balance
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -344,7 +362,8 @@ class Derivation(object):
     @staticmethod
     def CashAndCashEqu(tp_derivation, factor_derivation, dependencies=['FINALCASHBALA']):
         """
-        期末现金及现金等价物(MRQ) cashflow
+        :name: 期末现金及现金等价物(MRQ)
+        :desc: 期末现金及现金等价物(MRQ) cashflow
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -362,9 +381,8 @@ class Derivation(object):
                                                                                                'INCOTAXEXPE',
                                                                                                ]):
         """
-        息前税后利润(MRQ)
-        息前税后利润 = 息税前利润－息税前利润所得税
-        息税前利润所得税 = 全部所得税－利息净损益所得税
+        :name: 息前税后利润(MRQ)
+        :desc: 息前税后利润 = 息税前利润－息税前利润所得税。 息税前利润所得税 = 全部所得税－利息净损益所得税
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -382,7 +400,8 @@ class Derivation(object):
     @staticmethod
     def SalesTTM(tp_derivation, factor_derivation, dependencies=['BIZTOTINCO']):
         """
-        营业总收入(TTM) income
+        :name: 营业总收入(TTM)
+        :desc: 营业总收入(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -398,7 +417,8 @@ class Derivation(object):
     @staticmethod
     def TotalOptCostTTM(tp_derivation, factor_derivation, dependencies=['BIZTOTCOST']):
         """
-        营业总成本(TTM) income
+        :name: 营业总成本(TTM)
+        :desc: 营业总成本(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -414,7 +434,8 @@ class Derivation(object):
     @staticmethod
     def OptIncTTM(tp_derivation, factor_derivation, dependencies=['BIZINCO']):
         """
-        营业收入(TTM) income
+        :name: 营业收入(TTM)
+        :desc: 营业收入(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -430,7 +451,8 @@ class Derivation(object):
     @staticmethod
     def GrossMarginTTM(tp_derivation, factor_derivation, dependencies=['OPGPMARGIN']):
         """
-        毛利(TTM) 营业毛利润 indicator
+        :name: 毛利(TTM) 营业毛利润
+        :desc: 毛利(TTM) 营业毛利润 indicator
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -446,7 +468,8 @@ class Derivation(object):
     @staticmethod
     def SalesExpensesTTM(tp_derivation, factor_derivation, dependencies=['SALESEXPE']):
         """
-        销售费用(TTM) income
+        :name: 销售费用(TTM)
+        :desc: 销售费用(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -462,7 +485,8 @@ class Derivation(object):
     @staticmethod
     def AdmFeeTTM(tp_derivation, factor_derivation, dependencies=['MANAEXPE']):
         """
-        管理费用(TTM) income
+        :name: 管理费用(TTM)
+        :desc: 管理费用(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -478,7 +502,8 @@ class Derivation(object):
     @staticmethod
     def FinFeeTTM(tp_derivation, factor_derivation, dependencies=['FINEXPE']):
         """
-        财务费用(TTM) income
+        :name: 财务费用(TTM)
+        :desc: 财务费用(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -497,7 +522,8 @@ class Derivation(object):
                                                                    'FINEXPE',
                                                                    ]):
         """
-        期间费用(TTM) income
+        :name: 期间费用(TTM)
+        :desc: 期间费用(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -515,7 +541,8 @@ class Derivation(object):
     @staticmethod
     def InterestExpTTM(tp_derivation, factor_derivation, dependencies=['INTEEXPE']):
         """
-        利息支出(TTM) income
+        :name: 利息支出(TTM)
+        :desc: 利息支出(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -531,7 +558,8 @@ class Derivation(object):
     @staticmethod
     def MinorInterestTTM(tp_derivation, factor_derivation, dependencies=['minority_profit']):
         """
-        少数股东损益(TTM) income
+        :name: 少数股东损益(TTM)
+        :desc: 少数股东损益(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -547,7 +575,8 @@ class Derivation(object):
     @staticmethod
     def AssetImpLossTTM(tp_derivation, factor_derivation, dependencies=['ASSEIMPALOSS']):
         """
-        资产减值损失(TTM) income
+        :name: 资产减值损失(TTM)
+        :desc: 资产减值损失(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -563,7 +592,8 @@ class Derivation(object):
     @staticmethod
     def NetIncFromOptActTTM(tp_derivation, factor_derivation, dependencies=['MANANETR']):
         """
-        经营活动净收益(TTM) cashflow
+        :name: 经营活动净收益(TTM)
+        :desc: 经营活动净收益(TTM) cashflow
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -579,7 +609,8 @@ class Derivation(object):
     @staticmethod
     def NetIncFromValueChgTTM(tp_derivation, factor_derivation, dependencies=['NVALCHGIT']):
         """
-        价值变动净收益(TTM)
+        :name: 价值变动净收益(TTM)
+        :desc: 价值变动净收益(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -595,7 +626,8 @@ class Derivation(object):
     @staticmethod
     def OptProfitTTM(tp_derivation, factor_derivation, dependencies=['PERPROFIT']):
         """
-        营业利润(TTM) income
+        :name: 营业利润(TTM) income
+        :desc: 营业利润(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -612,7 +644,8 @@ class Derivation(object):
     def NetNonOptIncAndExpTTM(tp_derivation, factor_derivation, dependencies=['NONOREVE',
                                                                                                  'NONOEXPE',]):
         """
-        营业外收支净额(TTM)
+        :name: 营业外收支净额(TTM)
+        :desc: 营业外收支净额(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -631,7 +664,8 @@ class Derivation(object):
     @staticmethod
     def EBITTTM(tp_derivation, factor_derivation, dependencies=['EBIT']):
         """
-        息税前利润(TTM)
+        :name: 息税前利润(TTM)
+        :desc: 息税前利润(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -648,14 +682,15 @@ class Derivation(object):
     @staticmethod
     def IncTaxTTM(tp_derivation, factor_derivation, dependencies=['INCOTAXEXPE']):
         """
-        所得税(TTM)
+        :name: 所得税(TTM)
+        :desc:
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
         :return:
         """
         management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
+        if len(management) <= 0:
             return None
         management = management.rename(columns={'INCOTAXEXPE': 'IncTaxTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
@@ -664,7 +699,8 @@ class Derivation(object):
     @staticmethod
     def TotalProfTTM(tp_derivation, factor_derivation, dependencies=['TOTPROFIT']):
         """
-        利润总额(TTM) income
+        :name: 利润总额(TTM)
+        :desc: 利润总额(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -680,7 +716,8 @@ class Derivation(object):
     @staticmethod
     def NetIncTTM(tp_derivation, factor_derivation, dependencies=['NETPROFIT']):
         """
-        净利润(TTM)
+        :name: 净利润(TTM)
+        :desc: 净利润(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -696,7 +733,8 @@ class Derivation(object):
     @staticmethod
     def NetProfToPSTTM(tp_derivation, factor_derivation, dependencies=['PARENETP']):
         """
-        归属母公司股东的净利润(TTM) income
+        :name: 归属母公司股东的净利润(TTM)
+        :desc: 归属母公司股东的净利润(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -712,7 +750,8 @@ class Derivation(object):
     @staticmethod
     def NetProfAfterNonRecGainsAndLossTTM(tp_derivation, factor_derivation, dependencies=['NPCUT']):
         """
-        可出非经常性损益后的净利润(TTM)
+        :name: 可出非经常性损益后的净利润(TTM)
+        :desc: 可出非经常性损益后的净利润(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -728,7 +767,8 @@ class Derivation(object):
     @staticmethod
     def EBITFORPTTM(tp_derivation, factor_derivation, dependencies=['EBITFORP']):
         """
-        ebit(TTM)
+        :name: ebit(TTM)
+        :desc: ebit(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -744,7 +784,8 @@ class Derivation(object):
     @staticmethod
     def EBITDATTM(tp_derivation, factor_derivation, dependencies=['EBITDA']):
         """
-        EBITDA(TTM)
+        :name: EBITDA(TTM)
+        :desc: EBITDA(TTM)
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -760,7 +801,8 @@ class Derivation(object):
     @staticmethod
     def CashRecForSGAndPSTTM(tp_derivation, factor_derivation, dependencies=['LABORGETCASH']):
         """
-        销售商品提供劳务收到的现金(TTM) cashflow
+        :name: 销售商品提供劳务收到的现金(TTM)
+        :desc: 销售商品提供劳务收到的现金(TTM) cashflow
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -776,7 +818,8 @@ class Derivation(object):
     @staticmethod
     def NCFOTTM(tp_derivation, factor_derivation, dependencies=['MANANETR']):
         """
-        经营活动现金净流量(TTM)cashflow
+        :name: 经营活动现金净流量(TTM)
+        :desc: 经营活动现金净流量(TTM)cashflow
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -792,7 +835,8 @@ class Derivation(object):
     @staticmethod
     def NetCashFlowFromInvActTTM(tp_derivation, factor_derivation, dependencies=['INVNETCASHFLOW']):
         """
-        投资活动现金净流量(TTM)cashflow
+        :name: 投资活动现金净流量(TTM)
+        :desc: 投资活动现金净流量(TTM)cashflow
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -808,7 +852,8 @@ class Derivation(object):
     @staticmethod
     def NetCashFlowFromFundActTTM(tp_derivation, factor_derivation, dependencies=['FINNETCFLOW']):
         """
-        筹资活动现金净流量(TTM)cashflow
+        :name: 筹资活动现金净流量(TTM)
+        :desc: 筹资活动现金净流量(TTM)cashflow
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -824,7 +869,8 @@ class Derivation(object):
     @staticmethod
     def NetCashFlowTTM(tp_derivation, factor_derivation, dependencies=['CASHNETI']):
         """
-        现金净流量(TTM) calshflow
+        :name:现金净流量(TTM)
+        :desc:现金净流量(TTM) calshflow
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:
@@ -840,7 +886,9 @@ class Derivation(object):
     @staticmethod
     def BusTaxAndSuchgTTM(tp_derivation, factor_derivation, dependencies=['BIZTAX']):
         """
-        营业税金及附加(TTM) income
+
+        :name: 营业税金及附加(TTM)
+        :desc: 营业税金及附加(TTM) income
         :param dependencies:
         :param tp_derivation:
         :param factor_derivation:

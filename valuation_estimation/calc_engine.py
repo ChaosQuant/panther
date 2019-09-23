@@ -215,7 +215,8 @@ class CalcEngine(object):
 
         trade_date_6m = self.get_trade_date(trade_date, 1, 180)
         trade_date_3m = self.get_trade_date(trade_date, 1, 90)
-        trade_date_2m = self.get_trade_date(trade_date, 1, 60)
+        # trade_date_2m = self.get_trade_date(trade_date, 1, 60)
+        trade_date_1m = self.get_trade_date(trade_date, 1, 20)
 
         pe_set = get_fundamentals(query(Valuation.security_code,
                                         Valuation.trade_date,
@@ -239,9 +240,9 @@ class CalcEngine(object):
         pe_sets_2m = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
-                                      .filter(Valuation.trade_date.between(trade_date_2m, trade_date))).drop(column,
+                                      .filter(Valuation.trade_date.between(trade_date_1m, trade_date))).drop(column,
                                                                                                              axis=1)
-        pe_sets_2m = pe_sets_2m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_2m'})
+        pe_sets_2m = pe_sets_2m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_1m'})
 
         pe_sets_1y = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
@@ -295,7 +296,7 @@ class CalcEngine(object):
         factor_historical_value = historical_value.PBIndu(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.PEToAvg6M(pe_sets, factor_historical_value)
         factor_historical_value = historical_value.PEToAvg3M(pe_sets, factor_historical_value)
-        factor_historical_value = historical_value.PEToAvg2M(pe_sets, factor_historical_value)
+        factor_historical_value = historical_value.PEToAvg1M(pe_sets, factor_historical_value)
         factor_historical_value = historical_value.PEToAvg1Y(pe_sets, factor_historical_value)
         factor_historical_value = historical_value.TotalAssets(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.MktValue(valuation_sets, factor_historical_value)
@@ -342,7 +343,7 @@ class CalcEngine(object):
         result = self.process_calc_factor(trade_date, valuation_sets, pe_sets, sw_industry)
         print('cal_time %s' % (time.time() - tic))
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+        storage_engine.update_destdb('factor_valuation', trade_date, result)
 
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)
