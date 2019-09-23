@@ -42,10 +42,8 @@ class CalcEngine(object):
         :return:
         """
         end_date = datetime.strptime(str(trade_date), "%Y-%m-%d") - delta
-        begin_date = end_date - relativedelta(weeks=+2)
         freq = '1b'
-        dates = makeSchedule(begin_date, end_date, freq, 'china.sse', BizDayConventions.Preceding)
-        dates.reverse()
+        dates = makeSchedule(end_date, end_date, freq, 'china.sse', BizDayConventions.Preceding)
         return dates[0].strftime('%Y%m%d')
 
     def loadon_data(self, trade_date):
