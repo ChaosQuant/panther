@@ -48,7 +48,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     factor_type = args.packet_name.split('.')[0]
     class_method = importlib.import_module(factor_type + '.calc_engine').__getattribute__('CalcEngine')
-    calc_engine = class_method('rl', db_url)
+    calc_engine = class_method('rl', db_url, methods=[{'packet': args.packet_name, 'class': args.class_name}])
     rebuild = Rebuild(db_url)
     if args.end_date == 0:
         end_date = int(datetime.now().date().strftime('%Y%m%d'))
