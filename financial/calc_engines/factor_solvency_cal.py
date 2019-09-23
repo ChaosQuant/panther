@@ -252,10 +252,10 @@ class CalcEngine(object):
         
 # @app.task
 # def distributed_factor(session, trade_date, packet_sets, name):
-#     calc_engine = CalcEngine(name, packet_sets)
+#     calc_engines = CalcEngine(name, packet_sets)
 #     content = cache_data.get_cache(session, factor_name)
 #     total_data = json_normalize(json.loads(content))
-#     calc_engine.distributed_factor(total_data)
+#     calc_engines.distributed_factor(total_data)
 #
 
 # # @app.task()

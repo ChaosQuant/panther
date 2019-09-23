@@ -2,4 +2,4 @@
 
 from ultron.cluster.invoke.app_engine import create_app
 
-app = create_app('alphax',['calc_engine'])
+app = create_app('alphax',['calc_engines'])

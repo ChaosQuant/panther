@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pdb,importlib,inspect,time,datetime,json
+import pdb, importlib, inspect, time, datetime, json
 # from PyFin.api import advanceDateByCalendar
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
@@ -15,20 +15,23 @@ from data.model import IncomeReport, IncomeTTM
 
 from vision.vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
+
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
+
+
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'financial.factor_operation_capacity','class':'OperationCapacity'},]):
+    def __init__(self, name, url, methods=[{'packet': 'financial.factor_operation_capacity', 'class': 'CalcEngine'}, ]):
         self._name = name
         self._methods = methods
         self._url = url
 
     def _func_sets(self, method):
         # 私有函数和保护函数过滤
-        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method,x)), dir(method)))
+        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method, x)), dir(method)))
 
     def loading_data(self, trade_date):
         """
@@ -67,7 +70,7 @@ class CalcEngine(object):
         ttm_balance = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                       [BalanceTTM.ACCORECE,
                                                                        BalanceTTM.NOTESRECE,
-                                                                       BalanceTTM.PREP,
+                                                                       # BalanceTTM.PREP,
                                                                        BalanceTTM.INVE,
                                                                        BalanceTTM.TOTCURRASSET,
                                                                        BalanceTTM.FIXEDASSENET,
@@ -79,7 +82,7 @@ class CalcEngine(object):
                                                                        ], dates=[trade_date]).drop(columns, axis=1)
         ttm_balance = ttm_balance.rename(columns={
             'NOTESRECE': 'bill_receivable',  # 应收票据
-            'PREP': 'advance_payment',  # 预付款项
+            # 'PREP': 'advance_payment',  # 预付款项
             'INVE': 'inventories',  # 存货
             'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
             'FIXEDASSENET': 'fixed_assets',  # 固定资产
@@ -114,7 +117,7 @@ class CalcEngine(object):
         factor_management = capacity.CurAssetsRtTTM(ttm_operation_capacity, factor_management)
         factor_management = capacity.FixAssetsRtTTM(ttm_operation_capacity, factor_management)
         factor_management = capacity.OptCycle(factor_management)
-        factor_management = capacity.NetAssetTurnTTM(factor_management)
+        factor_management = capacity.NetAssetTurnTTM(ttm_operation_capacity, factor_management)
         factor_management = capacity.TotaAssetRtTTM(ttm_operation_capacity, factor_management)
 
         factor_management = factor_management.reset_index()
@@ -126,7 +129,7 @@ class CalcEngine(object):
         print('trade_date %s' % trade_date)
         tic = time.time()
         ttm_operation_capacity = self.loading_data(trade_date)
-        print('data load time %s' % (time.time()-tic))
+        print('data load time %s' % (time.time() - tic))
 
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, ttm_operation_capacity)
@@ -134,7 +137,6 @@ class CalcEngine(object):
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
         storage_engine.update_destdb('factor_operation_capacity', trade_date, result)
 
-        
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)
     #     #存储数据
@@ -145,13 +147,14 @@ class CalcEngine(object):
     # def distributed_factor(self, total_data):
     #     mkt_df = self.calc_factor_by_date(total_data,trade_date)
     #     result = self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
-        
+
+
 # @app.task
 # def distributed_factor(session, trade_date, packet_sets, name):
-#     calc_engine = CalcEngine(name, packet_sets)
+#     calc_engines = CalcEngine(name, packet_sets)
 #     content = cache_data.get_cache(session, factor_name)
 #     total_data = json_normalize(json.loads(content))
-#     calc_engine.distributed_factor(total_data)
+#     calc_engines.distributed_factor(total_data)
 #
 
 # # @app.task()
@@ -164,4 +167,3 @@ class CalcEngine(object):
 #     ttm_operation_capacity.set_index('security_code', inplace=True)
 #     print("len_tp_management_data {}".format(len(ttm_operation_capacity)))
 #     calculate(date_index, ttm_operation_capacity)
-

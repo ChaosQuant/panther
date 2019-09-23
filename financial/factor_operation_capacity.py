@@ -37,16 +37,15 @@ class OperationCapacity(object):
 
     @staticmethod
     def AccPayablesRateTTM(ttm_management, factor_management, dependencies=['operating_cost',
-                                                                                      'accounts_payable',
-                                                                                      'notes_payable',
-                                                                                      'advance_payment']):
+                                                                            'accounts_payable',
+                                                                            'notes_payable',
+                                                                            'advance_payment']):
         """
         :name: 应付账款周转率(TTM)
         :desc: 营业成本/（应付账款+应付票据-预付账款）
         """
 
         management = ttm_management.loc[:, dependencies]
-        print(management.head())
         management['ap'] = (management.accounts_payable
                             + management.notes_payable
                             - management.advance_payment) / 4
@@ -61,9 +60,9 @@ class OperationCapacity(object):
 
     @staticmethod
     def AccPayablesDaysTTM(ttm_management, factor_management, dependencies=['operating_cost',
-                                                                                      'accounts_payable',
-                                                                                      'notes_payable',
-                                                                                      'advance_payment']):
+                                                                            'accounts_payable',
+                                                                            'notes_payable',
+                                                                            'advance_payment']):
         """
         :name:应付账款周转天数(TTM)
         :desc:360/应付账款周转率
@@ -83,8 +82,10 @@ class OperationCapacity(object):
         return factor_management
 
     @staticmethod
-    def ARRateTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'account_receivable',
-                                                                       'bill_receivable', 'advance_peceipts']):
+    def ARRateTTM(ttm_management, factor_management, dependencies=['operating_revenue',
+                                                                   'account_receivable',
+                                                                   'bill_receivable',
+                                                                   'advance_peceipts']):
         """
         :name:应收账款周转率(TTM)
         :desc:营业收入/（应收账款+应收票据-预收账款）
