@@ -298,7 +298,6 @@ class CalcEngine(object):
         factor_historical_value = historical_value.PEToAvg3M(pe_sets, factor_historical_value)
         factor_historical_value = historical_value.PEToAvg1M(pe_sets, factor_historical_value)
         factor_historical_value = historical_value.PEToAvg1Y(pe_sets, factor_historical_value)
-        factor_historical_value = historical_value.TotalAssets(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.MktValue(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.CirMktValue(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.LogTotalAssets(valuation_sets, factor_historical_value)

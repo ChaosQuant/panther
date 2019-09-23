@@ -140,18 +140,18 @@ class CalcEngine(object):
                                                                            IncomeTTM.FINEXPE,
                                                                            IncomeTTM.INTEINCO,
                                                                            ], dates=[trade_date]).drop(columns, axis=1)
-
         income_ttm_sets = income_ttm_sets.rename(columns={'TOTPROFIT': 'total_profit',  # 利润总额
                                                           'FINEXPE': 'financial_expense',  # 财务费用
                                                           'INTEINCO': 'interest_income',  # 利息收入
                                                           })
 
         balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
-                                                                           [BalanceTTM.TOTALCURRLIAB,
+                                                                           [
+                                                                            # BalanceTTM.TOTALCURRLIAB,
                                                                             BalanceTTM.DUENONCLIAB,
                                                                             ], dates=[trade_date]).drop(columns, axis=1)
         balance_ttm_sets = balance_ttm_sets.rename(columns={
-            'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计
+            # 'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计
             'DUENONCLIAB': 'non_current_liability_in_one_year_ttm',  # 一年内到期的非流动负债
         })
 
@@ -202,22 +202,24 @@ class CalcEngine(object):
         solvency_sets = solvency.CurrentRatio(tp_solvency, solvency_sets)
         solvency_sets = solvency.DA(tp_solvency, solvency_sets)
         solvency_sets = solvency.DTE(tp_solvency, solvency_sets)
+        solvency_sets = solvency.EquityRatio(tp_solvency, solvency_sets)
         solvency_sets = solvency.EquityPCToIBDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.EquityPCToTCap(tp_solvency, solvency_sets)
         solvency_sets = solvency.IntBDToCap(tp_solvency, solvency_sets)
         solvency_sets = solvency.LDebtToWCap(tp_solvency, solvency_sets)
         solvency_sets = solvency.MktLev(tp_solvency, solvency_sets)
         solvency_sets = solvency.QuickRatio(tp_solvency, solvency_sets)
-        solvency_sets = solvency.TNWorthToIBDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.SupQuickRatio(tp_solvency, solvency_sets)
+        solvency_sets = solvency.TNWorthToIBDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.TNWorthToNDebt(tp_solvency, solvency_sets)
+        solvency_sets = solvency.OPCToDebt(tp_solvency, solvency_sets)
 
         # TTM计算
         solvency_sets = solvency.InterestCovTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency.OptCFToLiabilityTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency.OptCFToIBDTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency.OptCFToNetDebtTTM(tp_solvency, solvency_sets)
-        solvency_sets = solvency.OptCFToCurrLiabilityTTM(tp_solvency, solvency_sets)
+        solvency_sets = solvency.OPCToDebtTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency.CashRatioTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency_sets.reset_index()
         solvency_sets['trade_date'] = str(trade_date)
@@ -235,7 +237,7 @@ class CalcEngine(object):
         result = self.process_calc_factor(trade_date, tp_solvency)
         print('cal_time %s' % (time.time() - tic))
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        # storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+        storage_engine.update_destdb('factor_solvency', trade_date, result)
 
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)

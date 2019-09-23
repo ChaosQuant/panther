@@ -56,10 +56,12 @@ class CalcEngine(object):
         ttm_income = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                      [IncomeTTM.BIZCOST,
                                                                       IncomeTTM.BIZINCO,
+                                                                      IncomeTTM.BIZTOTINCO,
                                                                       ], dates=[trade_date]).drop(columns, axis=1)
         ttm_income = ttm_income.rename(columns={
             'BIZCOST': 'operating_cost',  # 营业成本
             'BIZINCO': 'operating_revenue',  # 营业收入
+            'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
         })
 
         ttm_balance = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
@@ -73,6 +75,7 @@ class CalcEngine(object):
                                                                        BalanceTTM.CONSPROG,
                                                                        BalanceTTM.TOTASSET,
                                                                        BalanceTTM.ADVAPAYM,
+                                                                       BalanceTTM.RIGHAGGR,
                                                                        ], dates=[trade_date]).drop(columns, axis=1)
         ttm_balance = ttm_balance.rename(columns={
             'NOTESRECE': 'bill_receivable',  # 应收票据
@@ -85,6 +88,7 @@ class CalcEngine(object):
             'TOTASSET': 'total_assets',  # 资产总计
             'ADVAPAYM': 'advance_peceipts',  # 预收款项
             'ACCORECE': 'accounts_payable',  # 应付账款
+            'RIGHAGGR': 'total_owner_equities',
         })
 
         ttm_operation_capacity = pd.merge(ttm_cash_flow, ttm_income, on='security_code')
@@ -110,6 +114,7 @@ class CalcEngine(object):
         factor_management = capacity.CurAssetsRtTTM(ttm_operation_capacity, factor_management)
         factor_management = capacity.FixAssetsRtTTM(ttm_operation_capacity, factor_management)
         factor_management = capacity.OptCycle(factor_management)
+        factor_management = capacity.NetAssetTurnTTM(factor_management)
         factor_management = capacity.TotaAssetRtTTM(ttm_operation_capacity, factor_management)
 
         factor_management = factor_management.reset_index()
@@ -127,7 +132,7 @@ class CalcEngine(object):
         result = self.process_calc_factor(trade_date, ttm_operation_capacity)
         print('cal_time %s' % (time.time() - tic))
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        # storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+        storage_engine.update_destdb('factor_operation_capacity', trade_date, result)
 
         
     # def remote_run(self, trade_date):

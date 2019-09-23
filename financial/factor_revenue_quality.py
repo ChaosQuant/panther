@@ -33,11 +33,8 @@ class RevenueQuality(object):
     @staticmethod
     def NetNonOIToTP(tp_revenue_quanlity, revenue_quality, dependencies=['total_profit', 'non_operating_revenue', 'non_operating_expense']):
         """
-        营业外收支净额/利润总额
-        :param dependencies:
-        :param tp_revenue_quanlity:
-        :param revenue_quality:
-        :return:
+        :name: 营业外收支净额/利润总额
+        :desc: 营业外收支净额/利润总额*100%
         """
         earning = tp_revenue_quanlity.loc[:, dependencies]
         earning['NetNonOIToTP'] = np.where(
@@ -53,11 +50,8 @@ class RevenueQuality(object):
     @staticmethod
     def NetNonOIToTPTTM(ttm_revenue_quanlity, revenue_quality, dependencies=['total_profit', 'non_operating_revenue', 'non_operating_expense']):
         """
-        营业外收支净额/利润总额
-        :param dependencies:
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :return:
+        :name:营业外收支净额(TTM)/利润总额(TTM)
+        :desc: 营业外收支净额（TTM）/利润总额（TTM）*100%
         """
         earning = ttm_revenue_quanlity.loc[:, dependencies]
         earning['NetNonOIToTPTTM'] = np.where(
@@ -73,14 +67,8 @@ class RevenueQuality(object):
     @staticmethod
     def OperatingNIToTPTTM(ttm_revenue_quanlity, revenue_quality, dependencies=['total_operating_revenue', 'total_operating_cost', 'total_profit']):
         """
-        经营活动净收益/利润总额
-        （注，对于非金融企业 经营活动净收益=营业总收入-营业总成本；
-        对于金融企业 经营活动净收益=营业收入-公允价值变动损益-投资收益-汇兑损益-营业支出
-        此处以非金融企业的方式计算）
-        :param dependencies:
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :return:
+        :name: 经营活动净收益/利润总额(TTM)
+        :desc: 经营活动净收益(TTM)/利润总额（TTM)*100%（注，对于非金融企业 经营活动净收益=营业总收入-营业总成本； 对于金融企业 经营活动净收益=营业收入-公允价值变动损益-投资收益-汇兑损益-营业支出 此处以非金融企业的方式计算）
         """
         earning = ttm_revenue_quanlity.loc[:, dependencies]
         earning['OperatingNIToTPTTM'] = np.where(
@@ -95,14 +83,8 @@ class RevenueQuality(object):
     @staticmethod
     def OperatingNIToTP(tp_revenue_quanlity, revenue_quality, dependencies=['total_operating_revenue', 'total_operating_cost', 'total_profit']):
         """
-        经营活动净收益/利润总额
-        （注，对于非金融企业 经营活动净收益=营业总收入-营业总成本；
-        对于金融企业 经营活动净收益=营业收入-公允价值变动损益-投资收益-汇兑损益-营业支出
-        此处以非金融企业的方式计算）
-        :param dependencies:
-        :param tp_revenue_quanlity:
-        :param revenue_quality:
-        :return:
+        :name: 经营活动净收益/利润总额
+        :desc:（注，对于非金融企业 经营活动净收益=营业总收入-营业总成本； 对于金融企业 经营活动净收益=营业收入-公允价值变动损益-投资收益-汇兑损益-营业支出 此处以非金融企业的方式计算）
         """
         earning = tp_revenue_quanlity.loc[:, dependencies]
         earning['OperatingNIToTP'] = np.where(
@@ -117,12 +99,8 @@ class RevenueQuality(object):
     @staticmethod
     def OptCFToCurrLiabilityTTM(ttm_revenue_quanlity, revenue_quality, dependencies=['net_operate_cash_flow', 'total_current_liability']):
         """
-        经营活动产生的现金流量净额（TTM）/流动负债（TTM）
-
-        :param dependencies:
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :return:
+        :name: 经营活动产生的现金流量净额（TTM）/流动负债（TTM）
+        :desc: 经营活动产生的现金流量净额（TTM）/流动负债（TTM）
         """
         cash_flow = ttm_revenue_quanlity.loc[:, dependencies]
         cash_flow['OptCFToCurrLiabilityTTM'] = np.where(
@@ -135,11 +113,8 @@ class RevenueQuality(object):
     @staticmethod
     def NVALCHGITOTP(ttm_revenue_quanlity, revenue_quality, dependencies=['NVALCHGITOTP']):
         """
-        价值变动净收益/利润总额(TTM)
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :param dependencies:
-        :return:
+        :name: 价值变动净收益/利润总额(TTM)
+        :desc: 价值变动净收益（TTM)/利润总额（TTM)*100%
         """
         historical_value = ttm_revenue_quanlity.loc[:, dependencies]
         revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
@@ -149,11 +124,8 @@ class RevenueQuality(object):
     def OPToTPTTM(ttm_revenue_quanlity, revenue_quality,
                   dependencies=['operating_profit', 'total_profit']):
         """
-        营业利润/利润总额(TTM)
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :param dependencies:
-        :return:
+        :name: 营业利润/利润总额(TTM)
+        :desc: 营业利润（TTM)/利润总额（TTM）*100%
         """
         historical_value = ttm_revenue_quanlity.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -167,11 +139,8 @@ class RevenueQuality(object):
     def PriceToRevRatioTTM(ttm_revenue_quanlity, revenue_quality,
                            dependencies=['net_profit', 'market_cap']):
         """
-        收益市值比(TTM)
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :param dependencies:
-        :return:
+        :name: 收益市值比(TTM)
+        :desc: 营业利润（TTM)/利润总额（TTM）*100%
         """
         historical_value = ttm_revenue_quanlity.loc[:, dependencies]
 
@@ -186,11 +155,8 @@ class RevenueQuality(object):
     def PftMarginTTM(ttm_revenue_quanlity, revenue_quality,
                      dependencies=['total_profit', 'operating_revenue']):
         """
-        利润率（TTM）
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :param dependencies:
-        :return:
+        :name: 利润率(TTM)
+        :desc: 利润总额(TTM)/营业收入（TTM)*100%
         """
         historical_value = ttm_revenue_quanlity.loc[:, dependencies]
 
@@ -204,11 +170,8 @@ class RevenueQuality(object):
     @staticmethod
     def PriceToRevRatioAvg5YTTM(ttm_revenue_quanlity, revenue_quality, dependencies=['net_profit_5', 'circulating_market_cap_5', 'market_cap_5']):
         """
-        5年平均收益市值比 = 近5年净利润 / 近5年总市值 TTM
-        :param ttm_revenue_quanlity:
-        :param revenue_quality:
-        :param dependencies:
-        :return:
+        :name: 5年平均收益市值比(TTM)
+        :desc: AVG(净利润/当日总市值*100%，5年）限定只计算过去五年的年报
         """
         historical_value = ttm_revenue_quanlity.loc[:, dependencies]
 
@@ -217,48 +180,3 @@ class RevenueQuality(object):
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on="security_code")
         return revenue_quality
-
-
-def calculate(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity, factor_name):
-    # 计算对应因子
-    tp_revenue_quanlity = tp_revenue_quanlity.set_index('security_code')
-    ttm_revenue_quanlity = ttm_revenue_quanlity.set_index('security_code')
-    revenue_quality = RevenueQuality()
-
-    factor_revenue = pd.DataFrame()
-    factor_revenue['security_code'] = tp_revenue_quanlity.index
-    factor_revenue = factor_revenue.set_index('security_code')
-    # 非TTM计算
-    factor_revenue = revenue_quality.NetNonOIToTP(tp_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.OperatingNIToTP(tp_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.PriceToRevRatioAvg5YTTM(tp_revenue_quanlity, factor_revenue)
-
-    # TTM计算
-    factor_revenue = revenue_quality.NetNonOIToTPTTM(ttm_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.OperatingNIToTPTTM(ttm_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.OptCFToCurrLiabilityTTM(ttm_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.OPToTPTTM(ttm_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.PriceToRevRatioTTM(ttm_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.NVALCHGITOTP(ttm_revenue_quanlity, factor_revenue)
-    factor_revenue = revenue_quality.PftMarginTTM(ttm_revenue_quanlity, factor_revenue)
-    factor_revenue = factor_revenue.reset_index()
-
-    factor_revenue['trade_date'] = str(trade_date)
-    print(factor_revenue.head())
-    return factor_revenue
-
-
-# @app.task()
-def factor_calculate(**kwargs):
-    print("constrain_kwargs: {}".format(kwargs))
-    date_index = kwargs['date_index']
-    session = kwargs['session']
-    content1 = cache_data.get_cache(session + str(date_index) + '1', date_index)
-    content2 = cache_data.get_cache(session + str(date_index) + '2', date_index)
-    tp_revenue_quanlity = json_normalize(json.loads(str(content1, encoding='utf8')))
-    ttm_revenue_quanlity = json_normalize(json.loads(str(content2, encoding='utf8')))
-    tp_revenue_quanlity.set_index('security_code', inplace=True)
-    ttm_revenue_quanlity.set_index('security_code', inplace=True)
-    print("len_tp_revenue_quanlity {}".format(len(tp_revenue_quanlity)))
-    print("len_ttm_revenue_quanlity {}".format(len(ttm_revenue_quanlity)))
-    calculate(date_index, tp_revenue_quanlity, ttm_revenue_quanlity)

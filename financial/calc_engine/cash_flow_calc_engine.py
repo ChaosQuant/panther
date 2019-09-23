@@ -86,6 +86,7 @@ class CalcEngine(object):
                                                                            IncomeTTM.BIZTOTINCO,  # 营业总收入
                                                                            IncomeTTM.NETPROFIT,  # 净利润
                                                                            IncomeTTM.PARENETP,  # 归属于母公司所有者的净利润
+                                                                           IncomeTTM.PERPROFIT,  # 营业利润
                                                                            ],
                                                                           dates=[trade_date]).drop(columns, axis=1)
 
@@ -141,6 +142,8 @@ class CalcEngine(object):
         cash_flow_sets = cash_flow.OptCFToRevTTM(ttm_factor_sets, cash_flow_sets)
         cash_flow_sets = cash_flow.OptToAssertTTM(ttm_factor_sets, cash_flow_sets)
         cash_flow_sets = cash_flow.SaleServCashToOptReTTM(ttm_factor_sets, cash_flow_sets)
+        cash_flow_sets = cash_flow.NOCFTOOPftTTM(ttm_factor_sets, cash_flow_sets)
+        cash_flow_sets = cash_flow.OptCFToNITTM(ttm_factor_sets, cash_flow_sets)
 
         cash_flow_sets['trade_date'] = str(trade_date)
         cash_flow_sets = cash_flow_sets.reset_index()
@@ -157,7 +160,7 @@ class CalcEngine(object):
         result = self.process_calc_factor(trade_date, tp_cash_flow, ttm_cash_flow_sets)
         print('cal_time %s' % (time.time() - tic))
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        # storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+        storage_engine.update_destdb('factor_cash_flow', trade_date, result)
 
         
     # def remote_run(self, trade_date):
