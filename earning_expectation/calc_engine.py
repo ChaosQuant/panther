@@ -7,7 +7,6 @@
 @file: calc_engine.py
 @time: 2019-09-10 14:46
 """
-import argparse
 import json
 
 from dateutil.relativedelta import relativedelta
@@ -172,25 +171,3 @@ def distributed_factor(session, trade_date, packet_sets, name):
     content = cache_data.get_cache(session, 'factor_earning_expectation')
     total_data = json_normalize(json.loads(content))
     calc_engine.distributed_factor(total_data, trade_date)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--start_date', type=int, default=20120801)
-    parser.add_argument('--end_date', type=int, default=0)
-    parser.add_argument('--count', type=int, default=-1)
-    parser.add_argument('--rebuild', type=bool, default=True)
-    parser.add_argument('--update', type=bool, default=False)
-    parser.add_argument('--schedule', type=bool, default=False)
-
-    args = parser.parse_args()
-    if args.end_date == 0:
-        end_date = int(datetime.now().date().strftime('%Y%m%d'))
-    else:
-        end_date = args.end_date
-    # if args.rebuild:
-    #     processor = CalcEngine()
-    #     processor.create_dest_tables()
-    #     processor.do_update(args.start_date, end_date, args.count)
-    # if args.update:
-    #     processor.do_update(args.start_date, end_date, args.count)

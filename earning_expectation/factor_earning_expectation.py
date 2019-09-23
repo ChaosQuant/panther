@@ -26,11 +26,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['net_profit_fy1']):
         """
-        一致预期净利润(FY1)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期净利润(FY1)
+        :desc: 一致预期净利润的未来第一年度的预测
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'net_profit_fy1': 'NPFY1'}, inplace=True)
@@ -40,11 +37,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY2(tp_earning, factor_earning_expect, trade_date, dependencies=['net_profit_fy2']):
         """
-        一致预期净利润(FY2)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期净利润(FY2)
+        :desc: 一致预期净利润的未来第二年度的预测
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'net_profit_fy2': 'NPFY2'}, inplace=True)
@@ -54,11 +48,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['eps_fy1']):
         """
-        一致预期每股收益（FY1）
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期每股收益（FY1）
+        :desc: 一致预期每股收益未来第一年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'eps_fy1': 'EPSFY1'}, inplace=True)
@@ -68,11 +59,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY2(tp_earning, factor_earning_expect, trade_date, dependencies=['eps_fy2']):
         """
-        一致预期每股收益（FY2）
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期每股收益（FY2）
+        :desc: 一致预期每股收益未来第二年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'eps_fy2': 'EPSFY2'}, inplace=True)
@@ -82,11 +70,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['operating_revenue_fy1']):
         """
-        一致预期营业收入（FY1）
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期营业收入（FY1）
+        :desc: 一致预期营业收入未来第一年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'operating_revenue_fy1': 'OptIncFY1'}, inplace=True)
@@ -96,11 +81,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY2(tp_earning, factor_earning_expect, trade_date, dependencies=['operating_revenue_fy2']):
         """
-        一致预期营业收入（FY2）
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期营业收入（FY2）
+        :desc: 一致预期营业收入未来第二年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'operating_revenue_fy2': 'OptIncFY2'}, inplace=True)
@@ -110,11 +92,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CEPEFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['pe_fy1']):
         """
-        一致预期市盈率(PE)(FY1)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期市盈率(PE)(FY1)
+        :desc: 一致预期市盈率未来第一年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pe_fy1': 'CEPEFY1'}, inplace=True)
@@ -124,11 +103,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CEPEFY2(tp_earning, factor_earning_expect, trade_date, dependencies=['pe_fy2']):
         """
-        一致预期市盈率(PE)(FY2)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期市盈率(PE)(FY2)
+        :desc: 一致预期市盈率未来第二年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pe_fy2': 'CEPEFY2'}, inplace=True)
@@ -138,11 +114,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CEPBFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['pb_fy1']):
         """
-        一致预期市净率(PB)(FY1)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期市净率(PB)(FY1)
+        :desc: 一致预期市净率未来第一年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pb_fy1': 'CEPBFY1'}, inplace=True)
@@ -152,11 +125,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CEPBFY2(tp_earning, factor_earning_expect, trade_date, dependencies=['pb_fy2']):
         """
-        一致预期市净率(PB)(FY2)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预期市净率(PB)(FY2)
+        :desc: 一致预期市净率未来第二年度的预测均值
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pb_fy2': 'CEPBFY2'}, inplace=True)
@@ -166,11 +136,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CEPEGFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['peg_fy1']):
         """
-        市盈率相对盈利增长比率(FY1)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 市盈率相对盈利增长比率(FY1)
+        :desc: 未来第一年度市盈率相对盈利增长比率
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'peg_fy1': 'CEPEGFY1'}, inplace=True)
@@ -180,11 +147,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CEPEGFY2(tp_earning, factor_earning_expect, trade_date, dependencies=['peg_fy2']):
         """
-        市盈率相对盈利增长比率(FY2)
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 市盈率相对盈利增长比率(FY2)
+        :desc: 未来第二年度市盈率相对盈利增长比率
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'peg_fy2': 'CEPEGFY2'}, inplace=True)
@@ -213,11 +177,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY11WRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化率_一周
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化率_一周
+        :desc: 未来第一年度一致预测净利润一周内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -230,11 +191,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY11MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化率_一月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化率_一月
+        :desc: 未来第一年度一致预测净利润一月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -247,11 +205,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY13MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化率_三月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化率_三月
+        :desc: 未来第一年度一致预测净利润三月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -264,11 +219,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY16MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化率_六月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化率_六月
+        :desc: 未来第一年度一致预测净利润六月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -281,11 +233,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY11WChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化_一周
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化_一周
+        :desc: 未来第一年度一致预测每股收益一周内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -298,11 +247,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY11MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化_一月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化_一月
+        :desc: 未来第一年度一致预测每股收益一月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -315,11 +261,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY13MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化_三月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化_三月
+        :desc: 未来第一年度一致预测每股收益三月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -332,11 +275,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY16MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化_六月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化_六月
+        :desc: 未来第一年度一致预测每股收益六月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -349,11 +289,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY11WRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化率_一周
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化率_一周
+        :desc: 未来第一年度一致预测每股收益一周内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -366,11 +303,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY11MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化率_一月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化率_一月
+        :desc: 未来第一年度一致预测每股收益一月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -383,11 +317,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY13MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化率_三月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化率_三月
+        :desc: 未来第一年度一致预测每股收益三月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -400,11 +331,8 @@ class FactorEarningExpectation():
     @staticmethod
     def EPSFY16MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY1)变化率_六月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY1)变化率_六月
+        :desc: 未来第一年度一致预测每股收益六月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -417,11 +345,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY11WChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化_一周
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化_一周
+        :desc: 未来第一年度一致预测净利润一周内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -434,11 +359,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY11MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化_一月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化_一月
+        :desc: 未来第一年度一致预测净利润一月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -451,11 +373,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY13MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化_三月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化_三月
+        :desc: 未来第一年度一致预测净利润三月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -468,11 +387,8 @@ class FactorEarningExpectation():
     @staticmethod
     def NPFY16MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY1)变化_六月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY1)变化_六月
+        :desc: 未来第一年度一致预测净利润六月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -485,11 +401,8 @@ class FactorEarningExpectation():
     @staticmethod
     def ChgNPFY1FY2(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测净利润(FY2)与一致预期净利润(FY1)的变化率
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测净利润(FY2)与一致预期净利润(FY1)的变化率
+        :desc: 未来第二年度一致预测净利润与未来第一年度一致预测净利润变化率
         """
         factor_earning_expect['ChgNPFY1FY2'] = factor_earning_expect['NPFY2'] - factor_earning_expect['NPFY1'] / abs(
             factor_earning_expect['NPFY1']) * 100
@@ -498,11 +411,8 @@ class FactorEarningExpectation():
     @staticmethod
     def ChgEPSFY1FY2(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测每股收益(FY2)与一致预期每股收益(FY1)的变化率
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测每股收益(FY2)与一致预期每股收益(FY1)的变化率
+        :desc: 未来第二年度一致预测每股收益与未来第一年度一致预测每股收益变化率
         """
         factor_earning_expect['ChgEPSFY1FY2'] = factor_earning_expect['EPSFY2'] - factor_earning_expect['EPSFY1'] / abs(
             factor_earning_expect['EPSFY1']) * 100
@@ -511,11 +421,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY11WRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化_一周
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化_一周
+        :desc: 未来第一年度一致预测营业收入一周内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -528,11 +435,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY11MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化_一月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化_一月
+        :desc: 未来第一年度一致预测营业收入一月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -545,11 +449,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY13MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化_三月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化_三月
+        :desc: 未来第一年度一致预测营业收入三月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -562,11 +463,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY16MRT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化_六月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化_六月
+        :desc: 未来第一年度一致预测营业收入六月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -579,11 +477,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY11MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化率_一周
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化率_一周
+        :desc: 未来第一年度一致预测营业收入一周内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -596,11 +491,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY13MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化率一月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化率一月
+        :desc: 未来第一年度一致预测营业收入一月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -613,11 +505,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY16MChg(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化率_三月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化率_三月
+        :desc: 未来第一年度一致预测营业收入三月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -630,11 +519,8 @@ class FactorEarningExpectation():
     @staticmethod
     def OptIncFY1SDT(tp_earning, factor_earning_expect, trade_date):
         """
-        一致预测营业收入(FY1)变化率_六月
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一致预测营业收入(FY1)变化率_六月
+        :desc: 未来第一年度一致预测营业收入六月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -647,11 +533,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CERATINGRATE1W(tp_earning, factor_earning_expect, trade_date):
         """
-        一周评级变化率
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一周评级变化率
+        :desc: 研究机构买入评级一周内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -664,11 +547,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CERATINGRATE1M(tp_earning, factor_earning_expect, trade_date):
         """
-        一月评级变化率
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 一月评级变化率
+        :desc: 研究机构买入评级一月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -681,11 +561,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CERATINGRATE3M(tp_earning, factor_earning_expect, trade_date):
         """
-        三月评级变化率
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 三月评级变化率
+        :desc: 研究机构买入评级三月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -698,11 +575,8 @@ class FactorEarningExpectation():
     @staticmethod
     def CERATINGRATE6M(tp_earning, factor_earning_expect, trade_date):
         """
-        六月评级变化率
-        :param dependencies:
-        :param tp_earning:
-        :param factor_earning_expect:
-        :return:
+        :name: 六月评级变化率
+        :desc: 研究机构买入评级六月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
