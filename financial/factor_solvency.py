@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
 
-from basic_derivation.factor_base import FactorBase
 from utilities.calc_tools import CalcTools
 from utilities.singleton import Singleton
 

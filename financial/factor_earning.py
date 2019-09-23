@@ -16,7 +16,6 @@ import json
 import numpy as np
 import pandas as pd
 from sklearn import linear_model
-from basic_derivation.factor_base import FactorBase
 from utilities.calc_tools import CalcTools
 from utilities.singleton import Singleton
 

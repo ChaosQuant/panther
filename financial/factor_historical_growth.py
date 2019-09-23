@@ -34,7 +34,6 @@ class Growth(object):
     @staticmethod
     def NetAsset1YChg(tp_historical_growth, factor_historical_growth, dependencies=['total_owner_equities', 'total_owner_equities_pre_year']):
         """
-        净资产增长率
         :name: 净资产增长率
         :desc:（本期归属母公司股东的权益（MRQ）-上年同期归属母公司股东的权益（MRQ））/ABS（上年同期归属母公司股东的权益（MRQ））*100%
         """
