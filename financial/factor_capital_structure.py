@@ -41,12 +41,8 @@ class CapitalStructure(object):
     @staticmethod
     def NonCurrAssetRatio(tp_management, factor_management, dependencies=['total_non_current_assets', 'total_assets']):
         """
-        非流动资产比率
-        非流动资产比率 = 非流动资产合计 / 总资产
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 非流动资产比率
+        :desc: 非流动资产/总资产*100%（MRQ）
         """
 
         management = tp_management.loc[:, dependencies]
@@ -60,12 +56,8 @@ class CapitalStructure(object):
     @staticmethod
     def LongDebtToAsset(tp_management, factor_management, dependencies=['total_non_current_liability', 'total_assets']):
         """
-        长期负债与资产总计之比
-        长期负债与资产总计之比 = 非流动性负债合计/总资产
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 长期负债与资产总计之比
+        :desc: 非流动负债合计MRQ/资产总计MRQ
         """
 
         management = tp_management.loc[:, dependencies]
@@ -79,12 +71,8 @@ class CapitalStructure(object):
     @staticmethod
     def LongBorrToAssert(tp_management, factor_management, dependencies=['longterm_loan', 'total_assets']):
         """
-        长期借款与资产总计之比
-        长期借款与资产总计之比 = 长期借款/总资产
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 长期借款与资产总计之比
+        :desc: 长期借款MRQ/资产总计MRQ
         """
 
         management = tp_management.loc[:, dependencies]
@@ -100,10 +88,8 @@ class CapitalStructure(object):
         """
         无形资产比率
         无形资产比率 = （无形资产 + 研发支出 + 商誉）/ 总资产
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 无形资产比率
+        :desc:（无形资产MRQ+开发支出MRQ+商誉MRQ）/资产总计MRQ           分母为NAN的科目记为0
         """
 
         management = tp_management.loc[:, dependencies]
@@ -120,12 +106,8 @@ class CapitalStructure(object):
     @staticmethod
     def FixAssetsRt(tp_management, factor_management, dependencies=['fixed_assets', 'construction_materials', 'constru_in_process', 'total_assets']):
         """
-        固定资产比率
-        固定资产比率 = （固定资产+工程物资+在建工程）/总资产
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 固定资产比率
+        :desc: (固定资产*MRQ+工程物资MRQ+在建工程MRQ）/资产总计MRQ；分母为NAN的科目记为0
         """
 
         management = tp_management.loc[:, dependencies]
@@ -141,12 +123,8 @@ class CapitalStructure(object):
     @staticmethod
     def EquityToAsset(tp_management, factor_management, dependencies=['total_owner_equities', 'total_assets']):
         """
-        股东权益比率
-        股东权益比率 = 股东权益/总资产
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 股东权益比率
+        :desc: 股东权益MRQ/资产总计MRQ
         """
 
         management = tp_management.loc[:, dependencies]
@@ -160,12 +138,8 @@ class CapitalStructure(object):
     @staticmethod
     def EquityToFixedAsset(tp_management, factor_management, dependencies=['total_owner_equities', 'fixed_assets', 'construction_materials', 'constru_in_process']):
         """
-        股东权益与固定资产比率
-        股东权益与固定资产比率 = 股东权益/（固定资产+工程物资+在建工程）
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 股东权益与固定资产比率
+        :desc: 股东权益MRQ/（固定资产MRQ+工程物资MRQ+在建工程MRQ）分子为NAN的科目记为0
         """
         management = tp_management.loc[:, dependencies]
         management['EquityToFixedAsset'] = np.where(
@@ -183,14 +157,9 @@ class CapitalStructure(object):
     @staticmethod
     def CurAssetsR(tp_management, factor_management, dependencies=['total_current_assets', 'total_assets']):
         """
-        流动资产比率
-        流动资产比率 = 流动资产合计M/总资产M
-        :param dependencies:
-        :param tp_management:
-        :param factor_management:
-        :return:
+        :name: 流动资产比率
+        :desc: 流动资产/总资产*100%（MRQ）
         """
-
         management = tp_management.loc[:, dependencies]
         management['CurAssetsR'] = np.where(
             CalcTools.is_zero(management.total_assets.values), 0,

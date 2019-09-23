@@ -406,7 +406,7 @@ class CalcEngine(object):
         result = self.process_calc_factor(trade_date, tp_earning, ttm_earning, ttm_earning_5y)
         print('cal_time %s' % (time.time() - tic))
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        # storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+        storage_engine.update_destdb('factor_earning', trade_date, result)
 
         
     # def remote_run(self, trade_date):

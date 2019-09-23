@@ -103,8 +103,8 @@ class CalcEngine(object):
         trade_date_pre_year_3 = self.get_trade_date(trade_date, 3)
         trade_date_pre_year_4 = self.get_trade_date(trade_date, 4)
 
-        income_con_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
-                                                                          [IncomeReport.NETPROFIT,
+        income_con_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
+                                                                          [IncomeTTM.NETPROFIT,
                                                                            ],
                                                                           dates=[trade_date,
                                                                                  trade_date_pre_year,
@@ -118,7 +118,6 @@ class CalcEngine(object):
 
         tp_revenue_quanlity = pd.merge(cash_flow_sets, income_sets, on='security_code')
         tp_revenue_quanlity = pd.merge(balance_sets, tp_revenue_quanlity, on='security_code')
-        tp_revenue_quanlity = pd.merge(income_con_sets, tp_revenue_quanlity, on='security_code')
 
         # TTM Data
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
@@ -173,6 +172,7 @@ class CalcEngine(object):
         ttm_revenue_quanlity = pd.merge(balance_ttm_sets, ttm_revenue_quanlity, on='security_code')
         ttm_revenue_quanlity = pd.merge(valuation_sets, ttm_revenue_quanlity, on='security_code')
         ttm_revenue_quanlity = pd.merge(indicator_ttm_sets, ttm_revenue_quanlity, on='security_code')
+        ttm_revenue_quanlity = pd.merge(income_con_sets, ttm_revenue_quanlity, on='security_code')
 
         valuation_con_sets = get_fundamentals(query(Valuation.security_code,
                                                     Valuation.trade_date,
@@ -207,7 +207,6 @@ class CalcEngine(object):
         # 非TTM计算
         factor_revenue = revenue_quality.NetNonOIToTP(tp_revenue_quanlity, factor_revenue)
         factor_revenue = revenue_quality.OperatingNIToTP(tp_revenue_quanlity, factor_revenue)
-        factor_revenue = revenue_quality.PriceToRevRatioAvg5YTTM(tp_revenue_quanlity, factor_revenue)
 
         # TTM计算
         factor_revenue = revenue_quality.NetNonOIToTPTTM(ttm_revenue_quanlity, factor_revenue)
@@ -217,6 +216,8 @@ class CalcEngine(object):
         factor_revenue = revenue_quality.PriceToRevRatioTTM(ttm_revenue_quanlity, factor_revenue)
         factor_revenue = revenue_quality.NVALCHGITOTP(ttm_revenue_quanlity, factor_revenue)
         factor_revenue = revenue_quality.PftMarginTTM(ttm_revenue_quanlity, factor_revenue)
+        factor_revenue = revenue_quality.PriceToRevRatioAvg5YTTM(ttm_revenue_quanlity, factor_revenue)
+
         factor_revenue = factor_revenue.reset_index()
 
         factor_revenue['trade_date'] = str(trade_date)
@@ -233,7 +234,7 @@ class CalcEngine(object):
         result = self.process_calc_factor(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity)
         print('cal_time %s' % (time.time() - tic))
         # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        # storage_engine.update_destdb('test_factor_valuation', trade_date, result)
+        storage_engine.update_destdb('factor_revenue_quality', trade_date, result)
 
         
     # def remote_run(self, trade_date):

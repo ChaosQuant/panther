@@ -24,25 +24,22 @@ from utilities.singleton import Singleton
 
 
 @six.add_metaclass(Singleton)
-class PerShareIndicators():
+class PerShareIndicators(object):
     """
     每股因子
     """
     def __init__(self):
-        __str__ = 'factor_pre_share_indicators'
+        __str__ = 'factor_per_share_indicators'
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '每股指标'
-        self.desciption = '财务指标的二级指标， 每股因子'
+        self.desciption = '财务指标的二级指标-每股因子'
 
     @staticmethod
     def CapticalSurplusPS(tp_share_indicators, factor_share_indicators, dependencies=['capital_reserve_fund', 'capitalization']):
         """
-        每股资本公积金
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股资本公积金
+        :desc: 资本公积（MRQ)/当日总股本
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
@@ -55,11 +52,8 @@ class PerShareIndicators():
     @staticmethod
     def CashEquPS(tp_share_indicators, factor_share_indicators, dependencies=['capitalization', 'cash_and_equivalents_at_end']):
         """
-        每股现金及现金等价物余额 = 期末现金及现金等价物余额 / 总股本
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股现金及现金等价物余额
+        :desc: 现金及现金等价物余额（MRQ）/当日总股本
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[1] / x[0] if x[0] and x[0] != 0 else None)
@@ -72,11 +66,8 @@ class PerShareIndicators():
     @staticmethod
     def DivPS(tp_share_indicators, factor_share_indicators, dependencies=['dividend_receivable']):
         """
-        每股股利（税前）
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股股利(税前)
+        :desc: 根据分红预案公告日，即中报或年报披露日期，披露的分红教据（每股股利税前（已宣告），若读公司不分红返回为空
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         share_indicators = share_indicators.rename(columns={'dividend_receivable': 'DivPS'})
@@ -87,11 +78,8 @@ class PerShareIndicators():
     @staticmethod
     def EPS(tp_share_indicators, factor_share_indicators, dependencies=['basic_eps']):
         """
-        基本每股收益
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 基本每股收益
+        :desc: 基本每股收益, 报表公布值
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         # print(share_indicators.head())
@@ -103,11 +91,8 @@ class PerShareIndicators():
     @staticmethod
     def ShareholderFCFPS(tp_share_indicators, factor_share_indicators, dependencies=['shareholder_fcfps', 'capitalization']):
         """
-        每股股东自由现金流量
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股股东自由现金流量
+        :desc: 股东自由现金流量FCFE（MRQ）/当日总股本
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
@@ -121,11 +106,9 @@ class PerShareIndicators():
     @staticmethod
     def EnterpriseFCFPS(tp_share_indicators, factor_share_indicators, dependencies=['enterprise_fcfps', 'capitalization']):
         """
-        每股企业自由现金流量
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+
+        :name: 每股企业自由现金流量
+        :desc: 企业自由现金流量（MRQ）/当日总股本
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
@@ -139,11 +122,8 @@ class PerShareIndicators():
     @staticmethod
     def NetAssetPS(tp_share_indicators, factor_share_indicators, dependencies=['total_owner_equities', 'capitalization']):
         """
-        每股净资产 = 归属于母公司的所有者权益 / 总股本
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股净资产
+        :desc: 归属母公司所有者权益合计（MRQ)/当日总股本
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
@@ -158,13 +138,9 @@ class PerShareIndicators():
     @staticmethod
     def OptRevPS(tp_share_indicators, factor_share_indicators, dependencies=['operating_revenue', 'capitalization']):
         """
-        每股营业收入(最新)
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股营业收入
+        :desc: 营业收入（MRQ)/当日总股本
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['OptRevPS'] = share_indicators[dependencies].apply(fun, axis=1)
@@ -178,11 +154,8 @@ class PerShareIndicators():
     @staticmethod
     def SurplusReservePS(tp_share_indicators, factor_share_indicators, dependencies=['surplus_reserve_fund', 'capitalization']):
         """
-        每股盈余公积金
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股盈余公积金
+        :desc: 盈余公积金（MRQ)/当日总股本
         """
 
         share_indicators = tp_share_indicators.loc[:, dependencies]
@@ -198,11 +171,8 @@ class PerShareIndicators():
     @staticmethod
     def OptProfitPS(tp_share_indicators, factor_share_indicators, dependencies=['operating_profit', 'capitalization']):
         """
-        每股营业利润（最新）
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股营业利润
+        :desc: 营业利润（MRQ)/当日总股本
         """
 
         share_indicators = tp_share_indicators.loc[:, dependencies]
@@ -218,13 +188,9 @@ class PerShareIndicators():
     @staticmethod
     def UndividedProfitPS(tp_share_indicators, factor_share_indicators, dependencies=['retained_profit', 'capitalization']):
         """
-        每股未分配利润
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股未分配利润
+        :desc: 未分配利润（MRQ)/当日总股本
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
         share_indicators['UndividedProfitPS'] = share_indicators[dependencies].apply(fun, axis=1)
@@ -238,13 +204,9 @@ class PerShareIndicators():
     @staticmethod
     def RetainedEarningsPS(tp_share_indicators, factor_share_indicators, dependencies=['SurplusReservePS', 'UndividedProfitPS']):
         """
-        每股留存收益
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股留存收益
+        :desc: 留存收益（MRQ)/当日总股本
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         share_indicators['RetainedEarningsPS'] = share_indicators['UndividedProfitPS'] + share_indicators[
             'SurplusReservePS']
@@ -258,11 +220,8 @@ class PerShareIndicators():
     @staticmethod
     def TotalRevPS(tp_share_indicators, factor_share_indicators, dependencies=['total_operating_revenue', 'capitalization']):
         """
-        每股营业总收入 = 营业总收入 / 总股本
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股营业收入
+        :desc: 营业收入（MRQ)/当日总股本
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
@@ -276,11 +235,8 @@ class PerShareIndicators():
     @staticmethod
     def CFPSTTM(tp_share_indicators, factor_share_indicators, dependencies=['cash_equivalent_increase_ttm', 'capitalization']):
         """
-        每股现金流量净额 = 现金及现金等价物净增加额TTM / 总股本
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name:每股现金流量净额(TTM)
+        :desc:"现金及现金等价物净增加额（TTM）/当日总股本
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
@@ -295,11 +251,8 @@ class PerShareIndicators():
     @staticmethod
     def DilutedEPSTTM(tp_share_indicators, factor_share_indicators, dependencies=['diluted_eps']):
         """
-        稀释每股收益
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 稀释每股收益(TTM)
+        :desc: 报表公布值
         """
         share_indicators = tp_share_indicators.loc[:, dependencies]
         share_indicators = share_indicators.rename(columns={'diluted_eps': 'DilutedEPSTTM'})
@@ -313,13 +266,9 @@ class PerShareIndicators():
     @staticmethod
     def EPSTTM(tp_share_indicators, factor_share_indicators, dependencies=['np_parent_company_owners_ttm', 'capitalization']):
         """
-        每股收益 TTM = 归属于母公司所有者的净利润TTM / 总股本
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股收益（TTM）
+        :desc: 每股收益（TTM）
         """
-
         share_indicators = tp_share_indicators.loc[:, dependencies]
         fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else 0)
         share_indicators['EPSTTM'] = share_indicators[dependencies].apply(fun, axis=1)
@@ -333,11 +282,8 @@ class PerShareIndicators():
     @staticmethod
     def OptCFPSTTM(tp_share_indicators, factor_share_indicators, dependencies=['net_operate_cash_flow_ttm', 'capitalization']):
         """
-        每股经营活动产生的现金流量净额
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股经营活动产生的现金流量净额(TTM)
+        :desc: "经营活动产生的现金流量净额（TTM）/当日总股本
         """
 
         share_indicators = tp_share_indicators.loc[:, dependencies]
@@ -353,11 +299,8 @@ class PerShareIndicators():
     @staticmethod
     def OptProfitPSTTM(tp_share_indicators, factor_share_indicators, dependencies=['operating_profit_ttm', 'capitalization']):
         """
-        每股营业利润
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股营业利润(TTM)
+        :desc:"营业利润（TTM）/当日总股本
         """
 
         share_indicators = tp_share_indicators.loc[:, dependencies]
@@ -373,11 +316,8 @@ class PerShareIndicators():
     @staticmethod
     def OptRevPSTTM(tp_share_indicators, factor_share_indicators, dependencies=['operating_revenue_ttm', 'capitalization']):
         """
-        每股营业收入TTM
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name:每股营业收入TTM
+        :desc: 营业收入（TTM)/当日总股本
         """
 
         share_indicators = tp_share_indicators.loc[:, dependencies]
@@ -393,11 +333,8 @@ class PerShareIndicators():
     @staticmethod
     def TotalRevPSTTM(tp_share_indicators, factor_share_indicators, dependencies=['total_operating_revenue_ttm', 'capitalization']):
         """
-        每股营业总收入
-        :param dependencies:
-        :param tp_share_indicators:
-        :param factor_share_indicators:
-        :return:
+        :name: 每股营业总收入(TTM)
+        :desc: 营业总收入(TTM)/当日总股本
         """
 
         share_indicators = tp_share_indicators.loc[:, dependencies]

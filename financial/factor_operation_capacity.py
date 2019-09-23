@@ -33,7 +33,7 @@ class OperationCapacity(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '营运能力'
-        self.desciption = '财务指标的二级指标， 营运能力'
+        self.desciption = '财务指标的二级指标-营运能力'
 
     @staticmethod
     def AccPayablesRateTTM(ttm_management, factor_management, dependencies=['operating_cost',
@@ -41,12 +41,8 @@ class OperationCapacity(object):
                                                                                       'notes_payable',
                                                                                       'advance_payment']):
         """
-        应付账款周转率
-        应付账款周转率 = 营业成本/（应付账款+应付票据-预付账款）
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name: 应付账款周转率(TTM)
+        :desc: 营业成本/（应付账款+应付票据-预付账款）
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -69,12 +65,8 @@ class OperationCapacity(object):
                                                                                       'notes_payable',
                                                                                       'advance_payment']):
         """
-        应付账款周转天数
-        应付账款周转天数 = 360/应付账款周转率
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name:应付账款周转天数(TTM)
+        :desc:360/应付账款周转率
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -94,12 +86,8 @@ class OperationCapacity(object):
     def ARRateTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'account_receivable',
                                                                        'bill_receivable', 'advance_peceipts']):
         """
-        应收账款周转率
-        应收账款周转率 = 营业收入/（应收账款+应收票据-预收账款）
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name:应收账款周转率(TTM)
+        :desc:营业收入/（应收账款+应收票据-预收账款）
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -119,12 +107,8 @@ class OperationCapacity(object):
     def ARDaysTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'bill_receivable',
                                                                        'account_receivable', 'advance_peceipts']):
         """
-        应收账款周转天数
-        应收账款周转率 = 360/应收账款周转率
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name:应收账款周转天数(TTM)
+        :desc:360/应收账款周转率
         """
         management = ttm_management.loc[:, dependencies]
         management['ar'] = (management.account_receivable
@@ -142,13 +126,8 @@ class OperationCapacity(object):
     @staticmethod
     def InvRateTTM(ttm_management, factor_management, dependencies=['operating_cost', 'inventories']):
         """
-        存货周转率
-        存货周转率 = 营业成本/存货
-        (补充，此处存货为过去4期的均值）
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name:存货周转率(TTM)
+        :desc:营业成本/存货 (补充，此处存货为过去4期的均值）
         """
         management = ttm_management.loc[:, dependencies]
         management['InvRateTTM'] = np.where(
@@ -162,12 +141,8 @@ class OperationCapacity(object):
     @staticmethod
     def InvDaysTTM(ttm_management, factor_management, dependencies=['operating_cost', 'inventories']):
         """
-        存货周转天数
-        存货周转天数 = 360/存货周转率
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name:存货周转天数(TTM)
+        :desc:360/存货周转率
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -182,10 +157,8 @@ class OperationCapacity(object):
     @staticmethod
     def CashCovCycle(factor_management):
         """
-        现金转换周期
-        现金转换周期 = 应收账款周转天数 + 存货周转天数 - 应付账款周转天数
-        :param factor_management:
-        :return:
+        :name:现金转换周期(TTM)
+        :desc:应收账款周转天数 + 存货周转天数 - 应付账款周转天数
         """
         factor_management['CashCovCycle'] = (factor_management['ARDaysTTM'] +
                                              factor_management['InvDaysTTM'] -
@@ -195,12 +168,8 @@ class OperationCapacity(object):
     @staticmethod
     def CurAssetsRtTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'total_current_assets']):
         """
-        流动资产周转率
-        流动资产周转率 = 营业收入/流动资产合计
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name:流动资产周转率(TTM)
+        :desc:营业收入/流动资产合计
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -218,12 +187,8 @@ class OperationCapacity(object):
                                                                                  'construction_materials',
                                                                                  'constru_in_process']):
         """
-        固定资产周转率
-        固定资产周转率 = 营业收入/（固定资产+工程物资+在建工程）
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name: 固定资产周转率(TTM)
+        :desc: 营业收入/（固定资产+工程物资+在建工程）
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -243,25 +208,34 @@ class OperationCapacity(object):
     @staticmethod
     def OptCycle(factor_management):
         """
-        营业周期
-        营业周期 = 应收账款周转天数 + 存货周转天数
-        :param factor_management:
-        :return:
+        :name:营业周期(TTM)
+        :desc:应收账款周转天数+存货周转天数。任意一项为空则不计算。
         """
         factor_management['OptCycle'] = (factor_management['ARDaysTTM'] +
                                          factor_management['InvDaysTTM'])
         return factor_management
 
     @staticmethod
+    def NetAssetTurnTTM(ttm_management, factor_management, dependencies=['total_operating_revenue', 'total_owner_equities']):
+        """
+        :name: 净资产周转率(TTM)
+        :desc: 营业总收入/股东权益
+        """
+        management = ttm_management.loc[:, dependencies]
+
+        func = lambda x: x[0] / x[1] if x[1] is not None and x[0] !=0 else None
+        management['NetAssetTurnTTM'] = management[dependencies].apply(func, axis=1)
+        management = management.drop(dependencies, axis=1)
+
+        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+        return factor_management
+
+    @staticmethod
     def TotaAssetRtTTM(ttm_management, factor_management, dependencies=['operating_revenue',
                                                                                  'total_assets']):
         """
-        总资产周转率
-        总资产周转率 = 营业收入/总资产
-        :param dependencies:
-        :param ttm_management:
-        :param factor_management:
-        :return:
+        :name: 总资产周转率(TTM)
+        :desc: 营业收入/总资产
         """
 
         management = ttm_management.loc[:, dependencies]

@@ -210,8 +210,9 @@ class ValuationEstimation(object):
         return factor_historical_value
 
     @staticmethod
-    def TotalAssets(valuation_sets, factor_historical_value, dependencies=['total_assets_report']):
+    def _TotalAssets(valuation_sets, factor_historical_value, dependencies=['total_assets_report']):
         """
+        基础衍生中有该因子
         :name: 总资产
         :desc: 总资产
         """
