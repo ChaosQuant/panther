@@ -58,7 +58,10 @@ if __name__ == "__main__":
                        'valuation': 'valuation_estimation.calc_engine',
                        'basic_derivation': 'basic_derivation.calc_engine',
                        'earning_expectation': 'earning_expectation.calc_engine',
-                       'technical': 'technical.calc_engine',
+                       'momentum': 'technical.calc_engine',
+                       'power_volume': 'technical.calc_engine',
+                       'reversal': 'technical.calc_engine',
+                       'sentiment': 'technical.calc_engine',
                        }
 
     packet_name_dic = {'capacity': 'financial.factor_operation_capacity',
