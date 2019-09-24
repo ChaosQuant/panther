@@ -257,8 +257,7 @@ class CalcEngine(object):
         income_ttm_sets_pre_year_2 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.NETPROFIT,
-                                                                                      ], dates=[
-                trade_date_pre_year_2]).drop(columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_2]).drop(columns, axis=1)
         income_ttm_sets_pre_year_2 = income_ttm_sets_pre_year_2.rename(
             columns={'BIZINCO': 'operating_revenue_pre_year_2',  # 营业收入
                      'NETPROFIT': 'net_profit_pre_year_2',  # 净利润
@@ -267,8 +266,7 @@ class CalcEngine(object):
         income_ttm_sets_pre_year_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.NETPROFIT,
-                                                                                      ], dates=[
-                trade_date_pre_year_3]).drop(columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_3]).drop(columns, axis=1)
         income_ttm_sets_pre_year_3 = income_ttm_sets_pre_year_3.rename(
             columns={'BIZINCO': 'operating_revenue_pre_year_3',  # 营业收入
                      'NETPROFIT': 'net_profit_pre_year_3',  # 净利润
@@ -277,8 +275,7 @@ class CalcEngine(object):
         income_ttm_sets_pre_year_4 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.NETPROFIT,
-                                                                                      ], dates=[
-                trade_date_pre_year_4]).drop(columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_4]).drop(columns, axis=1)
         income_ttm_sets_pre_year_4 = income_ttm_sets_pre_year_4.rename(
             columns={'BIZINCO': 'operating_revenue_pre_year_4',  # 营业收入
                      'NETPROFIT': 'net_profit_pre_year_4',  # 净利润

@@ -70,7 +70,7 @@ class CalcEngine(object):
         ttm_balance = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                       [BalanceTTM.ACCORECE,
                                                                        BalanceTTM.NOTESRECE,
-                                                                       # BalanceTTM.PREP,
+                                                                       BalanceTTM.PREP,
                                                                        BalanceTTM.INVE,
                                                                        BalanceTTM.TOTCURRASSET,
                                                                        BalanceTTM.FIXEDASSENET,
@@ -82,7 +82,7 @@ class CalcEngine(object):
                                                                        ], dates=[trade_date]).drop(columns, axis=1)
         ttm_balance = ttm_balance.rename(columns={
             'NOTESRECE': 'bill_receivable',  # 应收票据
-            # 'PREP': 'advance_payment',  # 预付款项
+            'PREP': 'advance_payment',  # 预付款项
             'INVE': 'inventories',  # 存货
             'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
             'FIXEDASSENET': 'fixed_assets',  # 固定资产
