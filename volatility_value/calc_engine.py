@@ -91,8 +91,8 @@ class CalcEngine(object):
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
         begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
-        # market_data, index_data = db_polymerize.fetch_volatility_value_data(begin_date, trade_date, '1b')
-        market_data, index_data = db_polymerize.fetch_volatility_value_data('2018-08-15', trade_date, '1b')
+        market_data, index_data = db_polymerize.fetch_volatility_value_data(begin_date, trade_date, '1b')
+        # market_data, index_data = db_polymerize.fetch_volatility_value_data('2018-08-15', trade_date, '1b')
         return market_data, index_data
     
     def process_calc(self, params):
