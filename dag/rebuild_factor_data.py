@@ -70,9 +70,9 @@ run_update_factor_operation_capacity = BashOperator(
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_operation_capacity" --class_name="FactorOperationCapacity"',
     dag=dag,
 )
-run_update_factor_pre_share_indicators = BashOperator(
-    task_id='run_update_factor_pre_share_indicators',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_pre_share_indicators" --class_name="FactorPreShareIndicators"',
+run_update_factor_per_share_indicators = BashOperator(
+    task_id='run_update_factor_per_share_indicators',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_per_share_indicators" --class_name="FactorPreShareIndicators"',
     dag=dag,
 )
 run_update_factor_revenue_quality = BashOperator(
