@@ -12,7 +12,7 @@ import json
 from dateutil.relativedelta import relativedelta
 import time
 from pandas.io.json import json_normalize
-from factor_earning_expectation import FactorEarningExpectation
+from earning_expectation.factor_earning_expectation import FactorEarningExpectation
 from data.storage_engine import StorageEngine
 from PyFin.api import *
 from ultron.cluster.invoke.cache_data import cache_data

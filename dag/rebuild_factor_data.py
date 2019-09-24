@@ -60,19 +60,19 @@ run_update_factor_cash_flow = BashOperator(
 )
 run_update_factor_earning = BashOperator(
     task_id='run_update_factor_earning',
-    bash_command='cd ~/app/panther && python cash_client.py --rebuild=True --packet_name="financial.factor_earning" '
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_earning" '
                  '--class_name="FactorEarning"',
     dag=dag,
 )
 run_update_factor_historical_growth = BashOperator(
     task_id='run_update_factor_historical_growth',
-    bash_command='cd ~/app/panther && python cash_client.py --rebuild=True --packet_name="financial.factor_historical_growth" '
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_historical_growth" '
                  '--class_name="FactorHistoricalGrowth"',
     dag=dag,
 )
 run_update_factor_operation_capacity = BashOperator(
     task_id='run_update_factor_operation_capacity',
-    bash_command='cd ~/app/panther && python cash_client.py --rebuild=True --packet_name="financial.factor_operation_capacity" '
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_operation_capacity" '
                  '--class_name="FactorOperationCapacity"',
     dag=dag,
 )
