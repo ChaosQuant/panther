@@ -8,6 +8,8 @@ import time
 from datetime import datetime
 import warnings
 import config
+import sqlalchemy as sa
+import pandas as pd
 
 warnings.filterwarnings("ignore")
 db_url = '''mysql+mysqlconnector://{0}:{1}@{2}:{3}/{4}'''.format(config.rl_db_user,
@@ -21,6 +23,23 @@ def change_date(date):
     date = str(date)
     date = date[0:4] + '-' + date[4:6] + '-' + date[6:8]
     return date
+
+
+def get_start_date(factor_name):
+    destination = sa.create_engine(db_url)
+    sql = """select max(trade_date) as trade_date from `{0}`;""".format(factor_name)
+    trades_sets = pd.read_sql(sql, destination)
+    td = 20070101
+    if not trades_sets.empty:
+        td = trades_sets['trade_date'][0]
+        td = str(td).replace('-', '')
+    return td
+
+
+def do_schedule(factor_name, calc_engine):
+    start_date = get_start_date(factor_name)
+    end_date = int(datetime.now().date().strftime('%Y%m%d'))
+    do_update(start_date, end_date, calc_engine)
 
 
 def do_update(start_date, end_date, calc_engine):
@@ -44,9 +63,10 @@ if __name__ == "__main__":
     parser.add_argument('--class_name', type=str, default='FactorEarningExpectation')
     parser.add_argument('--rebuild', type=bool, default=False)
     parser.add_argument('--update', type=bool, default=False)
-    parser.add_argument('--schedule', type=bool, default=False)
+    parser.add_argument('--schedule', type=bool, default=True)
     args = parser.parse_args()
     factor_type = args.packet_name.split('.')[0]
+    factor_name = args.packet_name.split('.')[1]
     class_method = importlib.import_module(factor_type + '.calc_engine').__getattribute__('CalcEngine')
     calc_engine = class_method('rl', db_url, methods=[{'packet': args.packet_name, 'class': args.class_name}])
     rebuild = Rebuild(db_url)
@@ -59,22 +79,5 @@ if __name__ == "__main__":
         do_update(args.start_date, end_date, calc_engine)
     if args.update:
         do_update(args.start_date, end_date, calc_engine)
-
-    # rebuild.rebuild_table('technical.momentum','Momentum')
-    # rebuild.rebuild_table('technical.power_volume','PowerVolume')
-    # rebuild.rebuild_table('technical.reversal','Reversal')
-    # rebuild.rebuild_table('technical.sentiment','Sentiment')
-
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'valuation_estimation.factor_valuation_estimation' --class_name 'FactorValuationEstimation' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'basic_derivation.factor_basic_derivation' --class_name 'FactorBasicDerivation' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_cash_flow' --class_name 'FactorCashFlow' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_earning' --class_name 'FactorEarning' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_historical_growth' --class_name 'FactorHistoricalGrowth' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_per_share_indicators' --class_name 'FactorPerShareIndicators' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_revenue_quality' --class_name 'FactorRevenueQuality' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_solvency' --class_name 'FactorSolvency' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_capital_structure' --class_name 'FactorCapitalStructure' --update True
-    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_operation_capacity' --class_name 'FactorOperationCapacity' --update True
-
-
-
+    if args.schedule:
+        do_schedule(factor_name, calc_engine)
