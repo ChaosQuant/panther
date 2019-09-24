@@ -390,7 +390,6 @@ class CalcEngine(object):
         # factor_earning = earning.invest_r_associates_to_tp_ttm(ttm_earning, earning_sets)
         earning_sets = earning_sets.reset_index()
         earning_sets['trade_date'] = str(trade_date)
-        print(earning_sets.head())
         return earning_sets
 
     def local_run(self, trade_date):

@@ -92,7 +92,6 @@ class CalcEngine(object):
 
         factor_management = factor_management.reset_index()
         factor_management['trade_date'] = str(trade_date)
-        print(factor_management.head())
         return factor_management
 
     def local_run(self, trade_date):
