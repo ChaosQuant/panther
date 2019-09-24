@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pdb,importlib,inspect,time,datetime,json
+import pdb, importlib, inspect, time, datetime, json
 # from PyFin.api import advanceDateByCalendar
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
@@ -12,16 +12,18 @@ from data.model import BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
 from data.model import IndicatorTTM
 from data.model import IncomeReport, IncomeTTM
-from vision.vision.file_unit.valuation import Valuation
-from vision.vision.db.signletion_engine import *
+from vision.file_unit.valuation import Valuation
+from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'financial.factor_revenue_quality','class':'RevenueQuality'},]):
+    def __init__(self, name, url,
+                 methods=[{'packet': 'financial.factor_revenue_quality', 'class': 'FactorRevenueQuality'}, ]):
         self._name = name
         self._methods = methods
         self._url = url
@@ -52,7 +54,7 @@ class CalcEngine(object):
 
     def _func_sets(self, method):
         # 私有函数和保护函数过滤
-        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method,x)), dir(method)))
+        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method, x)), dir(method)))
 
     def loading_data(self, trade_date):
         """
@@ -97,6 +99,8 @@ class CalcEngine(object):
                                                                        dates=[trade_date]).drop(columns, axis=1)
         balance_sets = balance_sets.rename(columns={'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
                                                     })
+        tp_revenue_quanlity = pd.merge(cash_flow_sets, income_sets, on='security_code')
+        tp_revenue_quanlity = pd.merge(balance_sets, tp_revenue_quanlity, on='security_code')
 
         trade_date_pre_year = self.get_trade_date(trade_date, 1)
         trade_date_pre_year_2 = self.get_trade_date(trade_date, 2)
@@ -115,9 +119,6 @@ class CalcEngine(object):
         income_con_sets = income_con_sets.groupby(['security_code'])
         income_con_sets = income_con_sets.sum()
         income_con_sets = income_con_sets.rename(columns={'NETPROFIT': 'net_profit_5'})
-
-        tp_revenue_quanlity = pd.merge(cash_flow_sets, income_sets, on='security_code')
-        tp_revenue_quanlity = pd.merge(balance_sets, tp_revenue_quanlity, on='security_code')
 
         # TTM Data
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
@@ -191,7 +192,8 @@ class CalcEngine(object):
         valuation_con_sets = valuation_con_sets.rename(columns={'market_cap': 'market_cap_5',
                                                                 'circulating_market_cap': 'circulating_market_cap_5'
                                                                 })
-        tp_revenue_quanlity = pd.merge(valuation_con_sets, tp_revenue_quanlity, on='security_code')
+        # tp_revenue_quanlity = pd.merge(valuation_con_sets, tp_revenue_quanlity, on='security_code')
+        ttm_revenue_quanlity = pd.merge(valuation_con_sets, ttm_revenue_quanlity, on='security_code')
 
         return tp_revenue_quanlity, ttm_revenue_quanlity
 
@@ -199,7 +201,7 @@ class CalcEngine(object):
 
         tp_revenue_quanlity = tp_revenue_quanlity.set_index('security_code')
         ttm_revenue_quanlity = ttm_revenue_quanlity.set_index('security_code')
-        revenue_quality = factor_revenue_quality.RevenueQuality()
+        revenue_quality = factor_revenue_quality.FactorRevenueQuality()
 
         factor_revenue = pd.DataFrame()
         factor_revenue['security_code'] = tp_revenue_quanlity.index
@@ -217,26 +219,23 @@ class CalcEngine(object):
         factor_revenue = revenue_quality.NVALCHGITOTP(ttm_revenue_quanlity, factor_revenue)
         factor_revenue = revenue_quality.PftMarginTTM(ttm_revenue_quanlity, factor_revenue)
         factor_revenue = revenue_quality.PriceToRevRatioAvg5YTTM(ttm_revenue_quanlity, factor_revenue)
-
         factor_revenue = factor_revenue.reset_index()
-
         factor_revenue['trade_date'] = str(trade_date)
         print(factor_revenue.head())
         return factor_revenue
 
     def local_run(self, trade_date):
-        print('trade_date %s' % trade_date)
+        print('当前交易日: %s' % trade_date)
         tic = time.time()
         tp_revenue_quanlity, ttm_revenue_quanlity = self.loading_data(trade_date)
-        print('data load time %s' % (time.time()-tic))
+        print('data load time %s' % (time.time() - tic))
 
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, tp_revenue_quanlity, ttm_revenue_quanlity)
         print('cal_time %s' % (time.time() - tic))
-        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('factor_revenue_quality', trade_date, result)
+        storage_engine.update_destdb(str(self._methods[-1]['packet'].split('.')[-1]), trade_date, result)
+        # storage_engine.update_destdb('factor_revenue_quality', trade_date, result)
 
-        
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)
     #     #存储数据
@@ -247,7 +246,7 @@ class CalcEngine(object):
     # def distributed_factor(self, total_data):
     #     mkt_df = self.calc_factor_by_date(total_data,trade_date)
     #     result = self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
-        
+
 # @app.task
 # def distributed_factor(session, trade_date, packet_sets, name):
 #     calc_engines = CalcEngine(name, packet_sets)
@@ -265,6 +264,3 @@ class CalcEngine(object):
 #     total_pre_share_data = json_normalize(json.loads(str(content, encoding='utf8')))
 #     print("len_total_per_share_data {}".format(len(total_pre_share_data)))
 #     calculate(date_index, total_pre_share_data)
-
-
-

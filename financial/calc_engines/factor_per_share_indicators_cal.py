@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pdb,importlib,inspect,time,datetime,json
+import pdb, importlib, inspect, time, datetime, json
 # from PyFin.api import advanceDateByCalendar
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
@@ -13,15 +13,19 @@ from data.model import CashFlowTTM, CashFlowReport
 from data.model import IndicatorReport
 from data.model import IncomeReport, IncomeTTM
 
-from vision.vision.db.signletion_engine import *
+from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
+
+
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'financial.factor_pre_share_indicators','class':'PerShareIndicators'},]):
+    def __init__(self, name, url,
+                 methods=[{'packet': 'financial.factor_pre_share_indicators', 'class': 'FactorPerShareIndicators'}, ]):
         self._name = name
         self._methods = methods
         self._url = url
@@ -52,7 +56,7 @@ class CalcEngine(object):
 
     def _func_sets(self, method):
         # 私有函数和保护函数过滤
-        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method,x)), dir(method)))
+        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method, x)), dir(method)))
 
     def loading_data(self, trade_date):
         """
@@ -158,7 +162,7 @@ class CalcEngine(object):
         return valuation_sets
 
     def process_calc_factor(self, trade_date, valuation_sets):
-        per_share = factor_per_share_indicators.PerShareIndicators()
+        per_share = factor_per_share_indicators.FactorPerShareIndicators()
         factor_share_indicators = pd.DataFrame()
         factor_share_indicators['security_code'] = valuation_sets['security_code']
         valuation_sets = valuation_sets.set_index('security_code')
@@ -191,19 +195,17 @@ class CalcEngine(object):
         return factor_share_indicators
 
     def local_run(self, trade_date):
-        print('trade_date %s' % trade_date)
+        print('当前交易日: %s' % trade_date)
         tic = time.time()
         valuation_sets = self.loading_data(trade_date)
-
-        print('data load time %s' % (time.time()-tic))
+        print('data load time %s' % (time.time() - tic))
 
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, valuation_sets)
         print('cal_time %s' % (time.time() - tic))
-        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('factor_pre_share_indicators', trade_date, result)
+        storage_engine.update_destdb(str(self._methods[-1]['packet'].split('.')[-1]), trade_date, result)
+        # storage_engine.update_destdb('factor_pre_share_indicators', trade_date, result)
 
-        
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)
     #     #存储数据
@@ -214,7 +216,7 @@ class CalcEngine(object):
     # def distributed_factor(self, total_data):
     #     mkt_df = self.calc_factor_by_date(total_data,trade_date)
     #     result = self.calc_factor('alphax.alpha191','Alpha191',mkt_df,trade_date)
-        
+
 # @app.task
 # def distributed_factor(session, trade_date, packet_sets, name):
 #     calc_engines = CalcEngine(name, packet_sets)
@@ -232,6 +234,3 @@ class CalcEngine(object):
 #     total_pre_share_data = json_normalize(json.loads(str(content, encoding='utf8')))
 #     print("len_total_per_share_data {}".format(len(total_pre_share_data)))
 #     calculate(date_index, total_pre_share_data)
-
-
-

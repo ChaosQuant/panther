@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
-
+"""
+@version: 0.1
+@author: li
+@file: factor_solvency.py
+@time: 2019-01-28 11:33
+"""
 import gc, six
 import json
 import numpy as np
@@ -15,7 +20,7 @@ from utilities.singleton import Singleton
 
 
 @six.add_metaclass(Singleton)
-class Solvency(object):
+class FactorSolvency(object):
     """
     偿债能力
     """
@@ -110,7 +115,7 @@ class Solvency(object):
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
         management['EquityRatio'] = management.apply(func, axis=1)
-
+        management = management.drop(dependencies, axis=1)
         factor_solvency = pd.merge(management, factor_solvency, how='outer', on='security_code')
         return factor_solvency
 
@@ -360,15 +365,15 @@ class Solvency(object):
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['OPCToDebt'] = np.where(
-            CalcTools.is_zero(cash_flow.total_current_liability_ttm.values), 0,
-            cash_flow.net_operate_cash_flow.values / cash_flow.total_current_liability_ttm.values)
+            CalcTools.is_zero(cash_flow.total_current_liability.values), 0,
+            cash_flow.net_operate_cash_flow_mrq.values / cash_flow.total_current_liability.values)
         cash_flow = cash_flow.drop(dependencies, axis=1)
         factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
     @staticmethod
     def OptCFToCurrLiability(tp_solvency, factor_solvency, dependencies=['net_operate_cash_flow_mrq',
-                                                                                          'total_current_liability']):
+                                                                         'total_current_liability']):
         """
         :name:经营活动产生的现金流量净额（MRQ）/流动负债（MRQ）
         :desc:经营活动产生的现金流量净额（MRQ）/流动负债（MRQ）
@@ -457,7 +462,6 @@ class Solvency(object):
     @staticmethod
     def OptCFToNetDebtTTM(ttm_solvency, factor_solvency, dependencies=['net_operate_cash_flow', 'net_liability']):
         """
-
         :name:经营活动净现金流（TTM）/净负债（TTM）
         :desc:经营活动净现金流（TTM）/净负债（TTM）
         """

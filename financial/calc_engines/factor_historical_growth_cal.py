@@ -13,15 +13,15 @@ from data.model import CashFlowTTM, CashFlowReport
 from data.model import IndicatorReport, IndicatorMRQ, IndicatorTTM
 from data.model import IncomeReport, IncomeTTM
 
-from vision.vision.db.signletion_engine import *
+from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'financial.factor_historical_growth','class':'Growth'},]):
+    def __init__(self, name, url, methods=[{'packet':'financial.factor_historical_growth','class':'FactorHistoricalGrowth'},]):
         self._name = name
         self._methods = methods
         self._url = url
@@ -274,7 +274,7 @@ class CalcEngine(object):
 
     def process_calc_factor(self, trade_date, growth_sets):
         growth_sets = growth_sets.set_index('security_code')
-        growth = factor_historical_growth.Growth()
+        growth = factor_historical_growth.FactorHistoricalGrowth()
         if len(growth_sets) <= 0:
             print("%s has no data" % trade_date)
             return
@@ -303,21 +303,19 @@ class CalcEngine(object):
 
         historical_growth_sets = historical_growth_sets.reset_index()
         historical_growth_sets['trade_date'] = str(trade_date)
-        print(historical_growth_sets.head())
         return historical_growth_sets
 
     def local_run(self, trade_date):
-        print('trade_date %s' % trade_date)
+        print('当前交易日: %s' % trade_date)
         tic = time.time()
         growth_sets = self.loading_data(trade_date)
-
         print('data load time %s' % (time.time()-tic))
 
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, growth_sets)
         print('cal_time %s' % (time.time() - tic))
-        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('factor_historical_growth', trade_date, result)
+        storage_engine.update_destdb(str(self._methods[-1]['packet'].split('.')[-1]), trade_date, result)
+        # storage_engine.update_destdb('factor_historical_growth', trade_date, result)
 
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)

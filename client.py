@@ -64,3 +64,17 @@ if __name__ == "__main__":
     # rebuild.rebuild_table('technical.power_volume','PowerVolume')
     # rebuild.rebuild_table('technical.reversal','Reversal')
     # rebuild.rebuild_table('technical.sentiment','Sentiment')
+
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'valuation_estimation.factor_valuation' --class_name 'Valuation' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'basic_derivation.factor_basic_derivation' --class_name 'FactorBasicDerivation' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_cash_flow' --class_name 'FactorCashFlow' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_earning' --class_name 'FactorEarning' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_historical_growth' --class_name 'FactorHistoricalGrowth' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_per_share_indicators' --class_name 'FactorPerShareIndicators' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_revenue_quality' --class_name 'FactorRevenueQuality' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_solvency' --class_name 'FactorSolvency' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_capital_structure' --class_name 'FactorCapitalStructure' --update True
+    # python client.py --start_date 20181228 --end_date 20190101 --packet_name 'financial.factor_operation_capacity' --class_name 'FactorCapitalStructure' --update True
+
+
+

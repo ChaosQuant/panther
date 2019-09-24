@@ -12,16 +12,16 @@ from data.model import BalanceMRQ, BalanceTTM
 from data.model import CashFlowMRQ, CashFlowTTM
 from data.model import IndicatorTTM
 from data.model import IncomeTTM
-from vision.vision.file_unit.valuation import Valuation
-from vision.vision.db.signletion_engine import *
+from vision.file_unit.valuation import Valuation
+from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'financial.factor_solvency','class':'Solvency'},]):
+    def __init__(self, name, url, methods=[{'packet':'financial.factor_solvency','class':'FactorSolvency'},]):
         self._name = name
         self._methods = methods
         self._url = url
@@ -147,11 +147,11 @@ class CalcEngine(object):
 
         balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                            [
-                                                                            # BalanceTTM.TOTALCURRLIAB,
+                                                                            BalanceTTM.TOTALCURRLIAB,
                                                                             BalanceTTM.DUENONCLIAB,
                                                                             ], dates=[trade_date]).drop(columns, axis=1)
         balance_ttm_sets = balance_ttm_sets.rename(columns={
-            # 'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计
+            'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计
             'DUENONCLIAB': 'non_current_liability_in_one_year_ttm',  # 一年内到期的非流动负债
         })
 
@@ -183,14 +183,12 @@ class CalcEngine(object):
 
         tp_solvency = pd.merge(ttm_solvency, valuation_sets, how='outer', on='security_code')
         tp_solvency = pd.merge(tp_solvency, mrq_solvency, how='outer', on='security_code')
-
         return tp_solvency
 
     def process_calc_factor(self, trade_date, tp_solvency):
         tp_solvency = tp_solvency.set_index('security_code')
-        solvency = factor_solvency.Solvency()
+        solvency = factor_solvency.FactorSolvency()
 
-        print(trade_date)
         # 读取目前涉及到的因子
         solvency_sets = pd.DataFrame()
         solvency_sets['security_code'] = tp_solvency.index
@@ -213,6 +211,7 @@ class CalcEngine(object):
         solvency_sets = solvency.TNWorthToIBDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.TNWorthToNDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.OPCToDebt(tp_solvency, solvency_sets)
+        solvency_sets = solvency.OptCFToCurrLiability(tp_solvency, solvency_sets)
 
         # TTM计算
         solvency_sets = solvency.InterestCovTTM(tp_solvency, solvency_sets)
@@ -223,21 +222,19 @@ class CalcEngine(object):
         solvency_sets = solvency.CashRatioTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency_sets.reset_index()
         solvency_sets['trade_date'] = str(trade_date)
-        print(solvency_sets.head())
         return solvency_sets
 
     def local_run(self, trade_date):
-        print('trade_date %s' % trade_date)
+        print('当前交易日: %s' % trade_date)
         tic = time.time()
         tp_solvency = self.loading_data(trade_date)
-
         print('data load time %s' % (time.time()-tic))
 
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, tp_solvency)
         print('cal_time %s' % (time.time() - tic))
-        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('factor_solvency', trade_date, result)
+        storage_engine.update_destdb(str(self._methods[-1]['packet'].split('.')[-1]), trade_date, result)
+        # storage_engine.update_destdb('factor_solvency', trade_date, result)
 
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)

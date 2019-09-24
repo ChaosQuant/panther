@@ -3,7 +3,7 @@
 
 """
 @version:
-@author: Wang
+@author: li
 @file: factor_operation_capacity.py
 @time: 2019-05-30
 """
@@ -27,7 +27,7 @@ pd.set_option('display.max_rows', None)
 
 
 @six.add_metaclass(Singleton)
-class CapitalStructure(object):
+class FactorCapitalStructure(object):
     """
     资本结构
     """

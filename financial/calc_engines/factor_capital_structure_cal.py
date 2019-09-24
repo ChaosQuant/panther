@@ -5,23 +5,19 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
 from financial import factor_capital_structure
 
-from data.model import BalanceMRQ, BalanceTTM, BalanceReport
-from data.model import CashFlowTTM, CashFlowReport
-from data.model import IndicatorReport
-from data.model import IncomeReport, IncomeTTM
+from data.model import BalanceMRQ
 
-from vision.vision.db.signletion_engine import *
+from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'financial.factor_capital_structure','class':'CapitalStructure'},]):
+    def __init__(self, name, url, methods=[{'packet':'financial.factor_capital_structure','class':'FactorCapitalStructure'},]):
         self._name = name
         self._methods = methods
         self._url = url
@@ -79,7 +75,7 @@ class CalcEngine(object):
         tp_management = tp_management.set_index('security_code')
 
         # 读取目前涉及到的因子
-        management = factor_capital_structure.CapitalStructure()
+        management = factor_capital_structure.FactorCapitalStructure()
         # 因子计算
         factor_management = pd.DataFrame()
         factor_management['security_code'] = tp_management.index
@@ -100,7 +96,7 @@ class CalcEngine(object):
         return factor_management
 
     def local_run(self, trade_date):
-        print('trade_date %s' % trade_date)
+        print('当前交易日: %s' % trade_date)
         tic = time.time()
         balance_sets = self.loading_data(trade_date)
         print('data load time %s' % (time.time()-tic))
@@ -108,8 +104,8 @@ class CalcEngine(object):
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, balance_sets)
         print('cal_time %s' % (time.time() - tic))
-        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('factor_capital_structure', trade_date, result)
+        storage_engine.update_destdb(str(self._methods[-1]['packet'].split('.')[-1]), trade_date, result)
+        # storage_engine.update_destdb('factor_capital_structure', trade_date, result)
 
         
     # def remote_run(self, trade_date):

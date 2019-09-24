@@ -6,26 +6,25 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 from datetime import timedelta
-from valuation_estimation import factor_valuation
+from valuation_estimation import factor_valuation_estimation
 
 from data.model import BalanceMRQ, BalanceReport
 from data.model import CashFlowMRQ, CashFlowTTM
 from data.model import IndicatorReport, IndicatorTTM
 from data.model import IncomeTTM
 
-from vision.vision.db.signletion_engine import *
-from vision.vision.table.valuation import Valuation
-from vision.vision.table.industry import Industry
+from vision.db.signletion_engine import *
+from vision.table.valuation import Valuation
+from vision.table.industry import Industry
 from data.sqlengine import sqlEngine
 from utilities.sync_util import SyncUtil
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'valuation_estimation.factor_valuation','class':'Valuation'},
-                                          ]):
+    def __init__(self, name, url, methods=[{'packet': 'valuation_estimation.factor_valuation', 'class': 'Valuation'}]):
         self._name = name
         self._methods = methods
         self._url = url
@@ -66,48 +65,16 @@ class CalcEngine(object):
         :param trade_date: 交易日
         :return:
         """
-        maplist = {
-            # cash_flow
-            'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额, ttm
-            'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额 , mrq
-
-            # income
-            'NETPROFIT': 'net_profit',  # 净利润 ttm
-            'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润 ttm
-            'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入 ttm
-            'BIZINCO': 'operating_revenue',  # 营业收入 ttm
-            'TOTPROFIT': 'total_profit',  # 利润总额 ttm
-
-            # balance
-            'TOTASSET': 'total_assets',  # 资产总计 mrq
-            'SHORTTERMBORR': 'shortterm_loan',  # 短期借款 mrq
-            'LONGBORR': 'longterm_loan',  # 长期借款 mrq
-            'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计 mrq
-
-            # indicator
-            'FCFF': 'enterprise_fcfps',  # 企业自由现金流 report
-            'NETPROFITCUT': 'net_profit_cut',  # 扣除非经常性损益的净利润 ttm
-
-            # valuation_estimation
-            'pe': 'pe',
-            'pb': 'pb',
-            'ps': 'ps',
-            'pcf': 'pcf',
-            'market_cap': 'market_cap',  # 总市值
-            'circulating_market_cap': 'circulating_market_cap'
-        }
         time_array = datetime.strptime(trade_date, "%Y-%m-%d")
         trade_date = datetime.strftime(time_array, '%Y%m%d')
-        columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
         engine = sqlEngine()
         trade_date_1y = self.get_trade_date(trade_date, 1)
         trade_date_3y = self.get_trade_date(trade_date, 3)
         trade_date_4y = self.get_trade_date(trade_date, 4)
         trade_date_5y = self.get_trade_date(trade_date, 5)
-        print(trade_date_3y)
-        print(trade_date_5y)
 
         # report data
+        columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
         indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
                                                                          [IndicatorReport.FCFF,
                                                                           ], dates=[trade_date]).drop(columns, axis=1)
@@ -122,7 +89,6 @@ class CalcEngine(object):
             'TOTASSET': 'total_assets_report',  # 资产总计
         })
         valuation_report_sets = pd.merge(indicator_sets, balance_sets, how='outer', on='security_code')
-        # print('valuation_report_sets')
 
         # MRQ data
         cash_flow_mrq = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
@@ -130,8 +96,8 @@ class CalcEngine(object):
                                                                          ], dates=[trade_date]).drop(columns, axis=1)
         cash_flow_mrq = cash_flow_mrq.rename(columns={
             'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
-
         })
+
         balance_mrq = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
                                                                       [BalanceMRQ.LONGBORR,
                                                                        BalanceMRQ.TOTASSET,
@@ -145,7 +111,6 @@ class CalcEngine(object):
             'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
         })
         valuation_mrq = pd.merge(cash_flow_mrq, balance_mrq, on='security_code')
-        # print('valuation_mrq')
 
         # TTM data
         # 总市值合并到TTM数据中，
@@ -266,20 +231,18 @@ class CalcEngine(object):
                                                          Industry.isymbol)
                                                    .filter(Industry.trade_date.in_([trade_date])),
                                                    internal_type='symbol').drop(column_sw, axis=1)
-        # print('sw_indu')
         sw_indu = sw_indu[sw_indu['isymbol'].isin(industry_set)]
 
         valuation_sets = pd.merge(valuation_sets, valuation_report_sets, how='outer', on='security_code')
         valuation_sets = pd.merge(valuation_sets, valuation_mrq, how='outer', on='security_code')
         valuation_sets = pd.merge(valuation_sets, valuation_ttm_sets, how='outer', on='security_code')
-        # print('valuation_sets')
 
         return valuation_sets, sw_indu, pe_sets
 
     def process_calc_factor(self, trade_date, valuation_sets, pe_sets, sw_industry):
         valuation_sets = valuation_sets.set_index('security_code')
         pe_sets = pe_sets.set_index('security_code')
-        historical_value = factor_valuation.ValuationEstimation()
+        historical_value = factor_valuation_estimation.FactorValuationEstimation()
 
         factor_historical_value = pd.DataFrame()
         factor_historical_value['security_code'] = valuation_sets.index
@@ -290,7 +253,6 @@ class CalcEngine(object):
         factor_historical_value = historical_value.LogofNegMktValue(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.NLSIZE(valuation_sets, factor_historical_value)
         factor_historical_value = historical_value.MrktCapToCorFreeCashFlow(valuation_sets, factor_historical_value)
-
         factor_historical_value = historical_value.PBAvgOnSW1(valuation_sets, sw_industry, factor_historical_value)
         factor_historical_value = historical_value.PBStdOnSW1(valuation_sets, sw_industry, factor_historical_value)
         factor_historical_value = historical_value.PBIndu(valuation_sets, factor_historical_value)
@@ -329,11 +291,10 @@ class CalcEngine(object):
 
         # factor_historical_value = factor_historical_value.reset_index()
         factor_historical_value['trade_date'] = str(trade_date)
-        print(factor_historical_value.head())
         return factor_historical_value
     
     def local_run(self, trade_date):
-        print('trade_date %s' % trade_date)
+        print('当前交易日； %s' % trade_date)
         tic = time.time()
         valuation_sets, sw_industry, pe_sets = self.loading_data(trade_date)
         print('data load time %s' % (time.time()-tic))
@@ -341,8 +302,9 @@ class CalcEngine(object):
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, valuation_sets, pe_sets, sw_industry)
         print('cal_time %s' % (time.time() - tic))
-        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('factor_valuation', trade_date, result)
+        storage_engine.update_destdb(str(self._methods[-1]['packet'].split('.')[-1]), trade_date, result)
+        print('----------------->')
+        # storage_engine.update_destdb('factor_valuation', trade_date, result)
 
     # def remote_run(self, trade_date):
     #     total_data = self.loading_data(trade_date)

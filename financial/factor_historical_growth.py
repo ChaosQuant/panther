@@ -20,7 +20,7 @@ pd.set_option('display.max_columns', None)
 
 
 @six.add_metaclass(Singleton)
-class Growth(object):
+class FactorHistoricalGrowth(object):
     """
     历史成长
     """

@@ -1,5 +1,12 @@
-#!/usr/bin/env python
-# coding=utf-8
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+@version:
+@author: li
+@file: factor_cash_flow.py
+@time: 2019-05-30
+"""
 
 import gc, six
 import json
@@ -170,6 +177,7 @@ class FactorCashFlow(object):
         :desc: 经营活动产生的现金流量净额(TTM)/营业利润(TTM)*100%
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
+        print(cash_flow.head())
 
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
         cash_flow['NOCFTOOPftTTM'] = cash_flow[dependencies].apply(func, axis=1)

@@ -13,10 +13,10 @@ from data.model import CashFlowTTM, CashFlowReport
 from data.model import IndicatorReport
 from data.model import IncomeReport, IncomeTTM
 
-from vision.vision.db.signletion_engine import *
+from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
 # from ultron.cluster.invoke.cache_data import cache_data
 
 
@@ -376,7 +376,7 @@ class CalcEngine(object):
         earning_sets = earning.ImpLossToTOITTM(ttm_earning, earning_sets)
         earning_sets = earning.OIAToOITTM(ttm_earning, earning_sets)
         earning_sets = earning.ROAexTTM(ttm_earning, earning_sets)
-        earning_sets = earning.NetNonOiToTP(ttm_earning, earning_sets)
+        earning_sets = earning.NetNonOToTP(ttm_earning, earning_sets)
         earning_sets = earning.NetProfitRtTTM(ttm_earning, earning_sets)
         earning_sets = earning.NPToTORevTTM(ttm_earning, earning_sets)
         earning_sets = earning.OperExpRtTTM(ttm_earning, earning_sets)
@@ -405,8 +405,8 @@ class CalcEngine(object):
         storage_engine = StorageEngine(self._url)
         result = self.process_calc_factor(trade_date, tp_earning, ttm_earning, ttm_earning_5y)
         print('cal_time %s' % (time.time() - tic))
-        # storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-        storage_engine.update_destdb('factor_earning', trade_date, result)
+        storage_engine.update_destdb(str(self._methods[-1]['packet'].split('.')[-1]), trade_date, result)
+        # storage_engine.update_destdb('factor_earning', trade_date, result)
 
         
     # def remote_run(self, trade_date):

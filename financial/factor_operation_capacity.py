@@ -3,7 +3,7 @@
 
 """
 @version:
-@author: Wang
+@author: li
 @file: factor_operation_capacity.py
 @time: 2019-05-30
 """
@@ -24,7 +24,7 @@ from utilities.singleton import Singleton
 
 
 @six.add_metaclass(Singleton)
-class OperationCapacity(object):
+class FactorOperationCapacity(object):
     """
     营运能力
     """

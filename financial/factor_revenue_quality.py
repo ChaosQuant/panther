@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
+"""
+@version: 0.1
+@author: li
+@file: factor_revenue_quality.py
+@time: 2019-01-28 11:33
+"""
 import gc, six
 import sys
 sys.path.append("../")
@@ -19,7 +25,7 @@ pd.set_option('display.max_rows', None)
 
 
 @six.add_metaclass(Singleton)
-class RevenueQuality(object):
+class FactorRevenueQuality(object):
     """
     收益质量
     """

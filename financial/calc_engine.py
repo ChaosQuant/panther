@@ -11,7 +11,7 @@ import importlib
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'financial.factor_operation_capacity','class':'OperationCapacity'},]):
+    def __init__(self, name, url, methods=[{'packet':'financial.factor_operation_capacity','class':'FactorOperationCapacity'},]):
         self._name = name
         self._methods = methods
         self._url = url

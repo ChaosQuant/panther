@@ -39,10 +39,10 @@ class FactorEarning(object):
 
     @staticmethod
     def _Rev5YChg(tp_earning, factor_earning, dependencies=['operating_revenue',
-                                                                  'operating_revenue_pre_year_1',
-                                                                  'operating_revenue_pre_year_2',
-                                                                  'operating_revenue_pre_year_3',
-                                                                  'operating_revenue_pre_year_4']):
+                                                            'operating_revenue_pre_year_1',
+                                                            'operating_revenue_pre_year_2',
+                                                            'operating_revenue_pre_year_3',
+                                                            'operating_revenue_pre_year_4']):
         """
         五年营业收入增长率
         :name:

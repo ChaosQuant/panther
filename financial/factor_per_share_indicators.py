@@ -24,7 +24,7 @@ from utilities.singleton import Singleton
 
 
 @six.add_metaclass(Singleton)
-class PerShareIndicators(object):
+class FactorPerShareIndicators(object):
     """
     每股因子
     """

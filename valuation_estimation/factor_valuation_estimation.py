@@ -4,7 +4,7 @@
 """
 @version: 0.1
 @author: li
-@file: factor_valuation.py
+@file: factor_valuation_estimation.py
 @time: 2019-01-28 11:33
 """
 import sys, six
@@ -25,7 +25,7 @@ pd.set_option('display.max_rows', None)
 
 
 @six.add_metaclass(Singleton)
-class ValuationEstimation(object):
+class FactorValuationEstimation(object):
     """
     估值
     """
