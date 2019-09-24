@@ -12,7 +12,7 @@ from data.model import BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
 from data.model import IndicatorTTM
 from data.model import IncomeReport, IncomeTTM
-from vision.file_unit.valuation import Valuation
+from vision.table.valuation import Valuation
 from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
 
