@@ -57,13 +57,13 @@ def do_update(start_date, end_date, calc_engine):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start_date', type=int, default=20070101)
+    parser.add_argument('--start_date', type=int, default=20150101)
     parser.add_argument('--end_date', type=int, default=0)
     parser.add_argument('--packet_name', type=str, default='earning_expectation.factor_earning_expectation')
     parser.add_argument('--class_name', type=str, default='FactorEarningExpectation')
     parser.add_argument('--rebuild', type=bool, default=False)
     parser.add_argument('--update', type=bool, default=False)
-    parser.add_argument('--schedule', type=bool, default=True)
+    parser.add_argument('--schedule', type=bool, default=False)
     args = parser.parse_args()
     factor_type = args.packet_name.split('.')[0]
     factor_name = args.packet_name.split('.')[1]
