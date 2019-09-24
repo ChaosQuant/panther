@@ -41,114 +41,96 @@ dag = DAG(
 
 run_update_factor_earning_expectation = BashOperator(
     task_id='run_update_factor_earning_expectation',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="earning_expectation.factor_earning_expectation" '
-                 '--class_name="FactorEarningExpectation"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="earning_expectation.factor_earning_expectation" --class_name="FactorEarningExpectation"',
     dag=dag,
 )
 
 run_update_factor_capital_structure = BashOperator(
     task_id='run_update_factor_capital_structure',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_capital_structure" '
-                 '--class_name="FactorCapitalStructure"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_capital_structure" --class_name="FactorCapitalStructure"',
     dag=dag,
 )
 run_update_factor_cash_flow = BashOperator(
     task_id='run_update_factor_cash_flow',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_cash_flow" '
-                 '--class_name="FactorCashFlow"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_cash_flow" --class_name="FactorCashFlow"',
     dag=dag,
 )
 run_update_factor_earning = BashOperator(
     task_id='run_update_factor_earning',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_earning" '
-                 '--class_name="FactorEarning"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_earning" --class_name="FactorEarning"',
     dag=dag,
 )
 run_update_factor_historical_growth = BashOperator(
     task_id='run_update_factor_historical_growth',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_historical_growth" '
-                 '--class_name="FactorHistoricalGrowth"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_historical_growth" --class_name="FactorHistoricalGrowth"',
     dag=dag,
 )
 run_update_factor_operation_capacity = BashOperator(
     task_id='run_update_factor_operation_capacity',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_operation_capacity" '
-                 '--class_name="FactorOperationCapacity"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_operation_capacity" --class_name="FactorOperationCapacity"',
     dag=dag,
 )
 run_update_factor_pre_share_indicators = BashOperator(
     task_id='run_update_factor_pre_share_indicators',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_pre_share_indicators" '
-                 '--class_name="FactorPreShareIndicators"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_pre_share_indicators" --class_name="FactorPreShareIndicators"',
     dag=dag,
 )
 run_update_factor_revenue_quality = BashOperator(
     task_id='run_update_factor_revenue_quality',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_revenue_quality" '
-                 '--class_name="FactorRevenueQuality"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_revenue_quality" --class_name="FactorRevenueQuality"',
     dag=dag,
 )
 run_update_factor_solvency = BashOperator(
     task_id='run_update_factor_solvency',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_solvency" '
-                 '--class_name="FactorSolvency"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="financial.factor_solvency" --class_name="FactorSolvency"',
     dag=dag,
 )
 
 run_update_momentum = BashOperator(
     task_id='run_update_momentum',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_momentum" '
-                 '--class_name="FactorMomentum"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_momentum" --class_name="FactorMomentum"',
     dag=dag,
 )
 run_update_power_volume = BashOperator(
     task_id='run_update_power_volume',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_power_volume" '
-                 '--class_name="FactorPowerVolume"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_power_volume" --class_name="FactorPowerVolume"',
     dag=dag,
 )
 run_update_price_volume = BashOperator(
     task_id='run_update_price_volume',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_price_volume" '
-                 '--class_name="FactorPriceVolume"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_price_volume" --class_name="FactorPriceVolume"',
     dag=dag,
 )
 run_update_reversal = BashOperator(
     task_id='run_update_reversal',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_reversal" '
-                 '--class_name="FactorReversal"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_reversal" --class_name="FactorReversal"',
     dag=dag,
 )
 run_update_sentiment = BashOperator(
     task_id='run_update_sentiment',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_sentiment" '
-                 '--class_name="FactorSentiment"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_sentiment" --class_name="FactorSentiment"',
     dag=dag,
 )
 run_update_volume = BashOperator(
     task_id='run_update_volume',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_volume" '
-                 '--class_name="FactorVolume"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_volume" --class_name="FactorVolume"',
     dag=dag,
 )
 
 run_update_factor_valuation = BashOperator(
     task_id='run_update_factor_valuation',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="valuation_estimation.factor_valuation_estimation" '
-                 '--class_name="FactorValuationEstimation"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="valuation_estimation.factor_valuation_estimation" --class_name="FactorValuationEstimation"',
     dag=dag,
 )
 
 run_update_factor_alpha101 = BashOperator(
     task_id='run_update_factor_alpha101',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_alpha101" '
-                 '--class_name="FactorAlpha101"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_alpha101" --class_name="FactorAlpha101"',
     dag=dag,
 )
 run_update_factor_alpha191 = BashOperator(
     task_id='run_update_factor_alpha191',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_alpha191" '
-                 '--class_name="FactorAlpha191"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_alpha191" --class_name="FactorAlpha191"',
     dag=dag,
 )
 
