@@ -6,7 +6,7 @@ from utilities.singleton import Singleton
 @six.add_metaclass(Singleton)
 class FactorPowerVolume(object):
     def __init__(self):
-        __str__ = 'factor_volume'
+        __str__ = 'factor_power_volume'
         self.name = '量能指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '量能指标'

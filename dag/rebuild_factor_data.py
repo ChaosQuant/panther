@@ -134,19 +134,19 @@ run_update_volume = BashOperator(
 
 run_update_factor_valuation = BashOperator(
     task_id='run_update_factor_valuation',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="valuation_estimation.factor_valuation" '
-                 '--class_name="FactorValuation"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="valuation_estimation.factor_valuation_estimation" '
+                 '--class_name="FactorValuationEstimation"',
     dag=dag,
 )
 
 run_update_factor_alpha101 = BashOperator(
-    task_id='run_update_factor_valuation',
+    task_id='run_update_factor_alpha101',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_alpha101" '
                  '--class_name="FactorAlpha101"',
     dag=dag,
 )
 run_update_factor_alpha191 = BashOperator(
-    task_id='run_update_factor_valuation',
+    task_id='run_update_factor_alpha191',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_alpha191" '
                  '--class_name="FactorAlpha191"',
     dag=dag,

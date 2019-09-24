@@ -12,7 +12,7 @@ from data.model import BalanceMRQ, BalanceTTM
 from data.model import CashFlowMRQ, CashFlowTTM
 from data.model import IndicatorTTM
 from data.model import IncomeTTM
-from vision.file_unit.valuation import Valuation
+from vision.table.valuation import Valuation
 from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
 # pd.set_option('display.max_columns', None)
