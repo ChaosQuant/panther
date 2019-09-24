@@ -21,7 +21,7 @@ class Rebuild(object):
                     `trade_date` date NOT NULL,
                     """.format(class_name)
         for func in func_sets:
-            create_sql += """`{0}` decimal(19,4),
+            create_sql += """`{0}` decimal(65,4),
                           """.format(func)
         create_sql += """ constraint {0}_uindex
                             unique (`trade_date`,`security_code`))

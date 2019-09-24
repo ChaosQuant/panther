@@ -5,9 +5,9 @@ import pandas as pd
 from utilities.singleton import Singleton
 import talib
 @six.add_metaclass(Singleton)
-class Sentiment(object):
+class FactorSentiment(object):
     def __init__(self):
-        __str__ = 'sentiment'
+        __str__ = 'factor_sentiment'
         self.name = '情绪指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '情绪指标'

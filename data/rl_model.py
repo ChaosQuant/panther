@@ -29,7 +29,7 @@ class Market(Base):
     turn_rate = Column(DECIMAL(9, 4))
     pre_factor = Column(DECIMAL(9,4))
     lat_factor = Column(DECIMAL(9,4))
-    #factor = Column(DECIMAL(9, 4))
+    #basic_derivation = Column(DECIMAL(9, 4))
     #ltd_factor = Column(DECIMAL(9, 4))
         
 
