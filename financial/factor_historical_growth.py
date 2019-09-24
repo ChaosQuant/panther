@@ -29,7 +29,7 @@ class FactorHistoricalGrowth(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '历史成长'
-        self.desciption = '财务指标的二级指标， 历史成长'
+        self.desciption = '财务指标的二级指标-历史成长'
 
     @staticmethod
     def NetAsset1YChg(tp_historical_growth, factor_historical_growth, dependencies=['total_owner_equities', 'total_owner_equities_pre_year']):
