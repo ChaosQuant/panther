@@ -145,9 +145,9 @@ class BasciReturn(object):
 
     
     def calc_cs_group_hitratio(self, stock_rets_df, benchmark_rets_se):
-        pdb.set_trace()
+        # pdb.set_trace()
         stock_rets_df = stock_rets_df.copy(deep=True)
-        stock_rets_df['hit'] = stock_rets_df['returns'].values - benchmark_rets_se.values
+        stock_rets_df['hit'] = stock_rets_df['returns'] - benchmark_rets_se
         cs_hit = stock_rets_df.groupby(['trade_date', 'group']).apply(lambda x: sum(x['hit'] > 0) / len(x['hit']) * 100)
         cs_hit = cs_hit.unstack()
         cs_hit.rename(columns={col: 'ba_q' + str(col) for col in cs_hit.columns}, inplace=True)

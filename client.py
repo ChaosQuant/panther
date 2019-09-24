@@ -6,7 +6,7 @@ import pdb,time,datetime
 import warnings
 warnings.filterwarnings("ignore")
 
-if  __name__=="__main__":
+if __name__ == "__main__":
     
     calc_engine = CalcEngine('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision?charset=utf8')
     begin_date = '2018-08-23'

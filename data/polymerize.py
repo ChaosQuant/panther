@@ -100,17 +100,16 @@ class DBPolymerize(object):
             columns={'isymbol':'index_code','iname':'index_name'})
         benchmark_data = benchmark_industry_data.merge(benchmark_index_data, on=['trade_date','symbol'])
         #读取内码
-        benchmark_data['code'] = benchmark_data['symbol'].apply(lambda x : str(x.split('.')[0]))
+        benchmark_data['code'] = benchmark_data['symbol'].apply(lambda x: str(x.split('.')[0]))
         security_code = self._factory_sets['security'].result(list(benchmark_data.code)).rename(columns={'symbol':'code'})
         benchmark_data = benchmark_data.merge(security_code, on=['code']).drop(['code','symbol'], axis=1)
-        
-        
+
         index_data = self._factory_sets['index_market'].result(security_code_dict.values(), begin_date, end_date, freq)
         
         market_data = self._factory_sets['market'].result_code(list(set(security_code.security_code)),begin_date, end_date, freq)
         
-        
         #读取因子数据
+        ## 此处需要修改，读取更多不同种类的因子，如何将因子传入？
         factor_category = 'FactorReversal'
         factor_name = ['CMO20D','KDJK9D']
         factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
@@ -119,6 +118,3 @@ class DBPolymerize(object):
         cov_data = exposure_data
         
         return benchmark_data, index_data, market_data, factor_data, exposure_data
-        
-        
-        

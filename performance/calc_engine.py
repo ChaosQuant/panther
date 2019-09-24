@@ -40,13 +40,13 @@ class CalcEngine(object):
     def _index_return(self, index_data):
         index_data = index_data.set_index(['trade_date'])
         index_data = index_data.sort_index()
-        index_data['returns'] = np.log(index_data['close'].shift(1)/index_data['close'])
+        index_data['returns'] = np.log(index_data['close']/index_data['close'].shift(1))
 
         return index_data.loc[:, ['returns']].dropna().reset_index()
     
     def performance_preprocessing(self, benchmark_data, index_data, market_data, factor_data, exposure_data):
         index_se_dict = {}
-        self._factor_columns  = [i for i in factor_data.columns if i not in ['id','trade_date', 'security_code']]
+        self._factor_columns = [i for i in factor_data.columns if i not in ['id', 'trade_date', 'security_code']]
         security_code_sets = index_data.security_code.unique()
         for security_code in security_code_sets:
             index_se = index_data.set_index('security_code').loc[security_code].reset_index()
@@ -58,8 +58,7 @@ class CalcEngine(object):
         mkt_se['trade_date'] = mkt_se['trade_date'].apply(lambda x : x.to_pydatetime().date())
         total_data = pd.merge(total_data, mkt_se, on=['trade_date', 'security_code'], how='left')
         return total_data.dropna(), index_se_dict
-        
-       
+
     def _factor_preprocess(self, data):
         for factor in self._factor_columns:
             data[factor+'_new'] = se_winsorize(data[factor], method='med')
@@ -71,7 +70,7 @@ class CalcEngine(object):
         benchmark = ['000905.XSHG','000300.XSHG']
         db_polymerize = DBPolymerize(self._name)
         benchmark_data, index_data, market_data, factor_data, exposure_data = db_polymerize.fetch_performance_data(benchmark, 
-                                                                                           '2018-08-19', trade_date,'1b')
+                                                                                           '2018-08-15', trade_date,'1b')
         total_data, index_se_dict = self.performance_preprocessing(benchmark_data, 
                                                                   index_data, market_data, 
                                                                   factor_data, exposure_data)
@@ -82,12 +81,11 @@ class CalcEngine(object):
         benchmark_industry_weights = benchmark_data.groupby(['trade_date', 'industry_code']).apply(lambda x: x['weighing'].sum())
         benchmark_industry_weights = benchmark_industry_weights.unstack().fillna(0)
         return total_data, benchmark_industry_weights, index_se_dict,
-       
-        
-    
     
     def local_run(self, trade_date):
         total_data, benchmark_industry_weights, index_se_dict = self.loadon_data(trade_date)
+
+        # 需要存储入库的因子列表
         
         self.calc_return(benchmark='000905.XSHG',universe='00905.XSHG',
                          factor_name='KDJK9D_new',total_data=total_data, 
@@ -336,10 +334,10 @@ class CalcEngine(object):
                                                                      benchmark_weights=benchmark_weights)
         
         group_rets = pd.concat([group_rets_df_non_neu, group_rets_df_neu], axis=0)
-        benchmark_rets_se = index_se_dict['2070000060'].set_index('trade_date')
+        benchmark_rets_df = index_se_dict['2070000060'].set_index('trade_date')
         sub_result_list = self.return_sub(engine=basic_return, benchmark=benchmark, universe=universe, factor_name=factor_name, 
-                        group_rets_df=group_rets,benchmark_rets_se=benchmark_rets_se,total_data=total_data)
-        pdb.set_trace()
+                        group_rets_df=group_rets,benchmark_rets_df=benchmark_rets_df,total_data=total_data)
+        # pdb.set_trace()
         print('----')
         
     def return_basic(self, engine, benchmark, universe, factor_name, total_data, benchmark_weights):
@@ -376,7 +374,7 @@ class CalcEngine(object):
         return group_rets_df_non_neu, group_rets_df_neu
     
     
-    def return_sub(self, engine, benchmark, universe, factor_name, total_data, group_rets_df, benchmark_rets_se):
+    def return_sub(self, engine, benchmark, universe, factor_name, total_data, group_rets_df, benchmark_rets_df):
         result_list = []
         for neu in [0,1]:
             # 0 非中性; 1 中性
@@ -418,7 +416,7 @@ class CalcEngine(object):
                 ret_sub_dict.update(group_worst_ret_dict)
     
                 # 分组最优、最差主动收益
-                group_active_ret = group_rets_df_slt.sub(benchmark_rets_se, axis=0)
+                group_active_ret = group_rets_df_slt.sub(benchmark_rets_df.loc[group_rets_df_slt.index, 'returns'], axis=0)
     
                 group_best_active_ret = group_active_ret.iloc[-(year*12):,:].max().rename({'ret_q'+str(i):'active_ret_best_q'+str(i) for i in range(1,6)})
                 group_best_active_ret_dict = group_best_active_ret.to_dict()
@@ -430,18 +428,17 @@ class CalcEngine(object):
 
                 # 胜率
                 #数据周期不够
-                group_hitratio_dict = engine.calc_group_hitratio(group_rets_df_slt.iloc[-(year*12):,:], benchmark_rets_se.iloc[-(year*12):])
+                group_hitratio_dict = engine.calc_group_hitratio(group_rets_df_slt.iloc[-(year*12):,:], benchmark_rets_df.iloc[-(year*12):,:]['returns'])
                 ret_sub_dict.update(group_hitratio_dict)
 
                 # 截面平均胜率
                 # 此处股票收益率放在T-1期，需要调整benchmark收益率
-                '''
-                benchmark_rets_se_forward = benchmark_rets_se.shift(-1).dropna()
-                benchmark_rets_se_slt = benchmark_rets_se_forward.iloc[-(12*year):]
+
+                benchmark_rets_se_forward = benchmark_rets_df.shift(-1).dropna()
+                benchmark_rets_se_slt = benchmark_rets_se_forward.iloc[-(12*year):]['returns']
                 total_data_slt = total_data[total_data.trade_date.isin(list(set(benchmark_rets_se_slt.index)))]
-                group_cs_hitratio_dict = engine.calc_cs_group_hitratio(total_data_slt.set_index('trade_date'),
-                                                                      benchmark_rets_se_slt)
+                group_cs_hitratio_dict = engine.calc_cs_group_hitratio(total_data_slt.set_index('trade_date'), benchmark_rets_se_slt)
                 ret_sub_dict.update(group_cs_hitratio_dict)
-                '''
+
                 result_list.append(ret_sub_dict)
         return result_list
