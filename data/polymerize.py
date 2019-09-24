@@ -82,6 +82,13 @@ class DBPolymerize(object):
         exposure_data = self._adaptation.risk_exposure(exposure_data)
         total_data = market_data.merge(exposure_data, on=['security_code','trade_date'])
         return self._adaptation.calc_adaptation(total_data)
+
+    def fetch_volatility_value_data(self, begin_date, end_date, freq=None):
+        security_code_dict = {'000905': '2070000187', '000300': '2070000060'}
+        market_data = self._factory_sets['market'].result(begin_date, end_date, freq)
+        market_data = self._adaptation.market(market_data)
+        index_data = self._factory_sets['index_market'].result([security_code_dict['000300']], begin_date, end_date, freq)
+        return self._adaptation.calc_adaptation(market_data), index_data
     
     def fetch_performance_data(self, benchmark, begin_date, end_date, freq=None):
         #目前只有三个基准，故内码先固定
