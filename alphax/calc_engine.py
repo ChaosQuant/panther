@@ -11,8 +11,8 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'alphax.alpha191','class':'Alpha191'},
-                                    {'packet':'alphax.alpha101','class':'Alpha101'}]):
+    def __init__(self, name, url, methods=[{'packet':'alphax.factor_alpha191','class':'FactorAlpha191'},
+                                    {'packet':'alphax.factor_alpha101','class':'FactorAlpha101'}]):
         self._name= name
         self._methods = methods
         self._url = url

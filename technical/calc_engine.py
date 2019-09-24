@@ -10,11 +10,11 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'technical.price_volume','class':'PriceVolume'},
-                                           {'packet':'technical.power_volume','class':'PowerVolume'},
-                                           {'packet':'technical.sentiment','class':'Sentiment'},
-                                           {'packet':'technical.reversal','class':'Reversal'},
-                                           {'packet':'technical.momentum','class':'Momentum'}
+    def __init__(self, name, url, methods=[{'packet':'technical.price_volume','class':'FactorPriceVolume'},
+                                           {'packet':'technical.power_volume','class':'FactorPowerVolume'},
+                                           {'packet':'technical.sentiment','class':'FactorSentiment'},
+                                           {'packet':'technical.reversal','class':'FactorReversal'},
+                                           {'packet':'technical.momentum','class':'FactorMomentum'}
                                             #{'packet':'technical.trend','class':'Trend'}
                                           ]):
         self._name= name
