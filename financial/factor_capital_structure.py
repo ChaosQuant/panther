@@ -12,7 +12,6 @@ import sys
 sys.path.append('../')
 sys.path.append('../../')
 sys.path.append('../../../')
-import json
 import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize

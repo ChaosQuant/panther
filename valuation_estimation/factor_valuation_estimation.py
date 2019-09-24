@@ -30,7 +30,7 @@ class FactorValuationEstimation(object):
     估值
     """
     def __init__(self):
-        __str__ = 'factor_valuation'
+        __str__ = 'factor_valuation_estimation'
         self.name = '估值类'
         self.factor_type1 = '估值类'
         self.factor_type2 = '估值类'

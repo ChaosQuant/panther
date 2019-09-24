@@ -24,7 +24,7 @@ from utilities.sync_util import SyncUtil
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet': 'valuation_estimation.factor_valuation', 'class': 'Valuation'}]):
+    def __init__(self, name, url, methods=[{'packet': 'valuation_estimation.factor_valuation_estimation', 'class': 'FactorValuationEstimation'}]):
         self._name = name
         self._methods = methods
         self._url = url
