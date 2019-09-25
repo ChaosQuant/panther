@@ -15,7 +15,7 @@ args = {
     'email': ['775665615@qq.com'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
+    'retries': 0,
     'retry_delay': timedelta(minutes=5),
     # 'queue': 'bash_queue',
     # 'pool': 'backfill',
@@ -35,7 +35,7 @@ args = {
 dag = DAG(
     dag_id='rebuild_factor_data',
     default_args=args,
-    schedule_interval='0 0 * * *',
+    schedule_interval=None,
     dagrun_timeout=timedelta(minutes=15),
 )
 

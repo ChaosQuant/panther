@@ -14,7 +14,7 @@ source_db_pwd = 'read'
 # rl_db_user = 'root'
 # rl_db_pwd = '1234'
 
-rl_db_host = 'db1.irongliang.com'
+rl_db_host = '39.98.3.182'
 rl_db_port = '3306'
 rl_db_database = 'vision'
 rl_db_user = 'factor_edit'
