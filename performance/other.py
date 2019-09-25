@@ -25,26 +25,22 @@ class Other(object):
         return group
 
     def calc_group(self, factor_df, factor_name, n_bins=5, industry=False):
+        def calc_grouped(data):
+            group_df = pd.DataFrame(columns=['security_code', 'group'])
+            group_df['group'] = self._se_group(data[factor_name], n_bins)
+            group_df['security_code'] = data['security_code'].values
+            return group_df.set_index('security_code')
+        
         if industry:
-            grouped = factor_df.groupby(['trade_date', 'industry'])
+            factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x : pd.Timestamp(x))
+            #apply 时间类型只识别Timestamp
+            total_group_df = factor_df.groupby(['trade_date', 'industry_code']).apply(calc_grouped)
+            #total_group_df = total_group_df.reset_index()[['trade_date','security_code','group']]
+            #total_group_df['trade_date'] = total_group_df['trade_date'].apply(lambda x : x.date())
         else:
-            grouped = factor_df.groupby(['trade_date'])
-
-        group_list = []
-
-        #此处gevent提高性能计算
-        for k, g in grouped:
-            group_df = pd.DataFrame(columns=['trade_date', 'code', 'group'])
-            group_df['group'] = self._se_group(g[factor_name], n_bins)
-            group_df['code'] = g['code']
-            group_df['trade_date'] = g['trade_date']
-            group_list.append(group_df)
-
-        total_group_df = pd.concat(group_list, axis=0)
-        total_group_df.sort_values(['trade_date', 'code'], inplace=True)
-        total_group_df.reset_index(drop=True, inplace=True)
-
-        return total_group_df
+            total_group_df = factor_df.groupby(['trade_date']).apply(calc_grouped)
+            
+        return total_group_df.reset_index()[['trade_date','security_code','group']]
     
     def calc_turnover(self, group_df, n_bins):
         # 非中性换手率，近似算法
@@ -77,21 +73,37 @@ class Other(object):
     
     
     def calc_weight(self, group_df, benchmark_weights):
-        grouped = group_df.groupby(['trade_date', 'industry', 'group'])
+        def calc_grouped(data):
+            trade_date_u = data.trade_date.iloc[0]
+            industry_code = data.industry_code.iloc[0]
+            group = data.group.iloc[0]
+            industry_weight = benchmark_weights[trade_date_u.date()][industry_code] if (
+                                industry_code in benchmark_weights[trade_date_u.date()]) else 0
+            group_weight = pd.DataFrame(columns=['security_code','returns', 'weight'])
+            group_weight['returns'] = data['returns'].values
+            group_weight['security_code'] = data['security_code'].values
+            group_weight['weight'] = industry_weight / len(data) if len(data) > 0 else 0
+            group_weight['weight'] = group_weight['weight'].fillna(0)
+            return group_weight.set_index('returns')
+        
+        group_weights = group_df.groupby(['trade_date', 'industry_code', 'group'], axis=0).apply(calc_grouped)
+        '''
+        grouped = group_df.groupby(['trade_date', 'industry_code', 'group'])
         total_list = []
         for k, g in grouped:
-            group_weight = pd.DataFrame(columns=['trade_date', 'code', 'weight'])
+            group_weight = pd.DataFrame(columns=['trade_date', 'security_code', 'weight'])
             industry_weight = benchmark_weights[k[0]][k[1]] if (k[1] in benchmark_weights[k[0]]) else 0
             group_weight['trade_date'] = g['trade_date']
-            group_weight['code'] = g['code']
+            group_weight['security_code'] = g['security_code']
             group_weight['weight'] = industry_weight / len(g) if len(g) > 0 else None
             group_weight['weight'] = group_weight['weight'].fillna(0)
             total_list.append(group_weight)
     
         group_weights = pd.concat(total_list, axis=0)
-        group_weights.sort_values(['trade_date', 'code'], inplace=True)
-        group_weights.reset_index(drop=True, inplace=True)
-        return group_weights
+        '''
+        group_weights = group_weights.reset_index()
+        group_weights.sort_values(['trade_date', 'security_code'], inplace=True)
+        return group_weights[['trade_date','security_code','weight']]
     
     def calc_weight_renew(self, weight_se, rets_se):
         weight_new = pd.Series(index=weight_se)
@@ -107,14 +119,14 @@ class Other(object):
         i = 1
         for k, g in grouped:
             if i == 1:
-                g_last = g.loc[:, ['code', 'dx', 'group', 'weight']].set_index('group')
+                g_last = g.loc[:, ['security_code', 'returns', 'group', 'weight']].set_index('group')
             else:
                 turnover_dict['trade_date'].append(k)
-                g = g.loc[:, ['code', 'dx', 'group', 'weight']].set_index('group')
+                g = g.loc[:, ['security_code', 'returns', 'group', 'weight']].set_index('group')
                 for j in range(1, n_bins + 1):
-                    single_g = g.loc[j, :].set_index('code')
-                    single_g['weight'] = self.calc_weight_renew(single_g['weight'], single_g['dx'])
-                    single_g_last = g_last.loc[j, :].set_index('code')
+                    single_g = g.loc[j, :].set_index('security_code')
+                    single_g['weight'] = self.calc_weight_renew(single_g['weight'], single_g['returns'])
+                    single_g_last = g_last.loc[j, :].set_index('security_code')
                     weights_df = pd.merge(single_g, single_g_last, how='outer', left_index=True, right_index=True).fillna(0)
                     turnover_dict[j].append((weights_df['weight_x'] - weights_df['weight_y']).map(abs).sum())
                 g_last = g
@@ -127,55 +139,6 @@ class Other(object):
         return turnover
     
     
-    def other_basic(self, benchmark, universe, factor_name, total_data, benchmark_weights):
-        """
-        返回factor_performance_other_basic信息
-        """
-
-        other_basic_list = [] # 为了后一步计算使用，工程化可以删除
-
-        for neu in [0,1]:
-            # 0 非中性; 1 中性
-            if neu == 0:
-                if 'group' in total_data.columns:
-                    total_data = total_data.drop(['group'], axis=1) 
-                groups = self.calc_group(total_data, factor_name)
-                total_data = pd.merge(total_data, groups, on=['trade_date', 'code'])
-            else:
-                if 'group' in total_data.columns:
-                    total_data = total_data.drop(['group'], axis=1) 
-                groups = self.calc_group(total_data, factor_name, industry=True)
-                total_data = pd.merge(total_data, groups, on=['trade_date', 'code'])
-
-            # 计算换手率
-            if neu == 0:
-                turnover = self.calc_turnover(total_data, 5)
-            else:
-                benchmark_weights_dict = benchmark_weights.T.to_dict()
-                weights = self.calc_weight(total_data, benchmark_weights_dict)
-    
-                if 'weight' in total_data.columns:
-                    total_data = total_data.drop(['weight'], axis=1)
-    
-                total_data = pd.merge(total_data, weights, on=['trade_date', 'code'])
-                turnover = self.calc_turnover2(total_data, 5)
-        
-            turnover = turnover.rename(columns={i:'turnover_q'+str(i) for i in range(1,6)})
-    
-            # 计算覆盖率
-            coverage = total_data.groupby(['trade_date', 'group']).apply(len)
-            coverage = coverage.unstack()
-            coverage = coverage.rename(columns={i:'coverage_q'+str(i) for i in range(1,6)})
-    
-            other_basic_df = pd.merge(turnover,coverage,on=['trade_date'])
-            other_basic_df['benchmark'] = benchmark
-            other_basic_df['universe'] = universe
-            other_basic_df['factor_name'] = factor_name
-            other_basic_df['neutralization'] = neu
-
-            other_basic_list.append(other_basic_df)
-    
-        return pd.concat(other_basic_list, axis=0)
     
     
     def other_sub(self, benchmark, universe, factor_name, other_df):
