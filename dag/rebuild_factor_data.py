@@ -136,7 +136,7 @@ run_update_factor_alpha191 = BashOperator(
 
 run_update_factor_volatility_value = BashOperator(
     task_id='run_update_factor_volatility_value',
-    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_volatility_value" --class_name="FactorVolatilityValue"',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="volatility_value.factor_volatility_value" --class_name="FactorVolatilityValue"',
     dag=dag,
 )
 

@@ -33,7 +33,7 @@ class FactorOperationCapacity(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '营运能力'
-        self.desciption = '财务指标的二级指标-营运能力'
+        self.description = '财务指标的二级指标-营运能力'
 
     @staticmethod
     def AccPayablesRateTTM(ttm_management, factor_management, dependencies=['operating_cost',

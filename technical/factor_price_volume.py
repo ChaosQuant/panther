@@ -12,7 +12,7 @@ class FactorPriceVolume(object):
         self.name = '量价指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '量价指标'
-        self.desciption = '通过成交量与股价变动关系分析未来趋势'
+        self.description = '通过成交量与股价变动关系分析未来趋势'
         
     
     def _PVTXD(self, data, param1=6, dependencies=['close_price','turnover_vol']):

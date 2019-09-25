@@ -21,7 +21,7 @@ class FactorEarningExpectation():
         self.name = '盈利预测'
         self.factor_type1 = '盈利预测'
         self.factor_type2 = '盈利预测'
-        self.desciption = '个股盈利预测因子'
+        self.description = '个股盈利预测因子'
 
     @staticmethod
     def NPFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['net_profit_fy1']):

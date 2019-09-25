@@ -34,7 +34,7 @@ class FactorBasicDerivation(object):
         self.name = '基础衍生'
         self.factor_type1 = '基础衍生'
         self.factor_type2 = '基础衍生'
-        self.desciption = '基础衍生类因子'
+        self.description = '基础衍生类因子'
 
     @staticmethod
     def FCFF(tp_derivation, factor_derivation, dependencies=['FCFF']):

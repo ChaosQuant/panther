@@ -12,7 +12,7 @@ class FactorReversal(object):
         self.name = '反转指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '反转指标'
-        self.desciption = '主要用于捕捉趋势的转折点'
+        self.description = '主要用于捕捉趋势的转折点'
         
         
     def _ROCXD(self, data, param1, dependencies=['close_price']):

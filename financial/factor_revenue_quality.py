@@ -34,7 +34,7 @@ class FactorRevenueQuality(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '收益质量'
-        self.desciption = '财务指标的二级指标， 收益质量'
+        self.description = '财务指标的二级指标， 收益质量'
 
     @staticmethod
     def NetNonOIToTP(tp_revenue_quanlity, revenue_quality, dependencies=['total_profit', 'non_operating_revenue', 'non_operating_expense']):

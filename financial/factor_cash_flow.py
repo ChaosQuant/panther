@@ -32,7 +32,7 @@ class FactorCashFlow(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '现金流量'
-        self.desciption = '财务指标的二级指标-现金流量'
+        self.description = '财务指标的二级指标-现金流量'
 
     @staticmethod
     def CashOfSales(tp_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'operating_revenue']):

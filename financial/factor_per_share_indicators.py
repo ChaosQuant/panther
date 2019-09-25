@@ -33,7 +33,7 @@ class FactorPerShareIndicators(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '每股指标'
-        self.desciption = '财务指标的二级指标-每股因子'
+        self.description = '财务指标的二级指标-每股因子'
 
     @staticmethod
     def CapticalSurplusPS(tp_share_indicators, factor_share_indicators, dependencies=['capital_reserve_fund', 'capitalization']):

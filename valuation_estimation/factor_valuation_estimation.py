@@ -34,7 +34,7 @@ class FactorValuationEstimation(object):
         self.name = '估值类'
         self.factor_type1 = '估值类'
         self.factor_type2 = '估值类'
-        self.desciption = '估值类因子'
+        self.description = '估值类因子'
 
     @staticmethod
     def LogofMktValue(valuation_sets, factor_historical_value, dependencies=['market_cap']):

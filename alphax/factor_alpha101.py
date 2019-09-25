@@ -157,7 +157,7 @@ class FactorAlpha101(object):
         self.name = 'Alpha101'
         self.factor_type1 = 'Features'
         self.factor_type2 = 'Features'
-        self.desciption = 'price and volumns features'
+        self.description = 'price and volumns features'
     
     def alpha101_2(self, data, param1=2, param2=6, dependencies=['turnover_vol', 'close_price', 'open_price'], 
                 max_window=10):
