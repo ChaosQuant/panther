@@ -86,33 +86,33 @@ run_update_factor_solvency = BashOperator(
     dag=dag,
 )
 
-run_update_momentum = BashOperator(
-    task_id='run_update_momentum',
+run_update_factor_momentum = BashOperator(
+    task_id='run_update_factor_momentum',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_momentum" --class_name="FactorMomentum"',
     dag=dag,
 )
-run_update_power_volume = BashOperator(
-    task_id='run_update_power_volume',
+run_update_factor_power_volume = BashOperator(
+    task_id='run_update_factor_power_volume',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_power_volume" --class_name="FactorPowerVolume"',
     dag=dag,
 )
-run_update_price_volume = BashOperator(
-    task_id='run_update_price_volume',
+run_update_factor_price_volume = BashOperator(
+    task_id='run_update_factor_price_volume',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_price_volume" --class_name="FactorPriceVolume"',
     dag=dag,
 )
-run_update_reversal = BashOperator(
-    task_id='run_update_reversal',
+run_update_factor_reversal = BashOperator(
+    task_id='run_update_factor_reversal',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_reversal" --class_name="FactorReversal"',
     dag=dag,
 )
-run_update_sentiment = BashOperator(
-    task_id='run_update_sentiment',
+run_update_factor_sentiment = BashOperator(
+    task_id='run_update_factor_sentiment',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_sentiment" --class_name="FactorSentiment"',
     dag=dag,
 )
-run_update_volume = BashOperator(
-    task_id='run_update_volume',
+run_update_factor_volume = BashOperator(
+    task_id='run_update_factor_volume',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="technical.factor_volume" --class_name="FactorVolume"',
     dag=dag,
 )
@@ -131,6 +131,12 @@ run_update_factor_alpha101 = BashOperator(
 run_update_factor_alpha191 = BashOperator(
     task_id='run_update_factor_alpha191',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_alpha191" --class_name="FactorAlpha191"',
+    dag=dag,
+)
+
+run_update_factor_volatility_value = BashOperator(
+    task_id='run_update_factor_volatility_value',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="alphax.factor_volatility_value" --class_name="FactorVolatilityValue"',
     dag=dag,
 )
 

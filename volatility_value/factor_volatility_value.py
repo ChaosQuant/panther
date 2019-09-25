@@ -6,9 +6,9 @@ from utilities.singleton import Singleton
 from scipy import stats
 
 @six.add_metaclass(Singleton)
-class VolatilityValue(object):
+class FactorVolatilityValue(object):
     def __init__(self):
-        __str__ = 'volatility_value'
+        __str__ = 'factor_volatility_value.py'
         self.name = '收益风险'
         self.factor_type1 = '收益风险'
         self.factor_type2 = '收益风险'
@@ -404,24 +404,24 @@ class VolatilityValue(object):
 
         return returns.apply(lambda x: x.corr(returns_index))
 
-    # def DVRAT(self, data, dependencies=['returns'], max_window=520):
-    #     """
-    #     :name: 收益相对波动
-    #     :desc: 收益相对波动, 记rt股票日收益，rft为每日的无风险收益，则股票当日超额收益为et,收益相对波动表示为
-    #             DVRAT = sigma_q^2/sigma^2 -1
-    #     """
-    #     q = 10
-    #     t = 252*2
-    #     m = q * (t - q + 1) * (1 - q / t)
-    #
-    #     returns = data['returns'].copy().fillna(method='ffill').fillna(0).iloc[-t:]
-    #     returns_moving_sum = returns.rolling(window=q).sum().iloc[-(t-q+1):]
-    #     returns = returns.iloc[-t:]
-    #
-    #     sigma_q_sq = returns_moving_sum.pow(2).fillna(0).sum()/m
-    #     sigma_sq = returns.var()
-    #
-    #     return sigma_q_sq/sigma_sq - 1
+    def DVRAT(self, data, dependencies=['returns'], max_window=520):
+        """
+        :name: 收益相对波动
+        :desc: 收益相对波动, 记rt股票日收益，rft为每日的无风险收益，则股票当日超额收益为et,收益相对波动表示为
+                DVRAT = sigma_q^2/sigma^2 -1
+        """
+        q = 10
+        t = 252*2
+        m = q * (t - q + 1) * (1 - q / t)
+
+        returns = data['returns'].copy().fillna(method='ffill').fillna(0).iloc[-t:]
+        returns_moving_sum = returns.rolling(window=q).sum().iloc[-(t-q+1):]
+        returns = returns.iloc[-t:]
+
+        sigma_q_sq = returns_moving_sum.pow(2).fillna(0).sum()/m
+        sigma_sq = returns.var()
+
+        return sigma_q_sq/sigma_sq - 1
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from alphax import app
 import pickle
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet': 'volatility_value.volatility_value', 'class': 'VolatilityValue'}]):
+    def __init__(self, name, url, methods=[{'packet': 'volatility_value.factor_volatility_value.py', 'class': 'FactorVolatilityValue'}]):
         self._name = name
         self._methods = methods
         self._url = url
