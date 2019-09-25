@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
-from performance.calc_engine import CalcEngine
+#from performance.calc_engine import CalcEngine
 from data.rebuild import Rebuild
 from PyFin.api import *
 import pdb,time,datetime
 import warnings
 warnings.filterwarnings("ignore")
 
+def calc_engine(packet_name, class_name):
+    class_method = importlib.import_module(packet_name).__getattribute__(class_name)
+    calc_engine = class_method('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision?charset=utf8')
+    
 if  __name__=="__main__":
     
-    calc_engine = CalcEngine('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision?charset=utf8')
-    begin_date = '2018-08-23'
-    calc_engine.local_run(begin_date)
+    #calc_engine = CalcEngine('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision?charset=utf8')
+    #begin_date = '2018-08-23'
+    #calc_engine.local_run(begin_date)
     #end_date = '2019-08-26'
     #freq = '1b'
     #rebalance_dates = makeSchedule(begin_date, end_date, freq, 'china.sse', BizDayConventions.Preceding)
