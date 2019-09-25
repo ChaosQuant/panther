@@ -6,9 +6,9 @@ from utilities.singleton import Singleton
 import talib
 
 @six.add_metaclass(Singleton)
-class PriceVolume(object):
+class FactorPriceVolume(object):
     def __init__(self):
-        __str__ = 'price_volume'
+        __str__ = 'factor_price_volume'
         self.name = '量价指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '量价指标'

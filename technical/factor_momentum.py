@@ -4,9 +4,9 @@ import numpy as np
 from utilities.singleton import Singleton
 
 @six.add_metaclass(Singleton)
-class Momentum(object):
+class FactorMomentum(object):
     def __init__(self):
-        __str__ = 'momentum'
+        __str__ = 'factor_momentum'
         self.name = '动量指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '动量指标'

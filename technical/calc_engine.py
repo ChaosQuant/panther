@@ -10,11 +10,11 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'technical.price_volume','class':'PriceVolume'},
-                                           {'packet':'technical.power_volume','class':'PowerVolume'},
-                                           {'packet':'technical.sentiment','class':'Sentiment'},
-                                           {'packet':'technical.reversal','class':'Reversal'},
-                                           {'packet':'technical.momentum','class':'Momentum'}
+    def __init__(self, name, url, methods=[{'packet':'technical.price_volume','class':'FactorPriceVolume'},
+                                           {'packet':'technical.power_volume','class':'FactorPowerVolume'},
+                                           {'packet':'technical.sentiment','class':'FactorSentiment'},
+                                           {'packet':'technical.reversal','class':'FactorReversal'},
+                                           {'packet':'technical.momentum','class':'FactorMomentum'}
                                             #{'packet':'technical.trend','class':'Trend'}
                                           ]):
         self._name= name
@@ -118,7 +118,7 @@ class CalcEngine(object):
                 else:
                     data['indu'] = mkt_df['indu']
             calc_factor_list.append([class_name, packet_name, func, data])
-        with multiprocessing.Pool(processes=cpus*2) as p:
+        with multiprocessing.Pool(processes=cpus) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
         result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'security_code','code':'security_code'})
@@ -135,7 +135,6 @@ class CalcEngine(object):
         
         start_time = time.time()
         for func in func_sets:
-            print(func)
             func_method = getattr(class_method,func)
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
