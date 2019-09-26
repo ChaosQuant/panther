@@ -112,7 +112,6 @@ class CalcEngine(object):
         func_sets = self._func_sets(class_method)
         start_time = time.time()
         for func in func_sets:
-            print(func)
             func_method = getattr(class_method,func)
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default

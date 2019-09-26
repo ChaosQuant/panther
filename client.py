@@ -25,30 +25,35 @@ def change_date(date):
     return date
 
 
-def get_start_date(factor_name):
+def get_start_date(factor_name, type):
     destination = sa.create_engine(db_url)
-    sql = """select max(trade_date) as trade_date from `{0}`;""".format(factor_name)
+    if type == 'after':
+        td = 'max(trade_date)'
+    else:
+        td = 'min(trade_date)'
+    sql = """select {0} as trade_date from `{1}`;""".format(td, factor_name)
     trades_sets = pd.read_sql(sql, destination)
-    td = 20070101
+    td = 20150101
     if not trades_sets.empty:
         td = trades_sets['trade_date'][0]
         td = str(td).replace('-', '')
     return td
 
 
-def do_schedule(factor_name, calc_engine):
-    start_date = get_start_date(factor_name)
+def do_schedule(factor_name, calc_engine, type):
+    start_date = get_start_date(factor_name, type)
     end_date = int(datetime.now().date().strftime('%Y%m%d'))
-    do_update(start_date, end_date, calc_engine)
+    do_update(start_date, end_date, calc_engine, type)
 
 
-def do_update(start_date, end_date, calc_engine):
+def do_update(start_date, end_date, calc_engine, type='after'):
     start_date = change_date(start_date)
     end_date = change_date(end_date)
     freq = '1b'
     rebalance_dates = makeSchedule(start_date, end_date, freq, 'china.sse', BizDayConventions.Preceding,
                                    DateGeneration.Backward)
-    rebalance_dates.reverse()
+    if type == 'pre':
+        rebalance_dates.reverse()
     for date in rebalance_dates:
         start_time = time.time()
         calc_engine.local_run(date.strftime('%Y-%m-%d'))
@@ -56,14 +61,16 @@ def do_update(start_date, end_date, calc_engine):
 
 
 if __name__ == "__main__":
+    print('in client exe')
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_date', type=int, default=20150101)
-    parser.add_argument('--end_date', type=int, default=0)
-    parser.add_argument('--packet_name', type=str, default='earning_expectation.factor_earning_expectation')
-    parser.add_argument('--class_name', type=str, default='FactorEarningExpectation')
-    parser.add_argument('--rebuild', type=bool, default=False)
+    parser.add_argument('--end_date', type=int, default=20190101)
+    parser.add_argument('--packet_name', type=str, default='alphax.factor_alpha101')
+    parser.add_argument('--class_name', type=str, default='FactorAlpha101')
+    parser.add_argument('--rebuild', type=bool, default=True)
     parser.add_argument('--update', type=bool, default=False)
     parser.add_argument('--schedule', type=bool, default=False)
+    parser.add_argument('--type', type=str, default='after')
     args = parser.parse_args()
     factor_type = args.packet_name.split('.')[0]
     factor_name = args.packet_name.split('.')[1]
@@ -76,8 +83,8 @@ if __name__ == "__main__":
         end_date = args.end_date
     if args.rebuild:
         rebuild.rebuild_table(args.packet_name, args.class_name)
-        do_update(args.start_date, end_date, calc_engine)
+        # do_update(args.start_date, end_date, calc_engine)
     if args.update:
-        do_update(args.start_date, end_date, calc_engine)
+        do_update(args.start_date, end_date, calc_engine, args.type)
     if args.schedule:
-        do_schedule(factor_name, calc_engine)
+        do_schedule(factor_name, calc_engine, args.type)
