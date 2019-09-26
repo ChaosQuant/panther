@@ -116,10 +116,11 @@ class DBPolymerize(object):
                                                                end_date, freq)
         
         #读取因子数据
-        ## 此处需要修改，读取更多不同种类的因子，如何将因子传入
-        factor_category = 'FactorReversal'
-        factor_name = ['CMO20D', 'KDJK9D', 'MFI14D', 'MFI21D', 'Mass25D', 'ROC20D', 'ROC6D', 'RSI12D']
-        factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
+        ## 因子数据放外面，便于后续修改
+        # factor_category = 'FactorReversal'
+        # factor_name = ['CMO20D', 'KDJK9D', 'MFI14D', 'MFI21D', 'Mass25D', 'ROC20D', 'ROC6D', 'RSI12D']
+        # factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
+
         exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
         
-        return benchmark_data, index_data, market_data, factor_data, exposure_data
+        return benchmark_data, index_data, market_data, exposure_data
