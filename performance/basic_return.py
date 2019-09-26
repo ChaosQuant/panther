@@ -6,12 +6,11 @@ import pandas as pd
 from utilities.singleton import Singleton
 
 @six.add_metaclass(Singleton)
-class BasciReturn(object):
+class BasicReturn(object):
     def __init__(self):
         __str__ = 'basic_return'
-        self.name = 'BasciReturn'
-    
-    
+        self.name = 'BasicReturn'
+
     def _se_group(self, se, n_bins):
         """
         根据变量值分组
@@ -39,6 +38,7 @@ class BasciReturn(object):
             #total_group_df = total_group_df.reset_index()[['trade_date','security_code','group']]
             #total_group_df['trade_date'] = total_group_df['trade_date'].apply(lambda x : x.date())
         else:
+            factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x: pd.Timestamp(x))
             total_group_df = factor_df.groupby(['trade_date']).apply(calc_grouped)
             
         return total_group_df.reset_index()[['trade_date','security_code','group']]
@@ -64,9 +64,8 @@ class BasciReturn(object):
         total_group_df.sort_values(['trade_date', 'security_code'], inplace=True)
         total_group_df.reset_index(drop=True, inplace=True)
         '''
-    
-    
-    def calc_group_rets(self, group_df, n_bins, benchmark_weights=None, industry=False, nargout=1):
+
+    def calc_group_rets(self, group_df, n_bins, benchmark_weights=None, industry=False):
         def calc_groupd(data):
             trade_date_u = data.trade_date.iloc[0]
             industry_code = data.industry_code.iloc[0]
@@ -77,15 +76,14 @@ class BasciReturn(object):
             group_weight['returns'] = data['returns'].values
             group_weight['security_code'] = data['security_code'].values
             group_weight['weight'] = industry_weight / len(data) if len(data) > 0 else 0
-            group_weight['weight'] = group_weight['weight'].fillna(0)
+            group_weight['weight'] = group_weight['weight'].fillna(0)/100
             return group_weight.set_index('returns')
-            
                 
         # 中性化分组收益， 非中心化分组收益
         if not industry:
             group_rets = group_df.groupby(['trade_date', 'group']).apply(lambda x: x['returns'].mean())
             group_rets = group_rets.unstack()
-            group_rets = group_rets.shift(1).dropna()
+            # group_rets = group_rets.shift(1).dropna()
             group_rets = group_rets.rename(columns={i:'q'+str(i) for i in range(1,6)})
             group_rets = group_rets.reset_index()
             group_rets['trade_date'] = group_rets['trade_date'].apply(lambda x : pd.Timestamp(x))
@@ -115,14 +113,11 @@ class BasciReturn(object):
             group_rets = group_weights.groupby(['trade_date', 'group']).apply(
                 lambda x: x.dropna()['returns'].dot(x.dropna()['weight']))
             group_rets = group_rets.unstack()
-            group_rets = group_rets.shift(1).dropna()
+            # group_rets = group_rets.shift(1).dropna()
             group_rets = group_rets.rename(columns={i:'q'+str(i) for i in range(1,6)})
-            if nargout == 1:
-                return group_rets
-            else:
-                return group_rets, group_weights
-        
-        
+
+            return group_rets
+
     def calc_relative_rets(self, group_rets_df, benchmark_rets_se):
         rlt_rets = {}
         for col in group_rets_df.columns:
@@ -136,17 +131,17 @@ class BasciReturn(object):
         # 返回字典
         group_hitratio = {}
         group_rets_df = group_rets_df.copy(deep=True).replace([np.inf, -np.inf], np.nan).fillna(0)
-        for col in ['ret_q'+str(i) for i in range(1,6)]:
-            se = group_rets_df[col] - benchmark_rets_se
+        for i in range(1,6):
+            se = group_rets_df['ret_q'+str(i)] - benchmark_rets_se
             se = se.dropna()
-            group_hitratio['hr_'+col] = (sum(se>0) / len(se)) if len(se)!=0 else 0
+            group_hitratio['hr_q'+str(i)] = (sum(se>0) / len(se)) if len(se)!=0 else 0
     
         return group_hitratio
-
     
     def calc_cs_group_hitratio(self, stock_rets_df, benchmark_rets_se):
         # pdb.set_trace()
         stock_rets_df = stock_rets_df.copy(deep=True)
+        stock_rets_df = stock_rets_df.set_index('trade_date')
         stock_rets_df['hit'] = stock_rets_df['returns'] - benchmark_rets_se
         cs_hit = stock_rets_df.groupby(['trade_date', 'group']).apply(lambda x: sum(x['hit'] > 0) / len(x['hit']) * 100)
         cs_hit = cs_hit.unstack()

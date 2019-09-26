@@ -20,3 +20,18 @@ class StorageEngine(object):
         session.commit()
         session.close()
         sets.to_sql(name=table_name, con=self._destination, if_exists='append', index=False)
+
+
+class PerformanceStorageEngine(object):
+    def __init__(self, url):
+        self._destination = sa.create_engine(url)
+        self._destsession = sessionmaker(bind=self._destination, autocommit=False, autoflush=True)
+
+    def update_destdb(self, table_name, factor_name, sets):
+        sets = sets.where(pd.notnull(sets), None)
+        # 删除原表
+        session = self._destsession()
+        session.execute('''delete from `{0}` where factor_name=\'{1}\''''.format(table_name, factor_name))
+        session.commit()
+        session.close()
+        sets.to_sql(name=table_name, con=self._destination, if_exists='append', index=False)
