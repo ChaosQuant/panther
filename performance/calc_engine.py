@@ -46,6 +46,7 @@ class CalcEngine(object):
         return index_data.loc[:, ['returns']].dropna().reset_index()
     
     def performance_preprocessing(self, benchmark_data, index_data, market_data, factor_data, exposure_data):
+        # 修改 index_se_dict, 直接删除基准df
         index_se_dict = {}
         self._factor_columns = [i for i in factor_data.columns if i not in ['id', 'trade_date', 'security_code']]
         security_code_sets = index_data.security_code.unique()
@@ -78,6 +79,8 @@ class CalcEngine(object):
         benchmark_data, index_data, market_data, factor_data, exposure_data = db_polymerize.fetch_performance_data(
             benchmark, begin_date, trade_date, freq)
 
+        # 以下可以针对不同的基准
+
         total_data, index_se_dict = self.performance_preprocessing(benchmark_data, index_data, market_data,
                                                                    factor_data, exposure_data)
         
@@ -91,7 +94,7 @@ class CalcEngine(object):
         return total_data, benchmark_industry_weights, index_se_dict
     
     def local_run(self, trade_date):
-        factor_name = 'CMO20D'
+        factor_name = 'ROC20D' # MFI21D  Mass25D ROC20D ROC6D RSI12D
         total_data, benchmark_industry_weights, index_se_dict = self.loadon_data(trade_date)
 
         # 收益相关
