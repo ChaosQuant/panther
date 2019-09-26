@@ -67,7 +67,7 @@ if __name__ == "__main__":
     parser.add_argument('--end_date', type=int, default=20190101)
     parser.add_argument('--packet_name', type=str, default='alphax.factor_alpha101')
     parser.add_argument('--class_name', type=str, default='FactorAlpha101')
-    parser.add_argument('--rebuild', type=bool, default=True)
+    parser.add_argument('--rebuild', type=bool, default=False)
     parser.add_argument('--update', type=bool, default=False)
     parser.add_argument('--schedule', type=bool, default=False)
     parser.add_argument('--type', type=str, default='after')
