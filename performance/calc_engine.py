@@ -178,7 +178,7 @@ class CalcEngine(object):
                 # print(other_sub_df)
 
             # 存储层
-            return_basic_df = pd.concat(return_basic_list, axis=0).reset_index(drop=True)
+            return_basic_df = pd.concat(return_basic_list, axis=0)
             return_sub_df = pd.concat(return_sub_list, axis=0)
             ic_df = pd.concat(ic_basic_list, axis=0)
             ic_sub_df = pd.concat(ic_sub_list, axis=0)
