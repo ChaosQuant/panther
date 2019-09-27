@@ -106,7 +106,7 @@ class FactorOperationCapacity(object):
 
     @staticmethod
     def ARDaysTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'bill_receivable',
-                                                                       'account_receivable', 'advance_peceipts']):
+                                                                   'account_receivable', 'advance_peceipts']):
         """
         :name:应收账款周转天数(TTM)
         :desc:360/应收账款周转率

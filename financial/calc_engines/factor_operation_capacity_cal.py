@@ -5,7 +5,8 @@ import pdb, importlib, inspect, time, datetime, json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+from datetime import timedelta, datetime
 from financial import factor_operation_capacity
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
@@ -78,9 +79,12 @@ class CalcEngine(object):
                                                                        BalanceTTM.CONSPROG,
                                                                        BalanceTTM.TOTASSET,
                                                                        BalanceTTM.ADVAPAYM,
+                                                                       BalanceTTM.ACCOPAYA,
+                                                                       BalanceTTM.DERILIAB,
                                                                        BalanceTTM.RIGHAGGR,
                                                                        ], dates=[trade_date]).drop(columns, axis=1)
         ttm_balance = ttm_balance.rename(columns={
+            'ACCORECE': 'account_receivable',  # 应收账款
             'NOTESRECE': 'bill_receivable',  # 应收票据
             'PREP': 'advance_payment',  # 预付款项
             'INVE': 'inventories',  # 存货
@@ -90,7 +94,8 @@ class CalcEngine(object):
             'CONSPROG': 'constru_in_process',  # 在建工程
             'TOTASSET': 'total_assets',  # 资产总计
             'ADVAPAYM': 'advance_peceipts',  # 预收款项
-            'ACCORECE': 'accounts_payable',  # 应付账款
+            'ACCOPAYA': 'accounts_payable',  # 应付账款
+            'DERILIAB': 'notes_payable',  # 应付票据
             'RIGHAGGR': 'total_owner_equities',
         })
 
