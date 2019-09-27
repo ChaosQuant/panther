@@ -10,7 +10,8 @@ if __name__ == "__main__":
     
     calc_engine = CalcEngine('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision?charset=utf8')
     begin_date = '2018-08-23'
-    calc_engine.local_run(begin_date)
+    factor_table = 'factor_reversal'  # 因子表名
+    calc_engine.local_run(begin_date, factor_table)
     #end_date = '2019-08-26'
     #freq = '1b'
     #rebalance_dates = makeSchedule(begin_date, end_date, freq, 'china.sse', BizDayConventions.Preceding)
