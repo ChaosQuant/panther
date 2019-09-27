@@ -29,20 +29,28 @@ def get_start_date(factor_name, type):
     destination = sa.create_engine(db_url)
     if type == 'after':
         td = 'max(trade_date)'
+        date = 20150101
     else:
         td = 'min(trade_date)'
+        # date = int(datetime.now().date().strftime('%Y%m%d'))
+        date = 20190101
     sql = """select {0} as trade_date from `{1}`;""".format(td, factor_name)
     trades_sets = pd.read_sql(sql, destination)
-    td = 20150101
     if not trades_sets.empty:
-        td = trades_sets['trade_date'][0]
-        td = str(td).replace('-', '')
-    return td
+        ts = trades_sets['trade_date'][0]
+        if ts is not None:
+            date = str(ts).replace('-', '')
+    return date
 
 
 def do_schedule(factor_name, calc_engine, type):
-    start_date = get_start_date(factor_name, type)
-    end_date = int(datetime.now().date().strftime('%Y%m%d'))
+    if type == 'pre':
+        start_date = 20150101
+        end_date = get_start_date(factor_name, type)
+    else:
+        start_date = get_start_date(factor_name, type)
+        # end_date = int(datetime.now().date().strftime('%Y%m%d'))
+        date = 20190101
     do_update(start_date, end_date, calc_engine, type)
 
 
@@ -65,8 +73,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_date', type=int, default=20150101)
     parser.add_argument('--end_date', type=int, default=20190101)
-    parser.add_argument('--packet_name', type=str, default='alphax.factor_alpha101')
-    parser.add_argument('--class_name', type=str, default='FactorAlpha101')
+    parser.add_argument('--packet_name', type=str, default='earning_expectation.factor_earning_expectation')
+    parser.add_argument('--class_name', type=str, default='FactorEarningExpectation')
     parser.add_argument('--rebuild', type=bool, default=False)
     parser.add_argument('--update', type=bool, default=False)
     parser.add_argument('--schedule', type=bool, default=False)

@@ -39,6 +39,13 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=15),
 )
 
+run_pre_schedule_factor_basic_derivation = BashOperator(
+    task_id='run_schedule_factor_basic_derivation',
+    bash_command='cd ~/app/panther && python client.py --schedule=True --type="pre" --packet_name="basic_derivation.factor_basic_derivation" --class_name="FactorBasicDerivation"',
+    dag=dag,
+)
+
+
 run_pre_schedule_factor_earning_expectation = BashOperator(
     task_id='run_pre_schedule_factor_earning_expectation',
     bash_command='cd ~/app/panther && python client.py --schedule=True --type="pre" --packet_name="earning_expectation.factor_earning_expectation" --class_name="FactorEarningExpectation"',
@@ -117,8 +124,8 @@ run_pre_schedule_factor_volume = BashOperator(
     dag=dag,
 )
 
-run_pre_schedule_factor_valuation = BashOperator(
-    task_id='run_pre_schedule_factor_valuation',
+run_pre_schedule_factor_valuation_estimation = BashOperator(
+    task_id='run_pre_schedule_factor_valuation_estimation',
     bash_command='cd ~/app/panther && python client.py --schedule=True --type="pre" --packet_name="valuation_estimation.factor_valuation_estimation" --class_name="FactorValuationEstimation"',
     dag=dag,
 )
