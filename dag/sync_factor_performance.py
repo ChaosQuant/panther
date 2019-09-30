@@ -78,7 +78,7 @@ run_rebuild_factor_operation_capacity_performance = BashOperator(
 )
 run_rebuild_factor_per_share_indicators_performance = BashOperator(
     task_id='run_rebuild_factor_per_share_indicators_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_per_share_indicators"Factor',
+    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_per_share_indicators"',
     dag=dag,
 )
 run_rebuild_factor_revenue_quality_performance = BashOperator(
