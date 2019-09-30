@@ -10,7 +10,7 @@ if __name__ == "__main__":
     
     calc_engine = CalcEngine('rl','mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision?charset=utf8')
     begin_date = '2018-08-23'
-    factor_table = 'factor_reversal'  # 因子表名
+    factor_table = 'factor_cash_flow'  # 因子表名
     calc_engine.local_run(begin_date, factor_table)
     #end_date = '2019-08-26'
     #freq = '1b'
