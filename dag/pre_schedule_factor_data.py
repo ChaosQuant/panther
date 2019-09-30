@@ -40,7 +40,7 @@ dag = DAG(
 )
 
 run_pre_schedule_factor_basic_derivation = BashOperator(
-    task_id='run_schedule_factor_basic_derivation',
+    task_id='run_pre_schedule_factor_basic_derivation',
     bash_command='cd ~/app/panther && python client.py --schedule=True --type="pre" --packet_name="basic_derivation.factor_basic_derivation" --class_name="FactorBasicDerivation"',
     dag=dag,
 )

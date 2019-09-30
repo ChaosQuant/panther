@@ -39,6 +39,11 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=15),
 )
 
+run_rebuild_factor_basic_derivation = BashOperator(
+    task_id='run_rebuild_factor_basic_derivation',
+    bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="basic_derivation.factor_basic_derivation" --class_name="FactorBasicDerivation"',
+    dag=dag,
+)
 run_rebuild_factor_earning_expectation = BashOperator(
     task_id='run_rebuild_factor_earning_expectation',
     bash_command='cd ~/app/panther && python client.py --rebuild=True --packet_name="earning_expectation.factor_earning_expectation" --class_name="FactorEarningExpectation"',
