@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_date', type=int, default=20150101)
     parser.add_argument('--end_date', type=int, default=20190101)
-    parser.add_argument('--factor_name', type=str, default='factor_earning_expectation')
+    parser.add_argument('--factor_name', type=str, default='factor_earning_expectation')  # factor_earning
     args = parser.parse_args()
     if args.end_date == 0:
         end_date = int(datetime.now().date().strftime('%Y%m%d'))

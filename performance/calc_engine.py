@@ -63,7 +63,8 @@ class CalcEngine(object):
         total_data = pd.merge(total_data, benchmark_data, on=['trade_date', 'security_code'])
         mkt_se['trade_date'] = mkt_se['trade_date'].apply(lambda x: x.to_pydatetime().date())
         total_data = pd.merge(total_data, mkt_se, on=['trade_date', 'security_code'], how='left')
-        return total_data.dropna(), index_rets
+        # return total_data.dropna(), index_rets
+        return total_data, index_rets
 
     def _factor_preprocess(self, data):
         for factor in self._factor_columns:
@@ -76,7 +77,7 @@ class CalcEngine(object):
         # 若两个指数有重合，需要重构该函数；已改
         # 确定获取的日期范围
         freq = '1m'
-        begin_date = advanceDate(trade_date, '-3y')
+        # begin_date = advanceDate(trade_date, '-3y')
         benchmark_code_dict = {'000905.XSHG': '2070000187', '000300.XSHG': '2070000060'}
 
         db_factor = FetchRLFactorEngine(table)
@@ -99,6 +100,7 @@ class CalcEngine(object):
             # 中性化处理
             total_data = total_data.sort_values(['trade_date', 'security_code'])
             total_data = total_data.groupby(['trade_date']).apply(self._factor_preprocess)
+            total_data.loc[:, self._factor_columns] = total_data.loc[:, self._factor_columns].fillna(0)
 
             benchmark_industry_weights = benchmark_data[benchmark_data.index_code == key].groupby(
                 ['trade_date', 'industry_code']).apply(lambda x: x['weighing'].sum())
@@ -123,22 +125,21 @@ class CalcEngine(object):
         total_data_dict, benchmark_industry_weights_dict, index_rets_dict = self.loadon_data(start_date, trade_date,
                                                                                              factor_table)
 
-        # # benchmark
-        # hs300_rets = index_rets_dict[benchmark_code_dict['000300.XSHG']].rename(columns={'returns': 'hs300'})
-        # zz500_rets = index_rets_dict[benchmark_code_dict['000905.XSHG']].rename(columns={'returns': 'zz500'})
-        # benchmark_rets_df = pd.merge(hs300_rets, zz500_rets, on=['trade_date'])
-        # benchmark_rets_df = benchmark_rets_df.loc[:, ['trade_date', 'hs300', 'zz500']]
-        #
-        # # 存基准数据
-        # benchmark_storage_engine = BenchmarkStorageEngine(self._url)
-        # benchmark_storage_engine.update_destdb('factor_performance_benchmark', benchmark_rets_df)
+        # benchmark
+        hs300_rets = index_rets_dict[benchmark_code_dict['000300.XSHG']].rename(columns={'returns': 'hs300'})
+        zz500_rets = index_rets_dict[benchmark_code_dict['000905.XSHG']].rename(columns={'returns': 'zz500'})
+        benchmark_rets_df = pd.merge(hs300_rets, zz500_rets, on=['trade_date'])
+        benchmark_rets_df = benchmark_rets_df.loc[:, ['trade_date', 'hs300', 'zz500']]
+
+        # 存基准数据
+        benchmark_storage_engine = BenchmarkStorageEngine(self._url)
+        benchmark_storage_engine.update_destdb('factor_performance_benchmark', benchmark_rets_df)
 
         # 数据层放在层，因子放里层
         # # 收益相关
         for factor_name in self._factor_columns:
 
             factor_name = str(factor_name)
-            # factor_name = 'SaleServCashToOptReTTM'
 
             # 判断因子是否为空
             if total_data_dict['2070000187'][factor_name].isnull().all() or total_data_dict['2070000060'][factor_name].isnull().all():
@@ -466,7 +467,7 @@ class CalcEngine(object):
         # industry_ic['universe'] = universe
         # industry_ic['factor_name'] = factor_name
         # industry_ic = industry_ic.shift(1).dropna(how='all')
-        industry_ic = industry_ic.dropna(how='all')
+        # industry_ic = industry_ic.dropna(how='all')
         this_year = industry_ic.index[-1].year
         industry_ic_last_time = industry_ic.iloc[-1, :]
         industry_ic_this_year_mean = industry_ic.loc[str(this_year):, :].mean()
