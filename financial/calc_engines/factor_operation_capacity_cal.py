@@ -136,7 +136,7 @@ class CalcEngine(object):
 
         factor_management = factor_management.reset_index()
         factor_management['trade_date'] = str(trade_date)
-        factor_management.replace([-np.inf, np.inf, None], 'null', inplace=True)
+        factor_management.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return factor_management
 
     def local_run(self, trade_date):

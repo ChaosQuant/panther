@@ -150,7 +150,7 @@ class CalcEngine(object):
 
         cash_flow_sets['trade_date'] = str(trade_date)
         cash_flow_sets = cash_flow_sets.reset_index()
-        cash_flow_sets.replace([-np.inf, np.inf, None], 'null', inplace=True)
+        cash_flow_sets.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return cash_flow_sets
 
     def local_run(self, trade_date):

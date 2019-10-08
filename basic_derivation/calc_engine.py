@@ -228,7 +228,7 @@ class CalcEngine(object):
 
         factor_derivation = factor_derivation.reset_index()
         factor_derivation['trade_date'] = str(trade_date)
-        factor_derivation.replace([-np.inf, np.inf, None], 'null', inplace=True)
+        factor_derivation.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return factor_derivation
 
     def local_run(self, trade_date):

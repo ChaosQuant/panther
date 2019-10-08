@@ -243,7 +243,7 @@ class CalcEngine(object):
         solvency_sets = solvency.CashRatioTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency_sets.reset_index()
         solvency_sets['trade_date'] = str(trade_date)
-        solvency_sets.replace([-np.inf, np.inf, None], 'null', inplace=True)
+        solvency_sets.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return solvency_sets
 
     def local_run(self, trade_date):

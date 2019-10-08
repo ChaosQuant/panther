@@ -243,7 +243,7 @@ class CalcEngine(object):
         factor_revenue = revenue_quality.PriceToRevRatioAvg5YTTM(ttm_revenue_quanlity, factor_revenue)
         factor_revenue = factor_revenue.reset_index()
         factor_revenue['trade_date'] = str(trade_date)
-        factor_revenue.replace([-np.inf, np.inf, None], 'null', inplace=True)
+        factor_revenue.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return factor_revenue
 
     def local_run(self, trade_date):
