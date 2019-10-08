@@ -6,6 +6,7 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
+import numpy as np
 from datetime import timedelta, datetime
 from financial import factor_earning
 
@@ -436,6 +437,8 @@ class CalcEngine(object):
         # factor_earning = earning.invest_r_associates_to_tp_ttm(ttm_earning, earning_sets)
         earning_sets = earning_sets.reset_index()
         earning_sets['trade_date'] = str(trade_date)
+        earning_sets = earning_sets.replace(-np.inf, None, inplace=True)
+        earning_sets = earning_sets.replace(np.inf, None, inplace=True)
         return earning_sets
 
     def local_run(self, trade_date):

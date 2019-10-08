@@ -6,6 +6,7 @@ import pdb, importlib, inspect, time, datetime, json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
+import numpy as np
 from datetime import timedelta, datetime
 from financial import factor_per_share_indicators
 
@@ -204,6 +205,8 @@ class CalcEngine(object):
 
         factor_share_indicators = factor_share_indicators.reset_index()
         factor_share_indicators['trade_date'] = str(trade_date)
+        factor_share_indicators = factor_share_indicators.replace(-np.inf, None, inplace=True)
+        factor_share_indicators = factor_share_indicators.replace(np.inf, None, inplace=True)
         return factor_share_indicators
 
     def local_run(self, trade_date):

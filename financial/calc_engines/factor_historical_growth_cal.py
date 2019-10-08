@@ -6,6 +6,7 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
+import numpy as np
 from datetime import timedelta, datetime
 from financial import factor_historical_growth
 
@@ -323,6 +324,8 @@ class CalcEngine(object):
 
         historical_growth_sets = historical_growth_sets.reset_index()
         historical_growth_sets['trade_date'] = str(trade_date)
+        historical_growth_sets = historical_growth_sets.replace(-np.inf, None, inplace=True)
+        historical_growth_sets = historical_growth_sets.replace(np.inf, None, inplace=True)
         return historical_growth_sets
 
     def local_run(self, trade_date):

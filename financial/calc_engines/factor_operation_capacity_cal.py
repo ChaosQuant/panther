@@ -6,7 +6,8 @@ import pdb, importlib, inspect, time, datetime, json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
-from datetime import timedelta, datetime
+import numpy as np
+from datetime import datetime
 from financial import factor_operation_capacity
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
@@ -135,6 +136,8 @@ class CalcEngine(object):
 
         factor_management = factor_management.reset_index()
         factor_management['trade_date'] = str(trade_date)
+        factor_management = factor_management.replace(-np.inf, None, inplace=True)
+        factor_management = factor_management.replace(np.inf, None, inplace=True)
         return factor_management
 
     def local_run(self, trade_date):

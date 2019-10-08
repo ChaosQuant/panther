@@ -6,7 +6,8 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
-from datetime import timedelta, datetime
+import numpy as np
+from datetime import datetime
 from basic_derivation import factor_basic_derivation
 
 from data.model import BalanceMRQ
@@ -227,6 +228,8 @@ class CalcEngine(object):
 
         factor_derivation = factor_derivation.reset_index()
         factor_derivation['trade_date'] = str(trade_date)
+        factor_derivation = factor_derivation.replace(-np.inf, None, inplace=True)
+        factor_derivation = factor_derivation.replace(np.inf, None, inplace=True)
         return factor_derivation
 
     def local_run(self, trade_date):

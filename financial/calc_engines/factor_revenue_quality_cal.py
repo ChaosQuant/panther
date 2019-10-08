@@ -6,6 +6,7 @@ import pdb, importlib, inspect, time, datetime, json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
+import numpy as np
 from datetime import timedelta, datetime
 from financial import factor_revenue_quality
 
@@ -242,6 +243,8 @@ class CalcEngine(object):
         factor_revenue = revenue_quality.PriceToRevRatioAvg5YTTM(ttm_revenue_quanlity, factor_revenue)
         factor_revenue = factor_revenue.reset_index()
         factor_revenue['trade_date'] = str(trade_date)
+        factor_revenue = factor_revenue.replace(-np.inf, None, inplace=True)
+        factor_revenue = factor_revenue.replace(np.inf, None, inplace=True)
         return factor_revenue
 
     def local_run(self, trade_date):

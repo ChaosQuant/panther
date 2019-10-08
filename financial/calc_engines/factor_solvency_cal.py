@@ -6,6 +6,7 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
+import numpy as np
 from datetime import timedelta, datetime
 from financial import factor_solvency
 
@@ -242,6 +243,8 @@ class CalcEngine(object):
         solvency_sets = solvency.CashRatioTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency_sets.reset_index()
         solvency_sets['trade_date'] = str(trade_date)
+        solvency_sets = solvency_sets.replace(-np.inf, None, inplace=True)
+        solvency_sets = solvency_sets.replace(np.inf, None, inplace=True)
         return solvency_sets
 
     def local_run(self, trade_date):

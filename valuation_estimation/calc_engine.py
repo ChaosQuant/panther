@@ -6,6 +6,7 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
+import numpy as np
 from datetime import timedelta, datetime
 from valuation_estimation import factor_valuation_estimation
 
@@ -331,6 +332,8 @@ class CalcEngine(object):
 
         # factor_historical_value = factor_historical_value.reset_index()
         factor_historical_value['trade_date'] = str(trade_date)
+        factor_historical_value = factor_historical_value.replace(-np.inf, None, inplace=True)
+        factor_historical_value = factor_historical_value.replace(np.inf, None, inplace=True)
         return factor_historical_value
     
     def local_run(self, trade_date):

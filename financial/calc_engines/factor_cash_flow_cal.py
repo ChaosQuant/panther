@@ -5,6 +5,7 @@ import pdb,importlib,inspect,time,datetime,json
 from data.storage_engine import StorageEngine
 import time
 import pandas as pd
+import numpy as np
 from datetime import datetime
 from financial import factor_cash_flow
 
@@ -149,6 +150,8 @@ class CalcEngine(object):
 
         cash_flow_sets['trade_date'] = str(trade_date)
         cash_flow_sets = cash_flow_sets.reset_index()
+        cash_flow_sets = cash_flow_sets.replace(-np.inf, None, inplace=True)
+        cash_flow_sets = cash_flow_sets.replace(np.inf, None, inplace=True)
         return cash_flow_sets
 
     def local_run(self, trade_date):
