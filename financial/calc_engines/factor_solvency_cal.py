@@ -5,7 +5,8 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+from datetime import timedelta, datetime
 from financial import factor_solvency
 
 from data.model import BalanceMRQ, BalanceTTM
@@ -52,7 +53,7 @@ class CalcEngine(object):
 
     def _func_sets(self, method):
         # 私有函数和保护函数过滤
-        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method,x)), dir(method)))
+        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method, x)), dir(method)))
 
     def loading_data(self, trade_date):
         """
@@ -95,7 +96,10 @@ class CalcEngine(object):
                                                                             BalanceMRQ.NOTESRECE,
                                                                             BalanceMRQ.ACCORECE,
                                                                             BalanceMRQ.OTHERRECE,
-                                                                            ], dates=[trade_date]).drop(columns, axis=1)
+                                                                            ], dates=[trade_date])
+        for col in columns:
+            if col in list(balance_mrq_sets.keys()):
+                balance_mrq_sets = balance_mrq_sets.drop(col, axis=1)
 
         balance_mrq_sets = balance_mrq_sets.rename(columns={
             'TOTLIAB': 'total_liability',  # 负债合计
@@ -127,8 +131,10 @@ class CalcEngine(object):
         })
         cash_flow_mrq_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
                                                                              [CashFlowMRQ.MANANETR,
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(cash_flow_mrq_sets.keys()):
+                cash_flow_mrq_sets = cash_flow_mrq_sets.drop(col, axis=1)
         cash_flow_mrq_sets = cash_flow_mrq_sets.rename(columns={'MANANETR': 'net_operate_cash_flow_mrq',  # 经营活动现金流量净额
                                                                 })
 
@@ -139,7 +145,10 @@ class CalcEngine(object):
                                                                           [IncomeTTM.TOTPROFIT,
                                                                            IncomeTTM.FINEXPE,
                                                                            IncomeTTM.INTEINCO,
-                                                                           ], dates=[trade_date]).drop(columns, axis=1)
+                                                                           ], dates=[trade_date])
+        for col in columns:
+            if col in list(income_ttm_sets.keys()):
+                income_ttm_sets = income_ttm_sets.drop(col, axis=1)
         income_ttm_sets = income_ttm_sets.rename(columns={'TOTPROFIT': 'total_profit',  # 利润总额
                                                           'FINEXPE': 'financial_expense',  # 财务费用
                                                           'INTEINCO': 'interest_income',  # 利息收入
@@ -149,7 +158,10 @@ class CalcEngine(object):
                                                                            [
                                                                             BalanceTTM.TOTALCURRLIAB,
                                                                             BalanceTTM.DUENONCLIAB,
-                                                                            ], dates=[trade_date]).drop(columns, axis=1)
+                                                                            ], dates=[trade_date])
+        for col in columns:
+            if col in list(balance_ttm_sets.keys()):
+                balance_ttm_sets = balance_ttm_sets.drop(col, axis=1)
         balance_ttm_sets = balance_ttm_sets.rename(columns={
             'TOTALCURRLIAB': 'total_current_liability_ttm',  # 流动负债合计
             'DUENONCLIAB': 'non_current_liability_in_one_year_ttm',  # 一年内到期的非流动负债
@@ -158,8 +170,10 @@ class CalcEngine(object):
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.MANANETR,  # 经营活动现金流量净额
                                                                               CashFlowTTM.FINALCASHBALA,  # 期末现金及现金等价物余额
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(cash_flow_ttm_sets.keys()):
+                cash_flow_ttm_sets = cash_flow_ttm_sets.drop(col, axis=1)
         cash_flow_ttm_sets = cash_flow_ttm_sets.rename(columns={
             'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
             'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
@@ -167,10 +181,13 @@ class CalcEngine(object):
 
         indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                              [IndicatorTTM.NDEBT,
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(indicator_ttm_sets.keys()):
+                indicator_ttm_sets = indicator_ttm_sets.drop(col, axis=1)
         indicator_ttm_sets = indicator_ttm_sets.rename(columns={'NDEBT': 'net_liability',  # 净负债
                                                                 })
+
         ttm_solvency = pd.merge(balance_ttm_sets, cash_flow_ttm_sets, how='outer', on="security_code")
         ttm_solvency = pd.merge(ttm_solvency, income_ttm_sets, how='outer', on="security_code")
         ttm_solvency = pd.merge(ttm_solvency, indicator_ttm_sets, how='outer', on="security_code")
@@ -179,7 +196,10 @@ class CalcEngine(object):
         valuation_sets = get_fundamentals(query(Valuation.security_code,
                                                 Valuation.trade_date,
                                                 Valuation.market_cap, )
-                                          .filter(Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
+                                          .filter(Valuation.trade_date.in_([trade_date])))
+        for col in column:
+            if col in list(valuation_sets.keys()):
+                valuation_sets = valuation_sets.drop(col, axis=1)
 
         tp_solvency = pd.merge(ttm_solvency, valuation_sets, how='outer', on='security_code')
         tp_solvency = pd.merge(tp_solvency, mrq_solvency, how='outer', on='security_code')

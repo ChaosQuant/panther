@@ -5,7 +5,8 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+from datetime import timedelta, datetime
 from financial import factor_earning
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
@@ -78,7 +79,10 @@ class CalcEngine(object):
         cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
                                                                          [CashFlowReport.LABORGETCASH,
                                                                           CashFlowReport.FINALCASHBALA,
-                                                                          ], dates=[trade_date]).drop(columns, axis=1)
+                                                                          ], dates=[trade_date])
+        for column in columns:
+            if column in list(cash_flow_sets.keys()):
+                cash_flow_sets = cash_flow_sets.drop(column, axis=1)
         cash_flow_sets = cash_flow_sets.rename(
             columns={'LABORGETCASH': 'goods_sale_and_service_render_cash',  # 销售商品、提供劳务收到的现金
                      'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
@@ -90,7 +94,10 @@ class CalcEngine(object):
                                                                        IncomeReport.PERPROFIT,
                                                                        IncomeReport.PARENETP,
                                                                        IncomeReport.NETPROFIT,
-                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+                                                                       ], dates=[trade_date])
+        for column in columns:
+            if column in list(income_sets.keys()):
+                income_sets = income_sets.drop(column, axis=1)
         income_sets = income_sets.rename(columns={'NETPROFIT': 'net_profit',  # 净利润
                                                   'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
                                                   'BIZINCO': 'operating_revenue',  # 营业收入
@@ -103,21 +110,29 @@ class CalcEngine(object):
                                                                              IndicatorReport.NETPROFITCUT,
                                                                              # 扣除非经常损益后的净利润
                                                                              IndicatorReport.MGTEXPRT
-                                                                         ], dates=[trade_date]).drop(columns, axis=1)
+                                                                         ], dates=[trade_date])
+        for column in columns:
+            if column in list(indicator_sets.keys()):
+                indicator_sets = indicator_sets.drop(column, axis=1)
         indicator_sets = indicator_sets.rename(columns={'NETPROFITCUT': 'adjusted_profit',  # 扣除非经常损益后的净利润
                                                         })
 
         balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                        [BalanceReport.PARESHARRIGH,
-                                                                        ], dates=[trade_date]).drop(columns, axis=1)
+                                                                        ], dates=[trade_date])
+        for column in columns:
+            if column in list(balance_sets.keys()):
+                balance_sets = balance_sets.drop(column, axis=1)
         balance_sets = balance_sets.rename(columns={'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
                                                     })
 
         income_sets_pre_year_1 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                                  [IncomeReport.BIZINCO,  # 营业收入
                                                                                   IncomeReport.NETPROFIT,  # 净利润
-                                                                                  ], dates=[trade_date_pre_year]).drop(
-            columns, axis=1)
+                                                                                  ], dates=[trade_date_pre_year])
+        for column in columns:
+            if column in list(income_sets_pre_year_1.keys()):
+                income_sets_pre_year_1 = income_sets_pre_year_1.drop(column, axis=1)
         income_sets_pre_year_1 = income_sets_pre_year_1.rename(columns={'NETPROFIT': 'net_profit_pre_year_1',  # 净利润
                                                                         'BIZINCO': 'operating_revenue_pre_year_1',
                                                                         # 营业收入
@@ -126,9 +141,10 @@ class CalcEngine(object):
         income_sets_pre_year_2 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                                  [IncomeReport.BIZINCO,
                                                                                   IncomeReport.NETPROFIT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year_2]).drop(
-            columns, axis=1)
+                                                                                  ], dates=[trade_date_pre_year_2])
+        for column in columns:
+            if column in list(income_sets_pre_year_2.keys()):
+                income_sets_pre_year_2 = income_sets_pre_year_2.drop(column, axis=1)
         income_sets_pre_year_2 = income_sets_pre_year_2.rename(columns={'NETPROFIT': 'net_profit_pre_year_2',  # 净利润
                                                                         'BIZINCO': 'operating_revenue_pre_year_2',
                                                                         # 营业收入
@@ -137,9 +153,10 @@ class CalcEngine(object):
         income_sets_pre_year_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                                  [IncomeReport.BIZINCO,
                                                                                   IncomeReport.NETPROFIT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year_3]).drop(
-            columns, axis=1)
+                                                                                  ], dates=[trade_date_pre_year_3])
+        for column in columns:
+            if column in list(income_sets_pre_year_3.keys()):
+                income_sets_pre_year_3 = income_sets_pre_year_3.drop(column, axis=1)
         income_sets_pre_year_3 = income_sets_pre_year_3.rename(columns={'NETPROFIT': 'net_profit_pre_year_3',  # 净利润
                                                                         'BIZINCO': 'operating_revenue_pre_year_3',
                                                                         # 营业收入
@@ -148,9 +165,10 @@ class CalcEngine(object):
         income_sets_pre_year_4 = engine.fetch_fundamentals_pit_extend_company_id(IncomeReport,
                                                                                  [IncomeReport.BIZINCO,
                                                                                   IncomeReport.NETPROFIT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year_4]).drop(
-            columns, axis=1)
+                                                                                  ], dates=[trade_date_pre_year_4])
+        for column in columns:
+            if column in list(income_sets_pre_year_4.keys()):
+                income_sets_pre_year_4 = income_sets_pre_year_4.drop(column, axis=1)
         income_sets_pre_year_4 = income_sets_pre_year_4.rename(columns={'NETPROFIT': 'net_profit_pre_year_4',  # 净利润
                                                                         'BIZINCO': 'operating_revenue_pre_year_4',
                                                                         # 营业收入
@@ -170,7 +188,10 @@ class CalcEngine(object):
                                                                             BalanceMRQ.PARESHARRIGH,  # 归属于母公司股东权益合计
                                                                             BalanceMRQ.RIGHAGGR,  # 所有者权益（或股东权益）合计
                                                                             BalanceMRQ.LONGBORR,  # 长期借款
-                                                                            ], dates=[trade_date]).drop(columns, axis=1)
+                                                                            ], dates=[trade_date])
+        for column in columns:
+            if column in list(balance_mrq_sets.keys()):
+                balance_mrq_sets = balance_mrq_sets.drop(column, axis=1)
         balance_mrq_sets = balance_mrq_sets.rename(columns={'TOTASSET': 'total_assets_mrq',
                                                             'PARESHARRIGH': 'equities_parent_company_owners_mrq',
                                                             # 归属于母公司股东权益合计
@@ -182,8 +203,10 @@ class CalcEngine(object):
                                                                                [BalanceMRQ.TOTASSET,  # 资产总计
                                                                                 BalanceMRQ.RIGHAGGR,  # 所有者权益(或股东权益)合计
                                                                                 BalanceMRQ.LONGBORR,  # 长期借款
-                                                                                ], dates=[trade_date]).drop(columns,
-                                                                                                            axis=1)
+                                                                                ], dates=[trade_date])
+        for column in columns:
+            if column in list(balance_mrq_sets_pre.keys()):
+                balance_mrq_sets_pre = balance_mrq_sets_pre.drop(column, axis=1)
         balance_mrq_sets_pre = balance_mrq_sets_pre.rename(columns={'TOTASSET': 'total_assets_mrq_pre',
                                                                     'RIGHAGGR': 'total_owner_equities_mrq_pre',
                                                                     # 所有者权益（或股东权益）合计
@@ -193,8 +216,10 @@ class CalcEngine(object):
         # TTM Data
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.FINNETCFLOW,
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
+                                                                              ], dates=[trade_date])
+        for column in columns:
+            if column in list(cash_flow_ttm_sets.keys()):
+                cash_flow_ttm_sets = cash_flow_ttm_sets.drop(column, axis=1)
         cash_flow_ttm_sets = cash_flow_ttm_sets.rename(columns={'FINNETCFLOW': 'net_finance_cash_flow'})
 
         income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
@@ -213,8 +238,10 @@ class CalcEngine(object):
                                                                            IncomeTTM.ASSOINVEPROF,  # 对联营企业和合营企业的投资收益
                                                                            IncomeTTM.BIZTAX,  # 营业税金及附加
                                                                            IncomeTTM.ASSEIMPALOSS,  # 资产减值损失
-                                                                           ], dates=[trade_date]).drop(columns, axis=1)
-
+                                                                           ], dates=[trade_date])
+        for column in columns:
+            if column in list(income_ttm_sets.keys()):
+                income_ttm_sets = income_ttm_sets.drop(column, axis=1)
         income_ttm_sets = income_ttm_sets.rename(columns={'BIZINCO': 'operating_revenue',  # 营业收入
                                                           'NETPROFIT': 'net_profit',  # 净利润
                                                           'MANAEXPE': 'administration_expense',  # 管理费用
@@ -236,7 +263,10 @@ class CalcEngine(object):
                                                                            [BalanceTTM.TOTASSET,  # 资产总计
                                                                             BalanceTTM.RIGHAGGR,  # 所有者权益（或股东权益）合计
                                                                             BalanceTTM.PARESHARRIGH,  # 归属于母公司股东权益合计
-                                                                            ], dates=[trade_date]).drop(columns, axis=1)
+                                                                            ], dates=[trade_date])
+        for column in columns:
+            if column in list(balance_ttm_sets.keys()):
+                balance_ttm_sets = balance_ttm_sets.drop(column, axis=1)
         balance_ttm_sets = balance_ttm_sets.rename(
             columns={'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
                      'RIGHAGGR': 'total_owner_equities',  # 所有者权益（或股东权益）合计
@@ -246,9 +276,10 @@ class CalcEngine(object):
         income_ttm_sets_pre_year_1 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.NETPROFIT,
-                                                                                      ],
-                                                                                     dates=[trade_date_pre_year]).drop(
-            columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year])
+        for column in columns:
+            if column in list(income_ttm_sets_pre_year_1.keys()):
+                income_ttm_sets_pre_year_1 = income_ttm_sets_pre_year_1.drop(column, axis=1)
         income_ttm_sets_pre_year_1 = income_ttm_sets_pre_year_1.rename(
             columns={'BIZINCO': 'operating_revenue_pre_year_1',  # 营业收入
                      'NETPROFIT': 'net_profit_pre_year_1',  # 净利润
@@ -257,7 +288,10 @@ class CalcEngine(object):
         income_ttm_sets_pre_year_2 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.NETPROFIT,
-                                                                                      ], dates=[trade_date_pre_year_2]).drop(columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_2])
+        for column in columns:
+            if column in list(income_ttm_sets_pre_year_2.keys()):
+                income_ttm_sets_pre_year_2 = income_ttm_sets_pre_year_2.drop(column, axis=1)
         income_ttm_sets_pre_year_2 = income_ttm_sets_pre_year_2.rename(
             columns={'BIZINCO': 'operating_revenue_pre_year_2',  # 营业收入
                      'NETPROFIT': 'net_profit_pre_year_2',  # 净利润
@@ -266,7 +300,10 @@ class CalcEngine(object):
         income_ttm_sets_pre_year_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.NETPROFIT,
-                                                                                      ], dates=[trade_date_pre_year_3]).drop(columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_3])
+        for column in columns:
+            if column in list(income_ttm_sets_pre_year_3.keys()):
+                income_ttm_sets_pre_year_3 = income_ttm_sets_pre_year_3.drop(column, axis=1)
         income_ttm_sets_pre_year_3 = income_ttm_sets_pre_year_3.rename(
             columns={'BIZINCO': 'operating_revenue_pre_year_3',  # 营业收入
                      'NETPROFIT': 'net_profit_pre_year_3',  # 净利润
@@ -275,7 +312,10 @@ class CalcEngine(object):
         income_ttm_sets_pre_year_4 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                                      [IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.NETPROFIT,
-                                                                                      ], dates=[trade_date_pre_year_4]).drop(columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_4])
+        for column in columns:
+            if column in list(income_ttm_sets_pre_year_4.keys()):
+                income_ttm_sets_pre_year_4 = income_ttm_sets_pre_year_4.drop(column, axis=1)
         income_ttm_sets_pre_year_4 = income_ttm_sets_pre_year_4.rename(
             columns={'BIZINCO': 'operating_revenue_pre_year_4',  # 营业收入
                      'NETPROFIT': 'net_profit_pre_year_4',  # 净利润
@@ -306,7 +346,10 @@ class CalcEngine(object):
                                                                                   trade_date_pre_year_2,
                                                                                   trade_date_pre_year_3,
                                                                                   trade_date_pre_year_4,
-                                                                                  ]).drop(columns, axis=1)
+                                                                                  ])
+        for column in columns:
+            if column in list(balance_con_sets.keys()):
+                balance_con_sets = balance_con_sets.drop(column, axis=1)
         balance_con_sets = balance_con_sets.groupby(['security_code'])
         balance_con_sets = balance_con_sets.sum()
         balance_con_sets = balance_con_sets.rename(columns={'TOTASSET': 'total_assets',
@@ -335,7 +378,10 @@ class CalcEngine(object):
                                                                                  trade_date_pre_year_3,
                                                                                  trade_date_pre_year_4,
                                                                                  trade_date_pre_year_5,
-                                                                                 ]).drop(columns, axis=1)
+                                                                                 ])
+        for column in columns:
+            if column in list(income_con_sets.keys()):
+                income_con_sets = income_con_sets.drop(column, axis=1)
         income_con_sets = income_con_sets.groupby(['security_code'])
         income_con_sets = income_con_sets.sum()
         income_con_sets = income_con_sets.rename(columns={'NETPROFIT': 'net_profit'}).reset_index()

@@ -274,7 +274,7 @@ class FactorEarning(object):
     @staticmethod
     def NetPft5YAvgChgTTM(ttm_earning, factor_earning,
                           dependencies=['net_profit', 'net_profit_pre_year_1', 'net_profit_pre_year_2',
-                                          'net_profit_pre_year_3', 'net_profit_pre_year_4']):
+                                        'net_profit_pre_year_3', 'net_profit_pre_year_4']):
         """
         :name: 5年收益增长率(TTM)
         :desc: 5年收益关于时间（年）进行线性回归的回归系数/（5年收益均值的绝对值）对于上市新股以上市前已披露的3年净利润计算之后新的年报数据披露后再计算四年、五年的收益增长率数据每年变化一次，在年报披露日
@@ -317,10 +317,10 @@ class FactorEarning(object):
 
     @staticmethod
     def Sales5YChgTTM(ttm_earning, factor_earning, dependencies=['operating_revenue',
-                                                                       'operating_revenue_pre_year_1',
-                                                                       'operating_revenue_pre_year_2',
-                                                                       'operating_revenue_pre_year_3',
-                                                                       'operating_revenue_pre_year_4']):
+                                                                 'operating_revenue_pre_year_1',
+                                                                 'operating_revenue_pre_year_2',
+                                                                 'operating_revenue_pre_year_3',
+                                                                 'operating_revenue_pre_year_4']):
         """
         :name: 5 年营业收入增长率(TTM)
         :desc: 5 年营收关于时间（年）进行线性回归的回归系数/5 年营业收入均值的绝对值

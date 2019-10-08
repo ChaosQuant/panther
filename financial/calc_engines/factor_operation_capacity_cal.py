@@ -50,8 +50,10 @@ class CalcEngine(object):
         ttm_cash_flow = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                         [CashFlowTTM.MANANETR,
                                                                          CashFlowTTM.FINALCASHBALA,
-                                                                         ], dates=[trade_date]).drop(columns, axis=1)
-
+                                                                         ], dates=[trade_date])
+        for column in columns:
+            if column in list(ttm_cash_flow.keys()):
+                ttm_cash_flow = ttm_cash_flow.drop(column, axis=1)
         ttm_cash_flow = ttm_cash_flow.rename(columns={
             'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
             'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
@@ -61,7 +63,10 @@ class CalcEngine(object):
                                                                      [IncomeTTM.BIZCOST,
                                                                       IncomeTTM.BIZINCO,
                                                                       IncomeTTM.BIZTOTINCO,
-                                                                      ], dates=[trade_date]).drop(columns, axis=1)
+                                                                      ], dates=[trade_date])
+        for column in columns:
+            if column in list(ttm_income.keys()):
+                ttm_income = ttm_income.drop(column, axis=1)
         ttm_income = ttm_income.rename(columns={
             'BIZCOST': 'operating_cost',  # 营业成本
             'BIZINCO': 'operating_revenue',  # 营业收入
@@ -82,7 +87,10 @@ class CalcEngine(object):
                                                                        BalanceTTM.ACCOPAYA,
                                                                        BalanceTTM.DERILIAB,
                                                                        BalanceTTM.RIGHAGGR,
-                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+                                                                       ], dates=[trade_date])
+        for column in columns:
+            if column in list(ttm_balance.keys()):
+                ttm_balance = ttm_balance.drop(column, axis=1)
         ttm_balance = ttm_balance.rename(columns={
             'ACCORECE': 'account_receivable',  # 应收账款
             'NOTESRECE': 'bill_receivable',  # 应收票据

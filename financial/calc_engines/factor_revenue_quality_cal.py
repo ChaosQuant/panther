@@ -5,7 +5,8 @@ import pdb, importlib, inspect, time, datetime, json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+from datetime import timedelta, datetime
 from financial import factor_revenue_quality
 
 from data.model import BalanceTTM, BalanceReport
@@ -84,8 +85,10 @@ class CalcEngine(object):
                                                                        IncomeReport.NONOEXPE,
                                                                        IncomeReport.BIZTOTCOST,
                                                                        IncomeReport.BIZTOTINCO,
-                                                                       ],
-                                                                      dates=[trade_date]).drop(columns, axis=1)
+                                                                       ], dates=[trade_date])
+        for col in columns:
+            if col in list(income_sets.keys()):
+                income_sets = income_sets.drop(col, axis=1)
         income_sets = income_sets.rename(columns={'TOTPROFIT': 'total_profit',  # 利润总额
                                                   'NONOREVE': 'non_operating_revenue',  # 营业外收入
                                                   'NONOEXPE': 'non_operating_expense',  # 营业外支出
@@ -95,8 +98,10 @@ class CalcEngine(object):
 
         balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                        [BalanceReport.TOTALCURRLIAB
-                                                                        ],
-                                                                       dates=[trade_date]).drop(columns, axis=1)
+                                                                        ], dates=[trade_date])
+        for col in columns:
+            if col in list(balance_sets.keys()):
+                balance_sets = balance_sets.drop(col, axis=1)
         balance_sets = balance_sets.rename(columns={'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
                                                     })
         tp_revenue_quanlity = pd.merge(cash_flow_sets, income_sets, on='security_code')
@@ -115,7 +120,10 @@ class CalcEngine(object):
                                                                                  trade_date_pre_year_2,
                                                                                  trade_date_pre_year_3,
                                                                                  trade_date_pre_year_4,
-                                                                                 ]).drop(columns, axis=1)
+                                                                                 ])
+        for col in columns:
+            if col in list(income_con_sets.keys()):
+                income_con_sets = income_con_sets.drop(col, axis=1)
         income_con_sets = income_con_sets.groupby(['security_code'])
         income_con_sets = income_con_sets.sum()
         income_con_sets = income_con_sets.rename(columns={'NETPROFIT': 'net_profit_5'})
@@ -123,8 +131,10 @@ class CalcEngine(object):
         # TTM Data
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.BIZNETCFLOW,
-                                                                              ],
-                                                                             dates=[trade_date]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(cash_flow_ttm_sets.keys()):
+                cash_flow_ttm_sets = cash_flow_ttm_sets.drop(col, axis=1)
         cash_flow_ttm_sets = cash_flow_ttm_sets.rename(
             columns={'BIZNETCFLOW': 'net_operate_cash_flow',  # 经营活动产生的现金流量净额
                      })
@@ -138,7 +148,10 @@ class CalcEngine(object):
                                                                            IncomeTTM.PERPROFIT,
                                                                            IncomeTTM.NETPROFIT,
                                                                            IncomeTTM.BIZINCO,
-                                                                           ], dates=[trade_date]).drop(columns, axis=1)
+                                                                           ], dates=[trade_date])
+        for col in columns:
+            if col in list(income_ttm_sets.keys()):
+                income_ttm_sets = income_ttm_sets.drop(col, axis=1)
         income_ttm_sets = income_ttm_sets.rename(
             columns={'TOTPROFIT': 'total_profit',  # 利润总额
                      'NONOREVE': 'non_operating_revenue',  # 营业外收入
@@ -152,8 +165,10 @@ class CalcEngine(object):
 
         balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
                                                                            [BalanceTTM.TOTALCURRLIAB
-                                                                            ],
-                                                                           dates=[trade_date]).drop(columns, axis=1)
+                                                                            ], dates=[trade_date])
+        for col in columns:
+            if col in list(balance_ttm_sets.keys()):
+                balance_ttm_sets = balance_ttm_sets.drop(col, axis=1)
         balance_ttm_sets = balance_ttm_sets.rename(
             columns={'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
                      })
@@ -162,13 +177,17 @@ class CalcEngine(object):
         valuation_sets = get_fundamentals(query(Valuation.security_code,
                                                 Valuation.trade_date,
                                                 Valuation.market_cap, )
-                                          .filter(Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
+                                          .filter(Valuation.trade_date.in_([trade_date])))
+        for col in column:
+            if col in list(valuation_sets.keys()):
+                valuation_sets = valuation_sets.drop(col, axis=1)
 
         indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                              [IndicatorTTM.NVALCHGITOTP,
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
-
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(indicator_ttm_sets.keys()):
+                indicator_ttm_sets = indicator_ttm_sets.drop(col, axis=1)
         ttm_revenue_quanlity = pd.merge(cash_flow_ttm_sets, income_ttm_sets, on='security_code')
         ttm_revenue_quanlity = pd.merge(balance_ttm_sets, ttm_revenue_quanlity, on='security_code')
         ttm_revenue_quanlity = pd.merge(valuation_sets, ttm_revenue_quanlity, on='security_code')
@@ -184,8 +203,10 @@ class CalcEngine(object):
                                                                                 trade_date_pre_year,
                                                                                 trade_date_pre_year_2,
                                                                                 trade_date_pre_year_3,
-                                                                                trade_date_pre_year_4]))).drop(column,
-                                                                                                               axis=1)
+                                                                                trade_date_pre_year_4])))
+        for col in column:
+            if col in list(valuation_con_sets.keys()):
+                valuation_con_sets = valuation_con_sets.drop(col, axis=1)
 
         valuation_con_sets = valuation_con_sets.groupby(['security_code'])
         valuation_con_sets = valuation_con_sets.sum()

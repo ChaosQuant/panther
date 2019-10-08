@@ -5,6 +5,8 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
+import pandas as pd
+from datetime import datetime
 from financial import factor_capital_structure
 
 from data.model import BalanceMRQ
@@ -51,9 +53,10 @@ class CalcEngine(object):
                                                                         BalanceMRQ.CONSPROG,
                                                                         BalanceMRQ.RIGHAGGR,
                                                                         BalanceMRQ.TOTCURRASSET,
-                                                                        ],
-                                                                       dates=[trade_date]).drop(columns, axis=1)
-
+                                                                        ], dates=[trade_date])
+        for col in columns:
+            if col in list(balance_sets.keys()):
+                balance_sets = balance_sets.drop(col, axis=1)
         balance_sets = balance_sets.rename(columns={
             'TOTALNONCASSETS': 'total_non_current_assets',  # 非流动资产合计
             'TOTASSET': 'total_assets',  # 资产总计
