@@ -96,9 +96,9 @@ class CalcEngine(object):
 
         factor_management = factor_management.reset_index()
         factor_management['trade_date'] = str(trade_date)
-        # factor_management = factor_management.fillna(0, inplace=True)
-        factor_management = factor_management.replace(-np.inf, None, inplace=True)
-        factor_management = factor_management.replace(np.inf, None, inplace=True)
+        # factor_management.fillna(0, inplace=True)
+        factor_management.replace([-np.inf, np.inf, None], 'null', inplace=True)
+
         return factor_management
 
     def local_run(self, trade_date):

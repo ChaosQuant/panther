@@ -332,8 +332,7 @@ class CalcEngine(object):
 
         # factor_historical_value = factor_historical_value.reset_index()
         factor_historical_value['trade_date'] = str(trade_date)
-        factor_historical_value = factor_historical_value.replace(-np.inf, None, inplace=True)
-        factor_historical_value = factor_historical_value.replace(np.inf, None, inplace=True)
+        factor_historical_value.replace([-np.inf, np.inf, None], 'null', inplace=True)
         return factor_historical_value
     
     def local_run(self, trade_date):

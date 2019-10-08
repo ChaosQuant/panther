@@ -324,8 +324,7 @@ class CalcEngine(object):
 
         historical_growth_sets = historical_growth_sets.reset_index()
         historical_growth_sets['trade_date'] = str(trade_date)
-        historical_growth_sets = historical_growth_sets.replace(-np.inf, None, inplace=True)
-        historical_growth_sets = historical_growth_sets.replace(np.inf, None, inplace=True)
+        historical_growth_sets.replace([-np.inf, np.inf, None], 'null', inplace=True)
         return historical_growth_sets
 
     def local_run(self, trade_date):

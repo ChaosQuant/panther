@@ -205,8 +205,7 @@ class CalcEngine(object):
 
         factor_share_indicators = factor_share_indicators.reset_index()
         factor_share_indicators['trade_date'] = str(trade_date)
-        factor_share_indicators = factor_share_indicators.replace(-np.inf, None, inplace=True)
-        factor_share_indicators = factor_share_indicators.replace(np.inf, None, inplace=True)
+        factor_share_indicators.replace([-np.inf, np.inf, None], 'null', inplace=True)
         return factor_share_indicators
 
     def local_run(self, trade_date):
