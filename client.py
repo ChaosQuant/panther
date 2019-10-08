@@ -29,7 +29,7 @@ def get_start_date(factor_name, type):
     destination = sa.create_engine(db_url)
     if type == 'after':
         td = 'max(trade_date)'
-        date = 20150101
+        date = 20120101
     else:
         td = 'min(trade_date)'
         # date = int(datetime.now().date().strftime('%Y%m%d'))
@@ -45,7 +45,7 @@ def get_start_date(factor_name, type):
 
 def do_schedule(factor_name, calc_engine, type):
     if type == 'pre':
-        start_date = 20150101
+        start_date = 20120101
         end_date = get_start_date(factor_name, type)
     else:
         start_date = get_start_date(factor_name, type)
@@ -71,7 +71,7 @@ def do_update(start_date, end_date, calc_engine, type='after'):
 if __name__ == "__main__":
     print('in client exe')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start_date', type=int, default=20150101)
+    parser.add_argument('--start_date', type=int, default=20120101)
     parser.add_argument('--end_date', type=int, default=20190101)
     parser.add_argument('--packet_name', type=str, default='earning_expectation.factor_earning_expectation')
     parser.add_argument('--class_name', type=str, default='FactorEarningExpectation')
