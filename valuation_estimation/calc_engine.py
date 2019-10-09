@@ -80,6 +80,10 @@ class CalcEngine(object):
         indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
                                                                          [IndicatorReport.FCFF,
                                                                           ], dates=[trade_date])
+
+        if len(indicator_sets) <= 0 or indicator_sets is None:
+            indicator_sets = pd.DataFrame({'security_code':[], 'FCFF':[]})
+
         for column in columns:
             if column in list(indicator_sets.keys()):
                 indicator_sets = indicator_sets.drop(column, axis=1)
@@ -90,6 +94,9 @@ class CalcEngine(object):
         balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                        [BalanceReport.TOTASSET,
                                                                         ], dates=[trade_date])
+        if len(balance_sets) <= 0 or balance_sets is None:
+            balance_sets = pd.DataFrame({'security_code':[], 'TOTASSET':[]})
+
         for column in columns:
             if column in list(balance_sets.keys()):
                 balance_sets = balance_sets.drop(column, axis=1)
@@ -102,6 +109,9 @@ class CalcEngine(object):
         cash_flow_mrq = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
                                                                         [CashFlowMRQ.FINALCASHBALA,
                                                                          ], dates=[trade_date])
+        if len(cash_flow_mrq) <= 0 or cash_flow_mrq is None:
+            cash_flow_mrq = pd.DataFrame({'security_code':[], 'FINALCASHBALA':[]})
+
         for column in columns:
             if column in list(cash_flow_mrq.keys()):
                 cash_flow_mrq = cash_flow_mrq.drop(column, axis=1)
@@ -115,9 +125,13 @@ class CalcEngine(object):
                                                                        BalanceMRQ.SHORTTERMBORR,
                                                                        BalanceMRQ.PARESHARRIGH,
                                                                        ], dates=[trade_date])
+        if len(balance_mrq) <= 0 or balance_mrq is None:
+            balance_mrq = pd.DataFrame({'security_code':[], 'LONGBORR':[], 'TOTASSET':[], 'SHORTTERMBORR':[],
+                                        'PARESHARRIGH':[]})
         for column in columns:
             if column in list(balance_mrq.keys()):
                 balance_mrq = balance_mrq.drop(column, axis=1)
+
         balance_mrq = balance_mrq.rename(columns={
             'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
             'LONGBORR': 'longterm_loan',  # 长期借款
@@ -131,6 +145,10 @@ class CalcEngine(object):
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.MANANETR,
                                                                               ], dates=[trade_date])
+
+        if len(cash_flow_ttm_sets) <= 0 or cash_flow_ttm_sets is None:
+            cash_flow_ttm_sets = pd.DataFrame({'security_code':[], 'MANANETR':[]})
+
         for column in columns:
             if column in list(cash_flow_ttm_sets.keys()):
                 cash_flow_ttm_sets = cash_flow_ttm_sets.drop(column, axis=1)
@@ -141,6 +159,9 @@ class CalcEngine(object):
         indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                              [IndicatorTTM.NETPROFITCUT,
                                                                               ], dates=[trade_date_1y])
+        if len(indicator_ttm_sets) <= 0 or indicator_ttm_sets is None:
+            indicator_ttm_sets = pd.DataFrame({'security_code':[], 'NETPROFITCUT':[]})
+
         for column in columns:
             if column in list(indicator_ttm_sets.keys()):
                 indicator_ttm_sets = indicator_ttm_sets.drop(column, axis=1)
@@ -155,6 +176,10 @@ class CalcEngine(object):
                                                                            IncomeTTM.BIZINCO,
                                                                            IncomeTTM.TOTPROFIT,
                                                                            ], dates=[trade_date])
+        if len(income_ttm_sets) <= 0 or income_ttm_sets is None:
+            income_ttm_sets = pd.DataFrame({'security_code':[], 'NETPROFIT':[], 'PARENETP':[], 'BIZTOTINCO':[],
+                                            'BIZINCO':[], 'TOTPROFIT':[]})
+
         for column in columns:
             if column in list(income_ttm_sets.keys()):
                 income_ttm_sets = income_ttm_sets.drop(column, axis=1)
@@ -169,6 +194,9 @@ class CalcEngine(object):
         income_ttm_sets_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                             [IncomeTTM.PARENETP,
                                                                              ], dates=[trade_date_3y])
+        if len(income_ttm_sets_3) <= 0 or income_ttm_sets_3 is None:
+            income_ttm_sets_3 = pd.DataFrame({'security_code':[], 'PARENETP':[]})
+
         for column in columns:
             if column in list(income_ttm_sets_3.keys()):
                 income_ttm_sets_3 = income_ttm_sets_3.drop(column, axis=1)
@@ -179,6 +207,9 @@ class CalcEngine(object):
         income_ttm_sets_5 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                             [IncomeTTM.PARENETP,
                                                                              ], dates=[trade_date_5y])
+        if len(income_ttm_sets_5) <= 0 or income_ttm_sets_5 is None:
+            income_ttm_sets_5 = pd.DataFrame({'security_code':[], 'PARENETP':[]})
+
         for column in columns:
             if column in list(income_ttm_sets_5.keys()):
                 income_ttm_sets_5 = income_ttm_sets_5.drop(column, axis=1)
@@ -200,8 +231,11 @@ class CalcEngine(object):
                                                 Valuation.pb,
                                                 Valuation.pcf,
                                                 Valuation.market_cap,
-                                                Valuation.circulating_market_cap)
-                                          .filter(Valuation.trade_date.in_([trade_date])))
+                                                Valuation.circulating_market_cap
+                                                ).filter(Valuation.trade_date.in_([trade_date])))
+        if len(valuation_sets) <= 0 or valuation_sets is None:
+            valuation_sets = pd.DataFrame({'security_code':[], 'pe':[], 'ps':[], 'pb':[],
+                                           'pcf':[], 'market_cap':[], 'circulating_market_cap':[]})
         for col in column:
             if col in list(valuation_sets.keys()):
                 valuation_sets = valuation_sets.drop(col, axis=1)
@@ -213,7 +247,10 @@ class CalcEngine(object):
 
         pe_set = get_fundamentals(query(Valuation.security_code,
                                         Valuation.trade_date,
-                                        Valuation.pe, ).filter(Valuation.trade_date.in_([trade_date])))
+                                        Valuation.pe,
+                                        ).filter(Valuation.trade_date.in_([trade_date])))
+        if len(pe_set) <= 0 or pe_set is None:
+            pe_set = pd.DataFrame({'security_code':[], 'pe':[]})
         for col in column:
             if col in list(pe_set.keys()):
                 pe_set = pe_set.drop(col, axis=1)
@@ -222,6 +259,8 @@ class CalcEngine(object):
                                             Valuation.trade_date,
                                             Valuation.pe)
                                       .filter(Valuation.trade_date.between(trade_date_6m, trade_date)))
+        if len(pe_sets_6m) <= 0 or pe_sets_6m is None:
+            pe_sets_6m = pd.DataFrame({'security_code':[], 'pe':[]})
         for col in column:
             if col in list(pe_sets_6m.keys()):
                 pe_sets_6m = pe_sets_6m.drop(col, axis=1)
@@ -231,6 +270,8 @@ class CalcEngine(object):
                                             Valuation.trade_date,
                                             Valuation.pe)
                                       .filter(Valuation.trade_date.between(trade_date_3m, trade_date)))
+        if len(pe_sets_3m) <= 0 or pe_sets_3m is None:
+            pe_sets_3m = pd.DataFrame({'security_code':[], 'pe':[]})
         for col in column:
             if col in list(pe_sets_3m.keys()):
                 pe_sets_3m = pe_sets_3m.drop(col, axis=1)
@@ -240,6 +281,8 @@ class CalcEngine(object):
                                             Valuation.trade_date,
                                             Valuation.pe)
                                       .filter(Valuation.trade_date.between(trade_date_1m, trade_date)))
+        if len(pe_sets_2m) <= 0 or pe_sets_2m is None:
+            pe_sets_2m = pd.DataFrame({'security_code':[], 'pe':[]})
         for col in column:
             if col in list(pe_sets_2m.keys()):
                 pe_sets_2m = pe_sets_2m.drop(col, axis=1)
@@ -249,6 +292,8 @@ class CalcEngine(object):
                                             Valuation.trade_date,
                                             Valuation.pe)
                                       .filter(Valuation.trade_date.between(trade_date_1y, trade_date)))
+        if len(pe_sets_1y) <= 0 or pe_sets_1y is None:
+            pe_sets_1y = pd.DataFrame({'security_code':[], 'pe':[]})
         for col in column:
             if col in list(pe_sets_1y.keys()):
                 pe_sets_1y = pe_sets_1y.drop(col, axis=1)
