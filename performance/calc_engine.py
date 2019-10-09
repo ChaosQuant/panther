@@ -166,8 +166,8 @@ class CalcEngine(object):
                                                                 index_rets=index_rets)
                 return_basic_list.append(group_rets_df)
                 return_sub_list.append(return_sub_df)
-                # print(group_rets_df)
-                # print(return_sub_df)
+                print(group_rets_df)
+                print(return_sub_df)
 
                 ic_df, ic_sub_df, group_ic_df, group_ic_sub_df, industry_ic_df = self.calc_icir(benchmark=key,
                                                                                                 universe=key,
@@ -179,11 +179,11 @@ class CalcEngine(object):
                 group_ic_list.append(group_ic_df)
                 group_ic_sub_list.append(group_ic_sub_df)
                 industry_ic_list.append(industry_ic_df)
-                # print(ic_df)
-                # print(ic_sub_df)
-                # print(group_ic_df)
-                # print(group_ic_sub_df)
-                # print(industry_ic_df)
+                print(ic_df)
+                print(ic_sub_df)
+                print(group_ic_df)
+                print(group_ic_sub_df)
+                print(industry_ic_df)
 
                 other_basic_df, other_sub_df = self.calc_other(benchmark=key,
                                                                universe=key,
@@ -193,8 +193,8 @@ class CalcEngine(object):
                                                                benchmark_weights=benchmark_industry_weights)
                 other_basic_list.append(other_basic_df)
                 other_sub_list.append(other_sub_df)
-                # print(other_basic_df)
-                # print(other_sub_df)
+                print(other_basic_df)
+                print(other_sub_df)
                 print(time.time() - start_time)
 
             # 存储层
