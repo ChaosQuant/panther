@@ -32,8 +32,8 @@ def get_start_date(factor_name, type):
         date = 20120101
     else:
         td = 'min(trade_date)'
-        # date = int(datetime.now().date().strftime('%Y%m%d'))
-        date = 20190101
+        date = int(datetime.now().date().strftime('%Y%m%d'))
+        # date = 20190101
     sql = """select {0} as trade_date from `{1}`;""".format(td, factor_name)
     trades_sets = pd.read_sql(sql, destination)
     if not trades_sets.empty:
@@ -49,8 +49,8 @@ def do_schedule(factor_name, calc_engine, type):
         end_date = get_start_date(factor_name, type)
     else:
         start_date = get_start_date(factor_name, type)
-        # end_date = int(datetime.now().date().strftime('%Y%m%d'))
-        date = 20190101
+        end_date = int(datetime.now().date().strftime('%Y%m%d'))
+        # date = 20190101
     do_update(start_date, end_date, calc_engine, type)
 
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     print('in client exe')
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_date', type=int, default=20120101)
-    parser.add_argument('--end_date', type=int, default=20190101)
+    parser.add_argument('--end_date', type=int, default=0)
     parser.add_argument('--packet_name', type=str, default='earning_expectation.factor_earning_expectation')
     parser.add_argument('--class_name', type=str, default='FactorEarningExpectation')
     parser.add_argument('--rebuild', type=bool, default=False)
