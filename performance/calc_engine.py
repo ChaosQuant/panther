@@ -152,50 +152,53 @@ class CalcEngine(object):
 
             for key, value in benchmark_code_dict.items():
                 total_data = total_data_dict[value]
-                benchmark_industry_weights = benchmark_industry_weights_dict[value]
-                index_rets = index_rets_dict[value]
-                start_time = time.time()
-                print('------------------------------------------------')
-                print('The factor {} is calculated with benchmark {}!'.format(factor_name, key))
-                group_rets_df, return_sub_df = self.calc_return(benchmark=key,
-                                                                universe=key,
-                                                                trade_date=trade_date,
-                                                                factor_name=factor_name,
-                                                                total_data=total_data,
-                                                                benchmark_weights=benchmark_industry_weights,
-                                                                index_rets=index_rets)
-                return_basic_list.append(group_rets_df)
-                return_sub_list.append(return_sub_df)
-                print(group_rets_df)
-                print(return_sub_df)
 
-                ic_df, ic_sub_df, group_ic_df, group_ic_sub_df, industry_ic_df = self.calc_icir(benchmark=key,
-                                                                                                universe=key,
-                                                                                                trade_date=trade_date,
-                                                                                                factor_name=factor_name,
-                                                                                                total_data=total_data)
-                ic_basic_list.append(ic_df)
-                ic_sub_list.append(ic_sub_df)
-                group_ic_list.append(group_ic_df)
-                group_ic_sub_list.append(group_ic_sub_df)
-                industry_ic_list.append(industry_ic_df)
-                print(ic_df)
-                print(ic_sub_df)
-                print(group_ic_df)
-                print(group_ic_sub_df)
-                print(industry_ic_df)
+                for ben_key, ben_value in benchmark_code_dict.items():
+                    benchmark_industry_weights = benchmark_industry_weights_dict[ben_value]
+                    index_rets = index_rets_dict[ben_value]
 
-                other_basic_df, other_sub_df = self.calc_other(benchmark=key,
-                                                               universe=key,
-                                                               trade_date=trade_date,
-                                                               factor_name=factor_name,
-                                                               total_data=total_data,
-                                                               benchmark_weights=benchmark_industry_weights)
-                other_basic_list.append(other_basic_df)
-                other_sub_list.append(other_sub_df)
-                print(other_basic_df)
-                print(other_sub_df)
-                print(time.time() - start_time)
+                    start_time = time.time()
+                    print('------------------------------------------------')
+                    print('The factor {} is calculated with universe {} and benchmark {}!'.format(factor_name, key, ben_key))
+                    group_rets_df, return_sub_df = self.calc_return(benchmark=ben_key,
+                                                                    universe=key,
+                                                                    trade_date=trade_date,
+                                                                    factor_name=factor_name,
+                                                                    total_data=total_data,
+                                                                    benchmark_weights=benchmark_industry_weights,
+                                                                    index_rets=index_rets)
+                    return_basic_list.append(group_rets_df)
+                    return_sub_list.append(return_sub_df)
+                    # print(group_rets_df)
+                    # print(return_sub_df)
+
+                    ic_df, ic_sub_df, group_ic_df, group_ic_sub_df, industry_ic_df = self.calc_icir(benchmark=ben_key,
+                                                                                                    universe=key,
+                                                                                                    trade_date=trade_date,
+                                                                                                    factor_name=factor_name,
+                                                                                                    total_data=total_data)
+                    ic_basic_list.append(ic_df)
+                    ic_sub_list.append(ic_sub_df)
+                    group_ic_list.append(group_ic_df)
+                    group_ic_sub_list.append(group_ic_sub_df)
+                    industry_ic_list.append(industry_ic_df)
+                    # print(ic_df)
+                    # print(ic_sub_df)
+                    # print(group_ic_df)
+                    # print(group_ic_sub_df)
+                    # print(industry_ic_df)
+
+                    other_basic_df, other_sub_df = self.calc_other(benchmark=ben_key,
+                                                                   universe=key,
+                                                                   trade_date=trade_date,
+                                                                   factor_name=factor_name,
+                                                                   total_data=total_data,
+                                                                   benchmark_weights=benchmark_industry_weights)
+                    other_basic_list.append(other_basic_df)
+                    other_sub_list.append(other_sub_df)
+                    # print(other_basic_df)
+                    # print(other_sub_df)
+                    # print(time.time() - start_time)
 
             # 存储层
             return_basic_df = pd.concat(return_basic_list, axis=0)
