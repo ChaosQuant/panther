@@ -37,7 +37,7 @@ class Rebuild(object):
         session.execute(delete_sql)
         update_sql = """insert into `{0}` (`name`,`factor_type`,`type_1`,`type_2`,`description`) values('{1}','{2}','{3}','{4}','{5}');""".format(
             'factor_info', class_method().name, class_name, class_method().factor_type1, class_method().factor_type2,
-            class_method().desciption)
+            class_method().description)
         session.execute(update_sql)
         session.commit()
 

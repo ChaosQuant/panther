@@ -5,7 +5,9 @@ import pdb, importlib, inspect, time, datetime, json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+import numpy as np
+from datetime import timedelta, datetime
 from financial import factor_per_share_indicators
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
@@ -13,6 +15,7 @@ from data.model import CashFlowTTM, CashFlowReport
 from data.model import IndicatorReport
 from data.model import IncomeReport, IncomeTTM
 
+from vision.table.valuation import Valuation
 from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
 
@@ -74,9 +77,10 @@ class CalcEngine(object):
         # Report data
         cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport,
                                                                          [CashFlowReport.FINALCASHBALA,  # 期末现金及现金等价物余额
-                                                                          ],
-                                                                         dates=[trade_date]).drop(columns, axis=1)
-
+                                                                          ], dates=[trade_date])
+        for col in columns:
+            if col in list(cash_flow_sets.keys()):
+                cash_flow_sets = cash_flow_sets.drop(col, axis=1)
         cash_flow_sets = cash_flow_sets.rename(columns={'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
                                                         })
 
@@ -85,9 +89,10 @@ class CalcEngine(object):
                                                                        IncomeReport.BIZTOTINCO,  # 营业总收入
                                                                        IncomeReport.PERPROFIT,  # 营业利润
                                                                        IncomeReport.DILUTEDEPS,  # 稀释每股收益
-                                                                       ],
-                                                                      dates=[trade_date]).drop(columns, axis=1)
-
+                                                                       ], dates=[trade_date])
+        for col in columns:
+            if col in list(income_sets.keys()):
+                income_sets = income_sets.drop(col, axis=1)
         income_sets = income_sets.rename(columns={'BIZINCO': 'operating_revenue',  # 营业收入
                                                   'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
                                                   'PERPROFIT': 'operating_profit',  # 营业利润
@@ -99,8 +104,10 @@ class CalcEngine(object):
                                                                         BalanceReport.CAPISURP,
                                                                         BalanceReport.RESE,
                                                                         BalanceReport.UNDIPROF,
-                                                                        ],
-                                                                       dates=[trade_date]).drop(columns, axis=1)
+                                                                        ], dates=[trade_date])
+        for col in columns:
+            if col in list(balance_sets.keys()):
+                balance_sets = balance_sets.drop(col, axis=1)
         balance_sets = balance_sets.rename(columns={'PARESHARRIGH': 'total_owner_equities',  # 归属于母公司的所有者权益
                                                     'CAPISURP': 'capital_reserve_fund',  # 资本公积
                                                     'RESE': 'surplus_reserve_fund',  # 盈余公积
@@ -112,8 +119,10 @@ class CalcEngine(object):
                                                                           IndicatorReport.FCFF,  # 企业自由现金流量
                                                                           IndicatorReport.EPSBASIC,  # 基本每股收益
                                                                           IndicatorReport.DPS,  # 每股股利（税前）
-                                                                          ],
-                                                                         dates=[trade_date]).drop(columns, axis=1)
+                                                                          ], dates=[trade_date])
+        for col in columns:
+            if col in list(indicator_sets.keys()):
+                indicator_sets = indicator_sets.drop(col, axis=1)
         indicator_sets = indicator_sets.rename(columns={'FCFE': 'shareholder_fcfps',  # 股东自由现金流量
                                                         'FCFF': 'enterprise_fcfps',  # 企业自由现金流量
                                                         'EPSBASIC': 'basic_eps',  # 基本每股收益
@@ -124,9 +133,10 @@ class CalcEngine(object):
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.CASHNETI,  # 现金及现金等价物净增加额
                                                                               CashFlowTTM.MANANETR,  # 经营活动现金流量净额
-                                                                              ],
-                                                                             dates=[trade_date]).drop(columns, axis=1)
-
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(cash_flow_ttm_sets.keys()):
+                cash_flow_ttm_sets = cash_flow_ttm_sets.drop(col, axis=1)
         cash_flow_ttm_sets = cash_flow_ttm_sets.rename(
             columns={'CASHNETI': 'cash_equivalent_increase_ttm',  # 现金及现金等价物净增加额
                      'MANANETR': 'net_operate_cash_flow_ttm',  # 经营活动现金流量净额
@@ -137,9 +147,10 @@ class CalcEngine(object):
                                                                            IncomeTTM.PERPROFIT,  # 营业利润
                                                                            IncomeTTM.BIZINCO,  # 营业收入
                                                                            IncomeTTM.BIZTOTINCO,  # 营业总收入
-                                                                           ],
-                                                                          dates=[trade_date]).drop(columns, axis=1)
-
+                                                                           ], dates=[trade_date])
+        for col in columns:
+            if col in list(income_ttm_sets.keys()):
+                income_ttm_sets = income_ttm_sets.drop(col, axis=1)
         income_ttm_sets = income_ttm_sets.rename(columns={'PARENETP': 'np_parent_company_owners_ttm',  # 归属于母公司所有者的净利润
                                                           'PERPROFIT': 'operating_profit_ttm',  # 营业利润
                                                           'BIZINCO': 'operating_revenue_ttm',  # 营业收入
@@ -149,8 +160,11 @@ class CalcEngine(object):
         column = ['trade_date']
         valuation_data = get_fundamentals(query(Valuation.security_code,
                                                 Valuation.trade_date,
-                                                Valuation.capitalization, ).filter(
-            Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
+                                                Valuation.capitalization,
+                                                ).filter(Valuation.trade_date.in_([trade_date])))
+        for col in column:
+            if col in list(valuation_data.keys()):
+                valuation_data = valuation_data.drop(col, axis=1)
 
         valuation_sets = pd.merge(cash_flow_sets, income_sets, on='security_code').reindex()
         valuation_sets = pd.merge(balance_sets, valuation_sets, on='security_code').reindex()
@@ -191,6 +205,7 @@ class CalcEngine(object):
 
         factor_share_indicators = factor_share_indicators.reset_index()
         factor_share_indicators['trade_date'] = str(trade_date)
+        factor_share_indicators.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return factor_share_indicators
 
     def local_run(self, trade_date):

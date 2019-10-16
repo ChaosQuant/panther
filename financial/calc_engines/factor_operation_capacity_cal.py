@@ -5,7 +5,9 @@ import pdb, importlib, inspect, time, datetime, json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+import numpy as np
+from datetime import datetime
 from financial import factor_operation_capacity
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
@@ -49,8 +51,10 @@ class CalcEngine(object):
         ttm_cash_flow = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                         [CashFlowTTM.MANANETR,
                                                                          CashFlowTTM.FINALCASHBALA,
-                                                                         ], dates=[trade_date]).drop(columns, axis=1)
-
+                                                                         ], dates=[trade_date])
+        for column in columns:
+            if column in list(ttm_cash_flow.keys()):
+                ttm_cash_flow = ttm_cash_flow.drop(column, axis=1)
         ttm_cash_flow = ttm_cash_flow.rename(columns={
             'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
             'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
@@ -60,7 +64,10 @@ class CalcEngine(object):
                                                                      [IncomeTTM.BIZCOST,
                                                                       IncomeTTM.BIZINCO,
                                                                       IncomeTTM.BIZTOTINCO,
-                                                                      ], dates=[trade_date]).drop(columns, axis=1)
+                                                                      ], dates=[trade_date])
+        for column in columns:
+            if column in list(ttm_income.keys()):
+                ttm_income = ttm_income.drop(column, axis=1)
         ttm_income = ttm_income.rename(columns={
             'BIZCOST': 'operating_cost',  # 营业成本
             'BIZINCO': 'operating_revenue',  # 营业收入
@@ -78,9 +85,15 @@ class CalcEngine(object):
                                                                        BalanceTTM.CONSPROG,
                                                                        BalanceTTM.TOTASSET,
                                                                        BalanceTTM.ADVAPAYM,
+                                                                       BalanceTTM.ACCOPAYA,
+                                                                       BalanceTTM.DERILIAB,
                                                                        BalanceTTM.RIGHAGGR,
-                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+                                                                       ], dates=[trade_date])
+        for column in columns:
+            if column in list(ttm_balance.keys()):
+                ttm_balance = ttm_balance.drop(column, axis=1)
         ttm_balance = ttm_balance.rename(columns={
+            'ACCORECE': 'account_receivable',  # 应收账款
             'NOTESRECE': 'bill_receivable',  # 应收票据
             'PREP': 'advance_payment',  # 预付款项
             'INVE': 'inventories',  # 存货
@@ -90,7 +103,8 @@ class CalcEngine(object):
             'CONSPROG': 'constru_in_process',  # 在建工程
             'TOTASSET': 'total_assets',  # 资产总计
             'ADVAPAYM': 'advance_peceipts',  # 预收款项
-            'ACCORECE': 'accounts_payable',  # 应付账款
+            'ACCOPAYA': 'accounts_payable',  # 应付账款
+            'DERILIAB': 'notes_payable',  # 应付票据
             'RIGHAGGR': 'total_owner_equities',
         })
 
@@ -122,6 +136,7 @@ class CalcEngine(object):
 
         factor_management = factor_management.reset_index()
         factor_management['trade_date'] = str(trade_date)
+        factor_management.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return factor_management
 
     def local_run(self, trade_date):

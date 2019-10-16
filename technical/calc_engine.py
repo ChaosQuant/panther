@@ -85,7 +85,7 @@ class CalcEngine(object):
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
         begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
-        total_data = db_polymerize.fetch_data(begin_date, trade_date,'1b')
+        total_data = db_polymerize.fetch_technical_data(begin_date, trade_date,'1b')
         return total_data
     
     def process_calc(self, params):
@@ -105,7 +105,6 @@ class CalcEngine(object):
         func_sets = self._func_sets(class_method)
         start_time = time.time()
         for func in func_sets:
-            print(func)
             func_method = getattr(class_method,func)
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
@@ -118,7 +117,7 @@ class CalcEngine(object):
                 else:
                     data['indu'] = mkt_df['indu']
             calc_factor_list.append([class_name, packet_name, func, data])
-        with multiprocessing.Pool(processes=cpus*2) as p:
+        with multiprocessing.Pool(processes=cpus) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
         result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'security_code','code':'security_code'})
@@ -135,7 +134,6 @@ class CalcEngine(object):
         
         start_time = time.time()
         for func in func_sets:
-            print(func)
             func_method = getattr(class_method,func)
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default

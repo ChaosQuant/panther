@@ -33,7 +33,7 @@ class FactorOperationCapacity(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '营运能力'
-        self.desciption = '财务指标的二级指标-营运能力'
+        self.description = '财务指标的二级指标-营运能力'
 
     @staticmethod
     def AccPayablesRateTTM(ttm_management, factor_management, dependencies=['operating_cost',
@@ -106,7 +106,7 @@ class FactorOperationCapacity(object):
 
     @staticmethod
     def ARDaysTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'bill_receivable',
-                                                                       'account_receivable', 'advance_peceipts']):
+                                                                   'account_receivable', 'advance_peceipts']):
         """
         :name:应收账款周转天数(TTM)
         :desc:360/应收账款周转率

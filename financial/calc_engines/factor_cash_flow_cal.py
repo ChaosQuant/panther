@@ -4,12 +4,16 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
+import pandas as pd
+import numpy as np
+from datetime import datetime
 from financial import factor_cash_flow
 
 from data.model import BalanceTTM
 from data.model import CashFlowTTM, CashFlowReport
 from data.model import IncomeReport, IncomeTTM
 
+from vision.table.valuation import Valuation
 from vision.db.signletion_engine import *
 from data.sqlengine import sqlEngine
 # pd.set_option('display.max_columns', None)
@@ -55,8 +59,7 @@ class CalcEngine(object):
         tp_cash_flow = pd.merge(cash_flow_sets, income_sets, on="security_code")
 
         tp_cash_flow = tp_cash_flow.rename(columns={'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
-                                                    'LABORGETCASH': 'goods_sale_and_service_render_cash',
-                                                    # 销售商品、提供劳务收到的现金
+                                                    'LABORGETCASH': 'goods_sale_and_service_render_cash', # 销售商品、提供劳务收到的现金
                                                     'BIZINCO': 'operating_revenue',  # 营业收入
                                                     'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
                                                     'BIZTOTCOST': 'total_operating_cost',  # 营业总成本
@@ -76,7 +79,7 @@ class CalcEngine(object):
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.MANANETR,  # 经营活动现金流量净额
                                                                               CashFlowTTM.FINALCASHBALA,  # 期末现金及现金等价物余额
-                                                                              CashFlowTTM.LABORGETCASH,
+                                                                              CashFlowTTM.LABORGETCASH,  # 销售商品、提供劳务收到的现金
                                                                               ],
                                                                              dates=[trade_date]).drop(columns, axis=1)
 
@@ -102,8 +105,7 @@ class CalcEngine(object):
                                                       'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
                                                       'LONGBORR': 'longterm_loan',  # 长期借款
                                                       'TOTALCURRLIAB': 'total_current_liability',  # 流动负债合计
-                                                      'LABORGETCASH': 'goods_sale_and_service_render_cash',
-                                                      # 销售商品、提供劳务收到的现金
+                                                      'LABORGETCASH': 'goods_sale_and_service_render_cash',  # 销售商品、提供劳务收到的现金
                                                       # 'NDEBT':'net_liability',  # 净负债
                                                       'TOTCURRASSET': 'total_current_assets',  # 流动资产合计
                                                       'TOTASSET': 'total_assets',  # 资产总计
@@ -148,6 +150,7 @@ class CalcEngine(object):
 
         cash_flow_sets['trade_date'] = str(trade_date)
         cash_flow_sets = cash_flow_sets.reset_index()
+        cash_flow_sets.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return cash_flow_sets
 
     def local_run(self, trade_date):

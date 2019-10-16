@@ -35,7 +35,7 @@ class FactorCapitalStructure(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '资本结构'
-        self.desciption = '财务指标二级指标-资本结构'
+        self.description = '财务指标二级指标-资本结构'
 
     @staticmethod
     def NonCurrAssetRatio(tp_management, factor_management, dependencies=['total_non_current_assets', 'total_assets']):

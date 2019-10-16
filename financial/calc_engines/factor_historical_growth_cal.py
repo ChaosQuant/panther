@@ -5,7 +5,9 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+import numpy as np
+from datetime import timedelta, datetime
 from financial import factor_historical_growth
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
@@ -52,7 +54,7 @@ class CalcEngine(object):
 
     def _func_sets(self, method):
         # 私有函数和保护函数过滤
-        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method,x)), dir(method)))
+        return list(filter(lambda x: not x.startswith('_') and callable(getattr(method, x)), dir(method)))
 
     def loading_data(self, trade_date):
         """
@@ -77,8 +79,14 @@ class CalcEngine(object):
         balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                        [BalanceReport.TOTASSET,  # 总资产（资产合计）
                                                                         BalanceReport.RIGHAGGR,  # 股东权益合计
-                                                                        ],
-                                                                       dates=[trade_date]).drop(columns, axis=1)
+                                                                        ], dates=[trade_date])
+
+        if len(balance_sets) <= 0 or balance_sets is None:
+            balance_sets = pd.DataFrame({'security_code':[], 'TOTASSET':[], 'RIGHAGGR':[]})
+
+        for column in columns:
+            if column in list(balance_sets.keys()):
+                balance_sets = balance_sets.drop(column, axis=1)
         balance_sets = balance_sets.rename(columns={'TOTASSET': 'total_assets',  # 资产总计
                                                     'RIGHAGGR': 'total_owner_equities',  # 股东权益合计
                                                     })
@@ -86,9 +94,13 @@ class CalcEngine(object):
         balance_sets_pre_year = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                                 [BalanceReport.TOTASSET,  # 总资产（资产合计）
                                                                                  BalanceReport.RIGHAGGR,  # 股东权益合计
-                                                                                 ],
-                                                                                dates=[trade_date_pre_year]).drop(
-            columns, axis=1)
+                                                                                 ], dates=[trade_date_pre_year])
+        if len(balance_sets_pre_year) <= 0 or balance_sets_pre_year is None:
+            balance_sets_pre_year = pd.DataFrame({'security_code':[], 'TOTASSET':[], 'RIGHAGGR':[]})
+
+        for column in columns:
+            if column in list(balance_sets_pre_year.keys()):
+                balance_sets_pre_year = balance_sets_pre_year.drop(column, axis=1)
         balance_sets_pre_year = balance_sets_pre_year.rename(columns={"TOTASSET": "total_assets_pre_year",
                                                                       "RIGHAGGR": "total_owner_equities_pre_year"})
 
@@ -103,18 +115,41 @@ class CalcEngine(object):
                                                                            IncomeTTM.NETPROFIT,  # 净利润
                                                                            IncomeTTM.BIZCOST,  # 营业成本
                                                                            IncomeTTM.PARENETP],  # 归属于母公司所有者的净利润
-                                                                          dates=[trade_date]).drop(columns, axis=1)
+                                                                          dates=[trade_date])
+
+        if len(ttm_factor_sets) <= 0 or ttm_factor_sets is None:
+            ttm_factor_sets = pd.DataFrame({'security_code':[], 'BIZINCO':[], 'PERPROFIT':[], 'TOTPROFIT':[],
+                                            'NETPROFIT':[], 'BIZCOST':[], 'PARENETP':[]})
+
+        for column in columns:
+            if column in list(ttm_factor_sets.keys()):
+                ttm_factor_sets = ttm_factor_sets.drop(column, axis=1)
 
         ttm_cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.FINNETCFLOW,  # 筹资活动产生的现金流量净额
                                                                               CashFlowTTM.MANANETR,  # 经营活动产生的现金流量净额
-                                                                              CashFlowTTM.INVNETCASHFLOW,
-                                                                              # 投资活动产生的现金流量净额
+                                                                              CashFlowTTM.INVNETCASHFLOW, # 投资活动产生的现金流量净额
                                                                               CashFlowTTM.CASHNETI,  # 现金及现金等价物的净增加额
-                                                                              ], dates=[trade_date]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date])
+
+        if len(ttm_cash_flow_sets) <= 0 or ttm_cash_flow_sets is None:
+            ttm_cash_flow_sets = pd.DataFrame({'security_code':[], 'FINNETCFLOW':[], 'MANANETR':[],
+                                               'INVNETCASHFLOW':[], 'CASHNETI':[]})
+
+        for column in columns:
+            if column in list(ttm_cash_flow_sets.keys()):
+                ttm_cash_flow_sets = ttm_cash_flow_sets.drop(column, axis=1)
+
         ttm_indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                              [IndicatorTTM.NPCUT,
-                                                                              ], dates=[trade_date]).drop(columns, axis=1)
+                                                                              ], dates=[trade_date])
+
+        if len(ttm_indicator_sets) <= 0 or ttm_indicator_sets is None:
+            ttm_indicator_sets = pd.DataFrame({'security_code':[], 'NPCUT':[]})
+
+        for column in columns:
+            if column in list(ttm_indicator_sets.keys()):
+                ttm_indicator_sets = ttm_indicator_sets.drop(column, axis=1)
 
         ttm_indicator_sets = ttm_indicator_sets.rename(columns={'NPCUT': 'ni_attr_p_cut'})
 
@@ -144,9 +179,15 @@ class CalcEngine(object):
                                                                                IncomeTTM.NETPROFIT,  # 净利润
                                                                                IncomeTTM.BIZCOST,  # 营业成本
                                                                                IncomeTTM.PARENETP  # 归属于母公司所有者的净利润
-                                                                               ],
-                                                                              dates=[trade_date_pre_year]).drop(columns,
-                                                                                                                axis=1)
+                                                                               ], dates=[trade_date_pre_year])
+
+        if len(ttm_income_sets_pre) <= 0 or ttm_income_sets_pre is None:
+            ttm_income_sets_pre = pd.DataFrame({'security_code':[], 'BIZINCO':[], 'PERPROFIT':[], 'TOTPROFIT':[],
+                                                'NETPROFIT':[], 'BIZCOST':[], 'PARENETP':[]})
+
+        for column in columns:
+            if column in list(ttm_income_sets_pre.keys()):
+                ttm_income_sets_pre = ttm_income_sets_pre.drop(column, axis=1)
 
         ttm_factor_sets_pre = ttm_income_sets_pre.rename(
             columns={"BIZINCO": "operating_revenue_pre_year",
@@ -159,12 +200,16 @@ class CalcEngine(object):
 
         ttm_indicator_sets_pre = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                                  [IndicatorTTM.NPCUT,
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year]).drop(columns, axis=1)
+                                                                                  ], dates=[trade_date_pre_year])
+
+        if len(ttm_indicator_sets_pre) <= 0 or ttm_indicator_sets_pre is None:
+            ttm_indicator_sets_pre = pd.DataFrame({'security_code':[], 'NPCUT':[]})
+
+        for column in columns:
+            if column in list(ttm_indicator_sets_pre.keys()):
+                ttm_indicator_sets_pre = ttm_indicator_sets_pre.drop(column, axis=1)
         ttm_indicator_sets_pre = ttm_indicator_sets_pre.rename(columns={'NPCUT': 'ni_attr_p_cut_pre'})
-        # field_key = ttm_factor_sets_pre.keys()
-        # for i in field_key:
-        #     ttm_factor_sets[i] = ttm_factor_sets_pre[i]
+
         ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre, how='outer', on='security_code')
         ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_indicator_sets_pre, how='outer', on='security_code')
 
@@ -175,9 +220,16 @@ class CalcEngine(object):
                                                                                   CashFlowTTM.INVNETCASHFLOW,
                                                                                   # 投资活动产生的现金流量净额
                                                                                   CashFlowTTM.CASHNETI,  # 现金及现金等价物的净增加额
-                                                                                  ],
-                                                                                 dates=[trade_date_pre_year]).drop(
-            columns, axis=1)
+                                                                                  ], dates=[trade_date_pre_year])
+
+        if len(ttm_cash_flow_sets_pre) <= 0 or ttm_cash_flow_sets_pre is None:
+            ttm_cash_flow_sets_pre = pd.DataFrame({'security_code':[], 'FINNETCFLOW':[],
+                                                   'MANANETR':[], 'INVNETCASHFLOW':[], 'CASHNETI':[]})
+
+        for column in columns:
+            if column in list(ttm_cash_flow_sets_pre.keys()):
+                ttm_cash_flow_sets_pre = ttm_cash_flow_sets_pre.drop(column, axis=1)
+
         ttm_cash_flow_sets_pre = ttm_cash_flow_sets_pre.rename(
             columns={"FINNETCFLOW": "net_finance_cash_flow_pre_year",
                      "MANANETR": "net_operate_cash_flow_pre_year",
@@ -185,9 +237,6 @@ class CalcEngine(object):
                      'CASHNETI': 'n_change_in_cash_pre_year',
                      })
 
-        # field_key = ttm_cash_flow_sets_pre.keys()
-        # for i in field_key:
-        #     ttm_factor_sets[i] = ttm_cash_flow_sets_pre[i]
         ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_cash_flow_sets_pre, how='outer', on='security_code')
         # print('get_ttm_factor_sets_pre')
 
@@ -196,10 +245,15 @@ class CalcEngine(object):
                                                                                      [IncomeTTM.NETPROFIT,
                                                                                       IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.BIZCOST,
-                                                                                      ],
-                                                                                     dates=[
-                                                                                         trade_date_pre_year_2]).drop(
-            columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_2])
+
+        if len(ttm_factor_sets_pre_year_2) <= 0 or ttm_factor_sets_pre_year_2 is None:
+            ttm_factor_sets_pre_year_2 = pd.DataFrame({'security_code':[], 'NETPROFIT':[], 'BIZINCO':[], 'BIZCOST':[]})
+
+        for column in columns:
+            if column in list(ttm_factor_sets_pre_year_2.keys()):
+                ttm_factor_sets_pre_year_2 = ttm_factor_sets_pre_year_2.drop(column, axis=1)
+
         ttm_factor_sets_pre_year_2 = ttm_factor_sets_pre_year_2.rename(
             columns={"BIZINCO": "operating_revenue_pre_year_2",
                      "BIZCOST": "operating_cost_pre_year_2",
@@ -215,10 +269,14 @@ class CalcEngine(object):
                                                                                      [IncomeTTM.NETPROFIT,
                                                                                       IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.BIZCOST,
-                                                                                      ],
-                                                                                     dates=[
-                                                                                         trade_date_pre_year_3]).drop(
-            columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_3])
+
+        if len(ttm_factor_sets_pre_year_3) <= 0 or ttm_factor_sets_pre_year_3 is None:
+            ttm_factor_sets_pre_year_3 = pd.DataFrame({'security_code':[], 'NETPROFIT':[], 'BIZINCO':[], 'BIZCOST':[]})
+
+        for column in columns:
+            if column in list(ttm_factor_sets_pre_year_3.keys()):
+                ttm_factor_sets_pre_year_3 = ttm_factor_sets_pre_year_3.drop(column, axis=1)
         ttm_factor_sets_pre_year_3 = ttm_factor_sets_pre_year_3.rename(
             columns={"BIZINCO": "operating_revenue_pre_year_3",
                      "BIZCOST": "operating_cost_pre_year_3",
@@ -234,10 +292,13 @@ class CalcEngine(object):
                                                                                      [IncomeTTM.NETPROFIT,
                                                                                       IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.BIZCOST,
-                                                                                      ],
-                                                                                     dates=[
-                                                                                         trade_date_pre_year_4]).drop(
-            columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_4])
+        if len(ttm_factor_sets_pre_year_4) <= 0 or ttm_factor_sets_pre_year_4 is None:
+            ttm_factor_sets_pre_year_4 = pd.DataFrame({'security_code':[], 'NETPROFIT':[], 'BIZINCO':[], 'BIZCOST':[]})
+
+        for column in columns:
+            if column in list(ttm_factor_sets_pre_year_4.keys()):
+                ttm_factor_sets_pre_year_4 = ttm_factor_sets_pre_year_4.drop(column, axis=1)
         ttm_factor_sets_pre_year_4 = ttm_factor_sets_pre_year_4.rename(
             columns={"BIZINCO": "operating_revenue_pre_year_4",
                      "BIZCOST": "operating_cost_pre_year_4",
@@ -253,16 +314,18 @@ class CalcEngine(object):
                                                                                      [IncomeTTM.NETPROFIT,
                                                                                       IncomeTTM.BIZINCO,
                                                                                       IncomeTTM.BIZCOST,
-                                                                                      ],
-                                                                                     dates=[
-                                                                                         trade_date_pre_year_5]).drop(
-            columns, axis=1)
+                                                                                      ], dates=[trade_date_pre_year_5])
+        if len(ttm_factor_sets_pre_year_5) <= 0 or ttm_factor_sets_pre_year_5 is None:
+            ttm_factor_sets_pre_year_5 = pd.DataFrame({'security_code':[], 'NETPROFIT':[], 'BIZINCO':[], 'BIZCOST':[]})
 
+        for column in columns:
+            if column in list(ttm_factor_sets_pre_year_5.keys()):
+                ttm_factor_sets_pre_year_5 = ttm_factor_sets_pre_year_5.drop(column, axis=1)
         ttm_factor_sets_pre_year_5 = ttm_factor_sets_pre_year_5.rename(
             columns={"BIZINCO": "operating_revenue_pre_year_5",
                      "BIZCOST": "operating_cost_pre_year_5",
-                     "NETPROFIT": "net_profit_pre_year_5",
-                     })
+                     "NETPROFIT": "net_profit_pre_year_5",})
+
         ttm_factor_sets = pd.merge(ttm_factor_sets, ttm_factor_sets_pre_year_5, how='outer', on="security_code")
         # field_key = ttm_factor_sets_pre_year_5.keys()
         # for i in field_key:
@@ -303,6 +366,7 @@ class CalcEngine(object):
 
         historical_growth_sets = historical_growth_sets.reset_index()
         historical_growth_sets['trade_date'] = str(trade_date)
+        historical_growth_sets.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return historical_growth_sets
 
     def local_run(self, trade_date):

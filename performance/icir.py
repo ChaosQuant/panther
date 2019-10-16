@@ -25,35 +25,33 @@ class ICIR(object):
         return group
 
     def calc_group(self, factor_df, factor_name, n_bins=5, industry=False):
+        def calc_grouped(data):
+            group_df = pd.DataFrame(columns=['security_code', 'group'])
+            group_df['group'] = self._se_group(data[factor_name], n_bins)
+            group_df['security_code'] = data['security_code'].values
+            return group_df.set_index('security_code')
+        
         if industry:
-            grouped = factor_df.groupby(['trade_date', 'industry'])
+            factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x : pd.Timestamp(x))
+            #apply 时间类型只识别Timestamp
+            total_group_df = factor_df.groupby(['trade_date', 'industry_code']).apply(calc_grouped)
+            #total_group_df = total_group_df.reset_index()[['trade_date','security_code','group']]
+            #total_group_df['trade_date'] = total_group_df['trade_date'].apply(lambda x : x.date())
         else:
-            grouped = factor_df.groupby(['trade_date'])
-
-        group_list = []
-
-        #此处gevent提高性能计算
-        for k, g in grouped:
-            group_df = pd.DataFrame(columns=['trade_date', 'code', 'group'])
-            group_df['group'] = self._se_group(g[factor_name], n_bins)
-            group_df['code'] = g['code']
-            group_df['trade_date'] = g['trade_date']
-            group_list.append(group_df)
-
-        total_group_df = pd.concat(group_list, axis=0)
-        total_group_df.sort_values(['trade_date', 'code'], inplace=True)
-        total_group_df.reset_index(drop=True, inplace=True)
-
-        return total_group_df
+            total_group_df = factor_df.groupby(['trade_date']).apply(calc_grouped)
+            
+        return total_group_df.reset_index()[['trade_date','security_code','group']]
     
     
     def calc_se_ic(self, se1, se2):
         '''
         计算IC值，主要为了处理NaN的情况
         '''
-        df = pd.concat([se1, se2], axis=1, join='inner')
-        df.dropna(inplace=True)
-        return np.corrcoef(df.iloc[:, 0], df.iloc[:, 1])[0, 1]
+        #df = pd.concat([se1, se2], axis=1, join='inner')
+        #df = df.replace([np.inf, -np.inf], np.nan)
+        se1 = se1.copy().replace([np.inf, -np.inf], np.nan).fillna(0)
+        se2 = se2.copy().replace([np.inf, -np.inf], np.nan).fillna(0)
+        return np.corrcoef(se1.fillna(0).values,se2.fillna(0).values)[0, 1]
     
     
     def ic_ir_basic(self, universe, factor_name, total_data):

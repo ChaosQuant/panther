@@ -44,13 +44,13 @@ def rolling_dot(df, x, win):
 
 
 @six.add_metaclass(Singleton)
-class Alpha191(object):
+class FactorAlpha191(object):
     def __init__(self):
-        __str__ = 'alpha191'
+        __str__ = 'factor_alpha191'
         self.name = 'Alpha191'
         self.factor_type1 = 'Features'
         self.factor_type2 = 'Features'
-        self.desciption = 'price and volumns features'
+        self.description = 'price and volumns features'
     
     # (-1*CORR(RANK(DELTA(LOG(VOLUME),1)),RANK(((CLOSE-OPEN)/OPEN)),6)
     def alpha191_1(self, data, param1=1, param2=6, dependencies=['close_price','open_price',

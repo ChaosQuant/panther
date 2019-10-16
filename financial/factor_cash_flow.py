@@ -32,7 +32,7 @@ class FactorCashFlow(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '现金流量'
-        self.desciption = '财务指标的二级指标-现金流量'
+        self.description = '财务指标的二级指标-现金流量'
 
     @staticmethod
     def CashOfSales(tp_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'operating_revenue']):
@@ -157,7 +157,8 @@ class FactorCashFlow(object):
         return factor_cash_flow
 
     @staticmethod
-    def SaleServCashToOptReTTM(ttm_cash_flow, factor_cash_flow, dependencies=['goods_sale_and_service_render_cash', 'operating_revenue']):
+    def SaleServCashToOptReTTM(ttm_cash_flow, factor_cash_flow, dependencies=['goods_sale_and_service_render_cash',
+                                                                              'operating_revenue']):
         """
         :name: 销售商品和提供劳务收到的现金(TTM)/营业收入(TTM)
         :desc: 销售商品提供劳务收到的现金(TTM)/营业收入(TTM)*100%
@@ -185,7 +186,9 @@ class FactorCashFlow(object):
         return factor_cash_flow
 
     @staticmethod
-    def OptCFToNITTM(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'total_operating_revenue', 'total_operating_cost']):
+    def OptCFToNITTM(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow',
+                                                                    'total_operating_revenue',
+                                                                    'total_operating_cost']):
         """
         :name: 经营活动产生的现金流量净额(TTM)/经营活动净收益(TTM)
         :desc: 经营活动产生的现金流量净额(TTM)/经营活动净收益(TTM)*100%

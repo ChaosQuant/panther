@@ -5,7 +5,9 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+import numpy as np
+from datetime import timedelta, datetime
 from valuation_estimation import factor_valuation_estimation
 
 from data.model import BalanceMRQ, BalanceReport
@@ -77,14 +79,27 @@ class CalcEngine(object):
         columns = ['COMPCODE', 'PUBLISHDATE', 'ENDDATE', 'symbol', 'company_id', 'trade_date']
         indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
                                                                          [IndicatorReport.FCFF,
-                                                                          ], dates=[trade_date]).drop(columns, axis=1)
+                                                                          ], dates=[trade_date])
+
+        if len(indicator_sets) <= 0 or indicator_sets is None:
+            indicator_sets = pd.DataFrame({'security_code':[], 'FCFF':[]})
+
+        for column in columns:
+            if column in list(indicator_sets.keys()):
+                indicator_sets = indicator_sets.drop(column, axis=1)
         indicator_sets = indicator_sets.rename(columns={
             'FCFF': 'enterprise_fcfps',  # 企业自由现金流
         })
 
         balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceReport,
                                                                        [BalanceReport.TOTASSET,
-                                                                        ], dates=[trade_date]).drop(columns, axis=1)
+                                                                        ], dates=[trade_date])
+        if len(balance_sets) <= 0 or balance_sets is None:
+            balance_sets = pd.DataFrame({'security_code':[], 'TOTASSET':[]})
+
+        for column in columns:
+            if column in list(balance_sets.keys()):
+                balance_sets = balance_sets.drop(column, axis=1)
         balance_sets = balance_sets.rename(columns={
             'TOTASSET': 'total_assets_report',  # 资产总计
         })
@@ -93,7 +108,13 @@ class CalcEngine(object):
         # MRQ data
         cash_flow_mrq = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
                                                                         [CashFlowMRQ.FINALCASHBALA,
-                                                                         ], dates=[trade_date]).drop(columns, axis=1)
+                                                                         ], dates=[trade_date])
+        if len(cash_flow_mrq) <= 0 or cash_flow_mrq is None:
+            cash_flow_mrq = pd.DataFrame({'security_code':[], 'FINALCASHBALA':[]})
+
+        for column in columns:
+            if column in list(cash_flow_mrq.keys()):
+                cash_flow_mrq = cash_flow_mrq.drop(column, axis=1)
         cash_flow_mrq = cash_flow_mrq.rename(columns={
             'FINALCASHBALA': 'cash_and_equivalents_at_end',  # 期末现金及现金等价物余额
         })
@@ -103,7 +124,14 @@ class CalcEngine(object):
                                                                        BalanceMRQ.TOTASSET,
                                                                        BalanceMRQ.SHORTTERMBORR,
                                                                        BalanceMRQ.PARESHARRIGH,
-                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+                                                                       ], dates=[trade_date])
+        if len(balance_mrq) <= 0 or balance_mrq is None:
+            balance_mrq = pd.DataFrame({'security_code':[], 'LONGBORR':[], 'TOTASSET':[], 'SHORTTERMBORR':[],
+                                        'PARESHARRIGH':[]})
+        for column in columns:
+            if column in list(balance_mrq.keys()):
+                balance_mrq = balance_mrq.drop(column, axis=1)
+
         balance_mrq = balance_mrq.rename(columns={
             'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
             'LONGBORR': 'longterm_loan',  # 长期借款
@@ -116,16 +144,27 @@ class CalcEngine(object):
         # 总市值合并到TTM数据中，
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
                                                                              [CashFlowTTM.MANANETR,
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
+                                                                              ], dates=[trade_date])
+
+        if len(cash_flow_ttm_sets) <= 0 or cash_flow_ttm_sets is None:
+            cash_flow_ttm_sets = pd.DataFrame({'security_code':[], 'MANANETR':[]})
+
+        for column in columns:
+            if column in list(cash_flow_ttm_sets.keys()):
+                cash_flow_ttm_sets = cash_flow_ttm_sets.drop(column, axis=1)
         cash_flow_ttm_sets = cash_flow_ttm_sets.rename(columns={
             'MANANETR': 'net_operate_cash_flow',  # 经营活动现金流量净额
         })
 
         indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                              [IndicatorTTM.NETPROFITCUT,
-                                                                              ], dates=[trade_date_1y]).drop(columns,
-                                                                                                             axis=1)
+                                                                              ], dates=[trade_date_1y])
+        if len(indicator_ttm_sets) <= 0 or indicator_ttm_sets is None:
+            indicator_ttm_sets = pd.DataFrame({'security_code':[], 'NETPROFITCUT':[]})
+
+        for column in columns:
+            if column in list(indicator_ttm_sets.keys()):
+                indicator_ttm_sets = indicator_ttm_sets.drop(column, axis=1)
         indicator_ttm_sets = indicator_ttm_sets.rename(columns={
             'NETPROFITCUT': 'net_profit_cut_pre',  # 扣除非经常性损益的净利润
         })
@@ -136,7 +175,14 @@ class CalcEngine(object):
                                                                            IncomeTTM.BIZTOTINCO,
                                                                            IncomeTTM.BIZINCO,
                                                                            IncomeTTM.TOTPROFIT,
-                                                                           ], dates=[trade_date]).drop(columns, axis=1)
+                                                                           ], dates=[trade_date])
+        if len(income_ttm_sets) <= 0 or income_ttm_sets is None:
+            income_ttm_sets = pd.DataFrame({'security_code':[], 'NETPROFIT':[], 'PARENETP':[], 'BIZTOTINCO':[],
+                                            'BIZINCO':[], 'TOTPROFIT':[]})
+
+        for column in columns:
+            if column in list(income_ttm_sets.keys()):
+                income_ttm_sets = income_ttm_sets.drop(column, axis=1)
         income_ttm_sets = income_ttm_sets.rename(columns={
             'TOTPROFIT': 'total_profit',  # 利润总额 ttm
             'NETPROFIT': 'net_profit',  # 净利润
@@ -147,16 +193,26 @@ class CalcEngine(object):
 
         income_ttm_sets_3 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                             [IncomeTTM.PARENETP,
-                                                                             ], dates=[trade_date_3y]).drop(columns,
-                                                                                                            axis=1)
+                                                                             ], dates=[trade_date_3y])
+        if len(income_ttm_sets_3) <= 0 or income_ttm_sets_3 is None:
+            income_ttm_sets_3 = pd.DataFrame({'security_code':[], 'PARENETP':[]})
+
+        for column in columns:
+            if column in list(income_ttm_sets_3.keys()):
+                income_ttm_sets_3 = income_ttm_sets_3.drop(column, axis=1)
         income_ttm_sets_3 = income_ttm_sets_3.rename(columns={
             'PARENETP': 'np_parent_company_owners_3',  # 归属于母公司所有者的净利润
         })
 
         income_ttm_sets_5 = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                             [IncomeTTM.PARENETP,
-                                                                             ], dates=[trade_date_5y]).drop(columns,
-                                                                                                            axis=1)
+                                                                             ], dates=[trade_date_5y])
+        if len(income_ttm_sets_5) <= 0 or income_ttm_sets_5 is None:
+            income_ttm_sets_5 = pd.DataFrame({'security_code':[], 'PARENETP':[]})
+
+        for column in columns:
+            if column in list(income_ttm_sets_5.keys()):
+                income_ttm_sets_5 = income_ttm_sets_5.drop(column, axis=1)
         income_ttm_sets_5 = income_ttm_sets_5.rename(columns={
             'PARENETP': 'np_parent_company_owners_5',  # 归属于母公司所有者的净利润
         })
@@ -175,8 +231,14 @@ class CalcEngine(object):
                                                 Valuation.pb,
                                                 Valuation.pcf,
                                                 Valuation.market_cap,
-                                                Valuation.circulating_market_cap)
-                                          .filter(Valuation.trade_date.in_([trade_date]))).drop(column, axis=1)
+                                                Valuation.circulating_market_cap
+                                                ).filter(Valuation.trade_date.in_([trade_date])))
+        if len(valuation_sets) <= 0 or valuation_sets is None:
+            valuation_sets = pd.DataFrame({'security_code':[], 'pe':[], 'ps':[], 'pb':[],
+                                           'pcf':[], 'market_cap':[], 'circulating_market_cap':[]})
+        for col in column:
+            if col in list(valuation_sets.keys()):
+                valuation_sets = valuation_sets.drop(col, axis=1)
 
         trade_date_6m = self.get_trade_date(trade_date, 1, 180)
         trade_date_3m = self.get_trade_date(trade_date, 1, 90)
@@ -185,35 +247,56 @@ class CalcEngine(object):
 
         pe_set = get_fundamentals(query(Valuation.security_code,
                                         Valuation.trade_date,
-                                        Valuation.pe, ).filter(Valuation.trade_date.in_([trade_date]))).drop(column,
-                                                                                                             axis=1)
+                                        Valuation.pe,
+                                        ).filter(Valuation.trade_date.in_([trade_date])))
+        if len(pe_set) <= 0 or pe_set is None:
+            pe_set = pd.DataFrame({'security_code':[], 'pe':[]})
+        for col in column:
+            if col in list(pe_set.keys()):
+                pe_set = pe_set.drop(col, axis=1)
 
         pe_sets_6m = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
-                                      .filter(Valuation.trade_date.between(trade_date_6m, trade_date))).drop(column,
-                                                                                                             axis=1)
+                                      .filter(Valuation.trade_date.between(trade_date_6m, trade_date)))
+        if len(pe_sets_6m) <= 0 or pe_sets_6m is None:
+            pe_sets_6m = pd.DataFrame({'security_code':[], 'pe':[]})
+        for col in column:
+            if col in list(pe_sets_6m.keys()):
+                pe_sets_6m = pe_sets_6m.drop(col, axis=1)
         pe_sets_6m = pe_sets_6m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_6m'})
 
         pe_sets_3m = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
-                                      .filter(Valuation.trade_date.between(trade_date_3m, trade_date))).drop(column,
-                                                                                                             axis=1)
+                                      .filter(Valuation.trade_date.between(trade_date_3m, trade_date)))
+        if len(pe_sets_3m) <= 0 or pe_sets_3m is None:
+            pe_sets_3m = pd.DataFrame({'security_code':[], 'pe':[]})
+        for col in column:
+            if col in list(pe_sets_3m.keys()):
+                pe_sets_3m = pe_sets_3m.drop(col, axis=1)
         pe_sets_3m = pe_sets_3m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_3m'})
 
         pe_sets_2m = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
-                                      .filter(Valuation.trade_date.between(trade_date_1m, trade_date))).drop(column,
-                                                                                                             axis=1)
+                                      .filter(Valuation.trade_date.between(trade_date_1m, trade_date)))
+        if len(pe_sets_2m) <= 0 or pe_sets_2m is None:
+            pe_sets_2m = pd.DataFrame({'security_code':[], 'pe':[]})
+        for col in column:
+            if col in list(pe_sets_2m.keys()):
+                pe_sets_2m = pe_sets_2m.drop(col, axis=1)
         pe_sets_2m = pe_sets_2m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_1m'})
 
         pe_sets_1y = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
-                                      .filter(Valuation.trade_date.between(trade_date_1y, trade_date))).drop(column,
-                                                                                                             axis=1)
+                                      .filter(Valuation.trade_date.between(trade_date_1y, trade_date)))
+        if len(pe_sets_1y) <= 0 or pe_sets_1y is None:
+            pe_sets_1y = pd.DataFrame({'security_code':[], 'pe':[]})
+        for col in column:
+            if col in list(pe_sets_1y.keys()):
+                pe_sets_1y = pe_sets_1y.drop(col, axis=1)
         pe_sets_1y = pe_sets_1y.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_1y'})
 
         pe_sets = pd.merge(pe_sets_6m, pe_sets_3m, how='outer', on='security_code')
@@ -230,7 +313,10 @@ class CalcEngine(object):
                                                          Industry.symbol,
                                                          Industry.isymbol)
                                                    .filter(Industry.trade_date.in_([trade_date])),
-                                                   internal_type='symbol').drop(column_sw, axis=1)
+                                                   internal_type='symbol')
+        for col in column_sw:
+            if col in list(sw_indu.keys()):
+                sw_indu = sw_indu.drop(col, axis=1)
         sw_indu = sw_indu[sw_indu['isymbol'].isin(industry_set)]
 
         valuation_sets = pd.merge(valuation_sets, valuation_report_sets, how='outer', on='security_code')
@@ -291,6 +377,7 @@ class CalcEngine(object):
 
         # factor_historical_value = factor_historical_value.reset_index()
         factor_historical_value['trade_date'] = str(trade_date)
+        factor_historical_value.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return factor_historical_value
     
     def local_run(self, trade_date):

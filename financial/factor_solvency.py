@@ -30,7 +30,7 @@ class FactorSolvency(object):
         self.name = '财务指标'
         self.factor_type1 = '财务指标'
         self.factor_type2 = '偿债能力'
-        self.desciption = '财务指标的二级指标-偿债能力'
+        self.description = '财务指标的二级指标-偿债能力'
 
     @staticmethod
     def BondsToAsset(tp_solvency, factor_solvency, dependencies=['bonds_payable', 'total_assets']):

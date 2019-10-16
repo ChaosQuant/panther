@@ -18,10 +18,10 @@ class FactorEarningExpectation():
 
     def __init__(self):
         __str__ = 'factor_earning_expectation'
-        self.name = 'FactorEarningExpectation'
-        self.factor_type1 = 'EarningExpectation'
-        self.factor_type2 = 'EarningExpectation'
-        self.desciption = 'stock earning expectation'
+        self.name = '盈利预测'
+        self.factor_type1 = '盈利预测'
+        self.factor_type2 = '盈利预测'
+        self.description = '个股盈利预测因子'
 
     @staticmethod
     def NPFY1(tp_earning, factor_earning_expect, trade_date, dependencies=['net_profit_fy1']):

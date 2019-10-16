@@ -5,7 +5,9 @@ import pdb,importlib,inspect,time,datetime,json
 # from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 import time
-from datetime import timedelta
+import pandas as pd
+import numpy as np
+from datetime import datetime
 from basic_derivation import factor_basic_derivation
 
 from data.model import BalanceMRQ
@@ -21,8 +23,8 @@ from data.sqlengine import sqlEngine
 
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'basic_derivation.factor_basic_derivation','class':'FactorBasicDerivation'},
-                                          ]):
+    def __init__(self, name, url, methods=[{'packet': 'basic_derivation.factor_basic_derivation',
+                                            'class': 'FactorBasicDerivation'},]):
         self._name = name
         self._methods = methods
         self._url = url
@@ -46,8 +48,10 @@ class CalcEngine(object):
         engine = sqlEngine()
         cash_flow_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowMRQ,
                                                                          [CashFlowMRQ.FINALCASHBALA,
-                                                                          ], dates=[trade_date]).drop(columns, axis=1)
-
+                                                                          ], dates=[trade_date])
+        for col in columns:
+            if col in list(cash_flow_sets.keys()):
+                cash_flow_sets = cash_flow_sets.drop(col, axis=1)
         balance_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceMRQ,
                                                                        [BalanceMRQ.SHORTTERMBORR,
                                                                         BalanceMRQ.DUENONCLIAB,
@@ -65,8 +69,10 @@ class CalcEngine(object):
                                                                         BalanceMRQ.LOGPREPEXPE,
                                                                         BalanceMRQ.DEFETAXASSET,
                                                                         BalanceMRQ.MINYSHARRIGH,
-                                                                        ], dates=[trade_date]).drop(columns, axis=1)
-
+                                                                        ], dates=[trade_date])
+        for col in columns:
+            if col in list(balance_sets.keys()):
+                balance_sets = balance_sets.drop(col, axis=1)
         balance_sets = balance_sets.rename(columns={
             'SHORTTERMBORR': 'shortterm_loan',  # 短期借款
             'DUENONCLIAB': 'non_current_liability_in_one_year',  # 一年内到期的非流动负债
@@ -88,11 +94,16 @@ class CalcEngine(object):
                                                                           IndicatorMRQ.CURDEPANDAMOR,
                                                                           IndicatorMRQ.TOTIC,
                                                                           IndicatorMRQ.EBIT,
-                                                                          ], dates=[trade_date]).drop(columns, axis=1)
-
+                                                                          ], dates=[trade_date])
+        for col in columns:
+            if col in list(indicator_sets.keys()):
+                indicator_sets = indicator_sets.drop(col, axis=1)
         income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeMRQ,
                                                                       [IncomeMRQ.INCOTAXEXPE,
-                                                                       ], dates=[trade_date]).drop(columns, axis=1)
+                                                                       ], dates=[trade_date])
+        for col in columns:
+            if col in list(income_sets.keys()):
+                income_sets = income_sets.drop(col, axis=1)
 
         tp_detivation = pd.merge(cash_flow_sets, balance_sets, how='outer', on='security_code')
         tp_detivation = pd.merge(indicator_sets, tp_detivation, how='outer', on='security_code')
@@ -120,7 +131,10 @@ class CalcEngine(object):
                                                                            IncomeTTM.NONOEXPE,
                                                                            IncomeTTM.MINYSHARRIGH,
                                                                            IncomeTTM.INCOTAXEXPE,
-                                                                           ], dates=[trade_date]).drop(columns, axis=1)
+                                                                           ], dates=[trade_date])
+        for col in columns:
+            if col in list(income_ttm_sets.keys()):
+                income_ttm_sets = income_ttm_sets.drop(col, axis=1)
         income_ttm_sets = income_ttm_sets.rename(columns={'MINYSHARRIGH': 'minority_profit'})
 
         cash_flow_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(CashFlowTTM,
@@ -129,8 +143,10 @@ class CalcEngine(object):
                                                                               CashFlowTTM.INVNETCASHFLOW,
                                                                               CashFlowTTM.FINNETCFLOW,
                                                                               CashFlowTTM.CASHNETI,
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(cash_flow_ttm_sets.keys()):
+                cash_flow_ttm_sets = cash_flow_ttm_sets.drop(col, axis=1)
 
         indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
                                                                              [IndicatorTTM.OPGPMARGIN,
@@ -139,8 +155,10 @@ class CalcEngine(object):
                                                                               IndicatorTTM.EBITDA,
                                                                               IndicatorTTM.EBIT,
                                                                               IndicatorTTM.EBITFORP,
-                                                                              ], dates=[trade_date]).drop(columns,
-                                                                                                          axis=1)
+                                                                              ], dates=[trade_date])
+        for col in columns:
+            if col in list(indicator_ttm_sets.keys()):
+                indicator_ttm_sets = indicator_ttm_sets.drop(col, axis=1)
 
         ttm_derivation = pd.merge(income_ttm_sets, cash_flow_ttm_sets, how='outer', on='security_code')
         ttm_derivation = pd.merge(indicator_ttm_sets, ttm_derivation, how='outer', on='security_code')
@@ -210,6 +228,7 @@ class CalcEngine(object):
 
         factor_derivation = factor_derivation.reset_index()
         factor_derivation['trade_date'] = str(trade_date)
+        factor_derivation.replace([-np.inf, np.inf, None], np.nan, inplace=True)
         return factor_derivation
 
     def local_run(self, trade_date):
