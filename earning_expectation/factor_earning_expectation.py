@@ -265,8 +265,8 @@ class FactorEarningExpectation():
         :desc: 未来第一年度一致预测每股收益三月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
-        if len(trade_dates) >= 3:
-            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[2],
+        if len(trade_dates) >= 4:
+            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[3],
                                                                     'eps_fy1',
                                                                     'EPSFY13MChg')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
@@ -279,8 +279,8 @@ class FactorEarningExpectation():
         :desc: 未来第一年度一致预测每股收益六月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
-        if len(trade_dates) >= 3:
-            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[2],
+        if len(trade_dates) >= 5:
+            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[4],
                                                                     'eps_fy1',
                                                                     'EPSFY16MChg')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
@@ -308,7 +308,7 @@ class FactorEarningExpectation():
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
-            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[2],
+            earning_expect = FactorEarningExpectation._change_rate(tp_earning, trade_date, trade_dates[2],
                                                                     'eps_fy1',
                                                                     'EPSFY11MRT')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
@@ -321,8 +321,8 @@ class FactorEarningExpectation():
         :desc: 未来第一年度一致预测每股收益三月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
-        if len(trade_dates) >= 3:
-            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[2],
+        if len(trade_dates) >= 4:
+            earning_expect = FactorEarningExpectation._change_rate(tp_earning, trade_date, trade_dates[3],
                                                                     'eps_fy1',
                                                                     'EPSFY13MRT')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
@@ -335,8 +335,8 @@ class FactorEarningExpectation():
         :desc: 未来第一年度一致预测每股收益六月内预测值变化率
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
-        if len(trade_dates) >= 3:
-            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[2],
+        if len(trade_dates) >= 5:
+            earning_expect = FactorEarningExpectation._change_rate(tp_earning, trade_date, trade_dates[4],
                                                                     'eps_fy1',
                                                                     'EPSFY16MRT')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
@@ -377,8 +377,8 @@ class FactorEarningExpectation():
         :desc: 未来第一年度一致预测净利润三月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
-        if len(trade_dates) >= 3:
-            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[2],
+        if len(trade_dates) >= 4:
+            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[3],
                                                                     'net_profit_fy1',
                                                                     'NPFY13MChg')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
@@ -391,8 +391,8 @@ class FactorEarningExpectation():
         :desc: 未来第一年度一致预测净利润六月内预测值变化
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
-        if len(trade_dates) >= 3:
-            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[2],
+        if len(trade_dates) >= 5:
+            earning_expect = FactorEarningExpectation._change_value(tp_earning, trade_date, trade_dates[4],
                                                                     'net_profit_fy1',
                                                                     'NPFY16MChg')
             factor_earning_expect = pd.merge(factor_earning_expect, earning_expect, on='security_code')
