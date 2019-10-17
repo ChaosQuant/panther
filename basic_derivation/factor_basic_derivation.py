@@ -188,8 +188,7 @@ class FactorBasicDerivation(object):
     def InterestFreeNonCurLb(tp_derivation, factor_derivation, dependencies=['NONINTNONCURLIAB']):
         """
         :name: 无息非流动负债(MRQ)
-        :desc: 旧准则：长期负债合计-长期借款-应付债券
-                新准则：非流动负债合计-长期借款-应付债券
+        :desc: 旧准则：长期负债合计-长期借款-应付债券 新准则：非流动负债合计-长期借款-应付债券
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
