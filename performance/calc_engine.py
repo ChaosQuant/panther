@@ -204,7 +204,7 @@ class CalcEngine(object):
             return_basic_df = pd.concat(return_basic_list, axis=0)
             return_sub_df = pd.concat(return_sub_list, axis=0)
             ic_df = pd.concat(ic_basic_list, axis=0)
-            ic_df = ic_df.drop_duplicates()
+            ic_df = ic_df.drop_duplicates(subset=['factor_name', 'universe', 'trade_date'], keep='first', inplace=True)
             ic_sub_df = pd.concat(ic_sub_list, axis=0)
             group_ic_df = pd.concat(group_ic_list, axis=0)
             group_ic_sub_df = pd.concat(group_ic_sub_list, axis=0)
