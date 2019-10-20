@@ -90,7 +90,6 @@ class FactorOperationCapacity(object):
         :name:应收账款周转率(TTM)
         :desc:营业收入/（应收账款+应收票据-预收账款）
         """
-
         management = ttm_management.loc[:, dependencies]
         management['ar'] = (management.account_receivable
                             + management.bill_receivable
@@ -105,8 +104,10 @@ class FactorOperationCapacity(object):
         return factor_management
 
     @staticmethod
-    def ARDaysTTM(ttm_management, factor_management, dependencies=['operating_revenue', 'bill_receivable',
-                                                                   'account_receivable', 'advance_peceipts']):
+    def ARDaysTTM(ttm_management, factor_management, dependencies=['operating_revenue',
+                                                                   'bill_receivable',
+                                                                   'account_receivable',
+                                                                   'advance_peceipts']):
         """
         :name:应收账款周转天数(TTM)
         :desc:360/应收账款周转率
@@ -145,7 +146,6 @@ class FactorOperationCapacity(object):
         :name:存货周转天数(TTM)
         :desc:360/存货周转率
         """
-
         management = ttm_management.loc[:, dependencies]
         management['InvDaysTTM'] = np.where(
             CalcTools.is_zero(management.operating_cost.values), 0,
