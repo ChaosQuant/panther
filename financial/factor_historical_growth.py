@@ -32,16 +32,16 @@ class FactorHistoricalGrowth(object):
         self.description = '财务指标的二级指标-历史成长'
 
     @staticmethod
-    def NetAsset1YChg(tp_historical_growth, factor_historical_growth, dependencies=['total_owner_equities', 'total_owner_equities_pre_year']):
+    def NetAsset1YChg(tp_historical_growth, factor_historical_growth, dependencies=['total_owner_equities',
+                                                                                    'total_owner_equities_pre_year']):
         """
         :name: 净资产增长率
         :desc:（本期归属母公司股东的权益（MRQ）-上年同期归属母公司股东的权益（MRQ））/ABS（上年同期归属母公司股东的权益（MRQ））*100%
         """
-        historical_growth = tp_historical_growth.loc[:, dependencies]
 
+        historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
             return
-
         # fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
@@ -51,8 +51,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def TotalAsset1YChg(tp_historical_growth, factor_historical_growth,
-                        dependencies=['total_assets', 'total_assets_pre_year']):
+    def TotalAsset1YChg(tp_historical_growth, factor_historical_growth, dependencies=['total_assets',
+                                                                                      'total_assets_pre_year']):
         """
         :name: 总资产增长率
         :desc:（本期资产总计（MRQ）-上年同期资产总计（MRQ））/ABS（上年同期资产总计（MRQ））*100%
@@ -66,8 +66,8 @@ class FactorHistoricalGrowth(object):
         return res
 
     @staticmethod
-    def FCF1YChgTTM(tp_historical_growth, factor_historical_growth,
-                    dependencies=['net_finance_cash_flow', 'net_finance_cash_flow_pre_year']):
+    def FCF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_finance_cash_flow',
+                                                                                  'net_finance_cash_flow_pre_year']):
         """
         :name: 筹资活动产生的现金流量净额增长率
         :desc: （本期CFF（TTM）-上年同期CFF（TTM））/ABS（上年同期CFF（TTM））*100%
@@ -82,7 +82,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def GrPft1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['total_profit', 'total_profit_pre_year']):
+    def GrPft1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['total_profit',
+                                                                                    'total_profit_pre_year']):
         """
         :name: 利润总额增长率
         :desc: （本期利润总额（TTM）-上年同期利润总额（TTM））/ABS（上年同期利润总额（TTM）*100%
@@ -98,7 +99,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def ICF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_invest_cash_flow', 'net_invest_cash_flow_pre_year']):
+    def ICF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_invest_cash_flow',
+                                                                                  'net_invest_cash_flow_pre_year']):
         """
         :name: 投资活动产生的现金流量净额增长率
         :desc:（本期CFI（TTM）-上年同期CFI（TTM））/ABS（上年同期CFI（TTM））*100%
@@ -114,7 +116,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def NetCF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['n_change_in_cash', 'n_change_in_cash_pre_year']):
+    def NetCF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['n_change_in_cash',
+                                                                                    'n_change_in_cash_pre_year']):
         """
         :name: 净现金流量增长率
         :desc:（本期现金净流量（TTM）-上年同期现金净流量（TTM））/ABS（上年同期现金净流量（TTM））*100%
@@ -130,8 +133,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def NetPftAP1YChgTTM(tp_historical_growth, factor_historical_growth,
-                         dependencies=['np_parent_company_owners', 'np_parent_company_owners_pre_year']):
+    def NetPftAP1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['np_parent_company_owners',
+                                                                                       'np_parent_company_owners_pre_year']):
         """
         :name: 归属母公司股东的净利润增长率
         :desc: （本期归母净利润（TTM）-上年同期归母净利润（TTM）/ABS（上年同期归母净利润（TTM））*100%
@@ -147,7 +150,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def NetPftAPNNRec1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['ni_attr_p_cut', 'ni_attr_p_cut_pre']):
+    def NetPftAPNNRec1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['ni_attr_p_cut',
+                                                                                            'ni_attr_p_cut_pre']):
         """
         :name: 归属母公司股东的净利润（扣除非经常损益）同比增长
         :desc: 归属母公司股东的净利润(扣除非经常损益)TTM增长
@@ -163,7 +167,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def NetPft1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit', 'net_profit_pre_year']):
+    def NetPft1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit',
+                                                                                     'net_profit_pre_year']):
         """
         :name: 净利润增长率
         :desc: （本期净利润（TTM）-上年同期净利润（TTM））/ABS（上年同期净利润（TTM））*100%
@@ -180,8 +185,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def OCF1YChgTTM(tp_historical_growth, factor_historical_growth,
-                    dependencies=['net_operate_cash_flow', 'net_operate_cash_flow_pre_year']):
+    def OCF1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_operate_cash_flow',
+                                                                                  'net_operate_cash_flow_pre_year']):
         """
         :name: 经营活动产生的现金流量净额
         :desc: （本期CFO（TTM）-上年同期CFO（TTM））/ABS（上年同期CFO（TTM））*100%
@@ -198,7 +203,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def OPft1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_profit', 'operating_profit_pre_year']):
+    def OPft1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_profit',
+                                                                                   'operating_profit_pre_year']):
         """
         :name: 营业利润增长率
         :desc:（本期CFI（TTM）-上年同期CFI（TTM）]/ABS（上年同期CFI（TTM））*100%
@@ -216,7 +222,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def ORev1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue', 'operating_revenue_pre_year']):
+    def ORev1YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue',
+                                                                                   'operating_revenue_pre_year']):
         """
         :name: 营业收入增长率
         :desc: 营业收入增长率=（本期营业收入（TTM）-上年同期营业收入（TTM））/ABS（上年同期营业收入（TTM））*100%
@@ -232,9 +239,11 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def StdUxpErn1YTTM(tp_historical_growth, factor_historical_growth,
-                       dependencies=['net_profit', 'net_profit_pre_year',
-                                     'net_profit_pre_year_2', 'net_profit_pre_year_3', 'net_profit_pre_year_4']):
+    def StdUxpErn1YTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit',
+                                                                                     'net_profit_pre_year',
+                                                                                     'net_profit_pre_year_2',
+                                                                                     'net_profit_pre_year_3',
+                                                                                     'net_profit_pre_year_4']):
         """
         :name: 未预期盈余
         :desc: (最近一年净利润-除去最近一年的过往净利润均值)/ 除去最近一年的过往净利润标准差
@@ -256,10 +265,18 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def StdUxpGrPft1YTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue', 'operating_revenue_pre_year', 'operating_revenue_pre_year_2',
-                                                                                      'operating_revenue_pre_year_3', 'operating_revenue_pre_year_4', 'operating_revenue_pre_year_5',
-                                                                                      'operating_cost', 'operating_cost_pre_year', 'operating_cost_pre_year_2',
-                                                                                       'operating_cost_pre_year_3', 'operating_cost_pre_year_4', 'operating_cost_pre_year_5']):
+    def StdUxpGrPft1YTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue',
+                                                                                       'operating_revenue_pre_year',
+                                                                                       'operating_revenue_pre_year_2',
+                                                                                       'operating_revenue_pre_year_3',
+                                                                                       'operating_revenue_pre_year_4',
+                                                                                       'operating_revenue_pre_year_5',
+                                                                                       'operating_cost',
+                                                                                       'operating_cost_pre_year',
+                                                                                       'operating_cost_pre_year_2',
+                                                                                       'operating_cost_pre_year_3',
+                                                                                       'operating_cost_pre_year_4',
+                                                                                       'operating_cost_pre_year_5']):
         """
         :name: 未预期毛利
         :desc: (最近一年毛利-除去最近一年的过往毛利均值)/ 除去最近一年的过往毛利标准差
@@ -289,7 +306,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def NetPft3YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit', 'net_profit_pre_year_3']):
+    def NetPft3YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit',
+                                                                                     'net_profit_pre_year_3']):
         """
         :name: 净利润3年复合增长率
         :desc: (当期净利润/3年前净利润)^(1/3)-1
@@ -304,7 +322,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def NetPft5YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit', 'net_profit_pre_year_5']):
+    def NetPft5YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['net_profit',
+                                                                                     'net_profit_pre_year_5']):
         """
         :name: 净利润5年复合增长率
         :desc: (当期净利润/5年前净利润)^(1/5)-1
@@ -320,7 +339,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def ORev3YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue', 'operating_revenue_pre_year_3']):
+    def ORev3YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue',
+                                                                                   'operating_revenue_pre_year_3']):
         """
         :name: 营业收入3年复合增长率
         :desc: (当期营业收入/3年前营业收入)^(1/3)-1
@@ -337,7 +357,8 @@ class FactorHistoricalGrowth(object):
         return factor_historical_growth
 
     @staticmethod
-    def ORev5YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue', 'operating_revenue_pre_year_3']):
+    def ORev5YChgTTM(tp_historical_growth, factor_historical_growth, dependencies=['operating_revenue',
+                                                                                   'operating_revenue_pre_year_3']):
         """
         :name: 营业收入5年复合增长率
         :desc: (当期营业收入/5年前营业收入)^(1/5)-1
@@ -349,7 +370,6 @@ class FactorHistoricalGrowth(object):
 
         historical_growth['ORev5YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
-        historical_growth = historical_growth.drop(columns=dependencies,
-                                                   axis=1)
+        historical_growth = historical_growth.drop(columns=dependencies, axis=1)
         factor_historical_growth = pd.merge(factor_historical_growth, historical_growth, how='outer', on='security_code')
         return factor_historical_growth
