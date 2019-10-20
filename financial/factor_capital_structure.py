@@ -47,7 +47,7 @@ class FactorCapitalStructure(object):
         management = tp_management.loc[:, dependencies]
         management['NonCurrAssetRatio'] = np.where(
             CalcTools.is_zero(management.total_assets.values), 0,
-            management.total_non_current_assets.values / management.total_assets.values)
+            management.total_non_current_assets.values / management.total_assets.values * 100)
         management = management.drop(dependencies, axis=1)
         factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
@@ -162,7 +162,7 @@ class FactorCapitalStructure(object):
         management = tp_management.loc[:, dependencies]
         management['CurAssetsR'] = np.where(
             CalcTools.is_zero(management.total_assets.values), 0,
-            management.total_current_assets.values / management.total_assets.values)
+            management.total_current_assets.values / management.total_assets.values * 100)
         management = management.drop(dependencies, axis=1)
         factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
