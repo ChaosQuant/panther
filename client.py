@@ -64,6 +64,7 @@ def do_update(start_date, end_date, calc_engine, type='after'):
         rebalance_dates.reverse()
     for date in rebalance_dates:
         start_time = time.time()
+        print('开始计算：', date.strftime('%Y-%m-%d'))
         calc_engine.local_run(date.strftime('%Y-%m-%d'))
         print(date, time.time() - start_time)
 
