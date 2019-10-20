@@ -40,7 +40,7 @@ class FactorHistoricalGrowth(object):
         if len(historical_growth) <= 0:
             return
         # fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -56,7 +56,7 @@ class FactorHistoricalGrowth(object):
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
         # fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['TotalAsset1YChg'] = historical_growth[dependencies].apply(fun, axis=1)
         historical_growth = historical_growth.drop(dependencies, axis=1)
         res = pd.merge(factor_historical_growth, historical_growth, on='security_code')
@@ -71,7 +71,7 @@ class FactorHistoricalGrowth(object):
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['FCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -88,7 +88,7 @@ class FactorHistoricalGrowth(object):
         historical_growth = tp_historical_growth.loc[:, dependencies]
 
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['GrPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -105,7 +105,7 @@ class FactorHistoricalGrowth(object):
         historical_growth = tp_historical_growth.loc[:, dependencies]
 
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['ICF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -122,7 +122,7 @@ class FactorHistoricalGrowth(object):
         historical_growth = tp_historical_growth.loc[:, dependencies]
 
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -139,7 +139,7 @@ class FactorHistoricalGrowth(object):
         historical_growth = tp_historical_growth.loc[:, dependencies]
 
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPftAP1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -156,7 +156,7 @@ class FactorHistoricalGrowth(object):
         historical_growth = tp_historical_growth.loc[:, dependencies]
 
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPftAPNNRec1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -174,7 +174,7 @@ class FactorHistoricalGrowth(object):
         if len(historical_growth) <= 0:
             return
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -192,7 +192,7 @@ class FactorHistoricalGrowth(object):
         if len(historical_growth) <= 0:
             return
         # fun = lambda x: ((x[0] / x[1]) - 1 if x[1] and x[1] != 0 and x[1] is not None and x[0] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['OCF1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -207,11 +207,10 @@ class FactorHistoricalGrowth(object):
         :desc:（本期CFI（TTM）-上年同期CFI（TTM）]/ABS（上年同期CFI（TTM））*100%
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
-
         if len(historical_growth) <= 0:
             return
         # fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['OPft1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -226,9 +225,8 @@ class FactorHistoricalGrowth(object):
         :desc: 营业收入增长率=（本期营业收入（TTM）-上年同期营业收入（TTM））/ABS（上年同期营业收入（TTM））*100%
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
-
         # fun = lambda x: ((x[0] / x[1]) - 1.0 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
-        fun = lambda x: ((x[0] - x[1]) * 100 / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
+        fun = lambda x: ((x[0] - x[1]) / abs(x[1]) if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['ORev1YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
         historical_growth = historical_growth.drop(dependencies, axis=1)
@@ -326,8 +324,9 @@ class FactorHistoricalGrowth(object):
         :desc: (当期净利润/5年前净利润)^(1/5)-1
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
+
         if len(historical_growth) <= 0:
-            return
+            return None
         fun = lambda x: (pow((x[0] / x[1]), 1 / 5.0) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
         historical_growth['NetPft5YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
 
@@ -344,7 +343,7 @@ class FactorHistoricalGrowth(object):
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
-            return
+            return None
         fun = lambda x: (pow((x[0] / x[1]), 1 / 3.0) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
 
         historical_growth['ORev3YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
@@ -362,7 +361,7 @@ class FactorHistoricalGrowth(object):
         """
         historical_growth = tp_historical_growth.loc[:, dependencies]
         if len(historical_growth) <= 0:
-            return
+            return None
         fun = lambda x: (pow((x[0] / x[1]), 1 / 5.0) - 1 if x[1] and x[1] != 0 and x[0] is not None and x[1] is not None else None)
 
         historical_growth['ORev5YChgTTM'] = historical_growth[dependencies].apply(fun, axis=1)
