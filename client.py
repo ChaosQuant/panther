@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument('--start_date', type=int, default=20120101)
     # parser.add_argument('--start_date', type=int, default=20180701)
     parser.add_argument('--end_date', type=int, default=20190101)
-    parser.add_argument('--factor_name', type=str, default='factor_cash_flow')  # factor_earning
+    parser.add_argument('--factor_name', type=str, default='factor_capital_structure')  # factor_earning
     args = parser.parse_args()
     if args.end_date == 0:
         end_date = int(datetime.now().date().strftime('%Y%m%d'))

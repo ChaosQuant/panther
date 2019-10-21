@@ -198,7 +198,7 @@ class CalcEngine(object):
                     other_sub_list.append(other_sub_df)
                     # print(other_basic_df)
                     # print(other_sub_df)
-                    # print(time.time() - start_time)
+                    print(time.time() - start_time)
 
             # 存储层
             return_basic_df = pd.concat(return_basic_list, axis=0)
@@ -617,7 +617,7 @@ class CalcEngine(object):
                 group_best_active_ret_dict = group_best_active_ret.to_dict()
                 ret_sub_dict.update(group_best_active_ret_dict)
 
-                group_worst_active_ret = group_rets_df_slt.iloc[-(year * 12):, :].min().rename(
+                group_worst_active_ret = group_active_ret.iloc[-(year * 12):, :].min().rename(
                     {'ret_q' + str(i): 'active_ret_worst_q' + str(i) for i in range(1, 6)})
                 group_worst_active_ret_dict = group_worst_active_ret.to_dict()
                 ret_sub_dict.update(group_worst_active_ret_dict)
