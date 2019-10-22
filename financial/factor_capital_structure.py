@@ -17,8 +17,6 @@ import pandas as pd
 from pandas.io.json import json_normalize
 from utilities.calc_tools import CalcTools
 from utilities.singleton import Singleton
-
-
 # from basic_derivation import app
 # from ultron.cluster.invoke.cache_data import cache_data
 pd.set_option('display.max_columns', None)
