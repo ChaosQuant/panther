@@ -264,39 +264,49 @@ class CalcEngine(object):
         for col in column:
             if col in list(pe_sets_6m.keys()):
                 pe_sets_6m = pe_sets_6m.drop(col, axis=1)
+
         pe_sets_6m = pe_sets_6m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_6m'})
 
         pe_sets_3m = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
                                       .filter(Valuation.trade_date.between(trade_date_3m, trade_date)))
+
         if len(pe_sets_3m) <= 0 or pe_sets_3m is None:
             pe_sets_3m = pd.DataFrame({'security_code':[], 'pe':[]})
+
         for col in column:
             if col in list(pe_sets_3m.keys()):
                 pe_sets_3m = pe_sets_3m.drop(col, axis=1)
+
         pe_sets_3m = pe_sets_3m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_3m'})
 
         pe_sets_2m = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
                                       .filter(Valuation.trade_date.between(trade_date_1m, trade_date)))
+
         if len(pe_sets_2m) <= 0 or pe_sets_2m is None:
             pe_sets_2m = pd.DataFrame({'security_code':[], 'pe':[]})
+
         for col in column:
             if col in list(pe_sets_2m.keys()):
                 pe_sets_2m = pe_sets_2m.drop(col, axis=1)
+
         pe_sets_2m = pe_sets_2m.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_1m'})
 
         pe_sets_1y = get_fundamentals(query(Valuation.security_code,
                                             Valuation.trade_date,
                                             Valuation.pe)
                                       .filter(Valuation.trade_date.between(trade_date_1y, trade_date)))
+
         if len(pe_sets_1y) <= 0 or pe_sets_1y is None:
             pe_sets_1y = pd.DataFrame({'security_code':[], 'pe':[]})
+
         for col in column:
             if col in list(pe_sets_1y.keys()):
                 pe_sets_1y = pe_sets_1y.drop(col, axis=1)
+
         pe_sets_1y = pe_sets_1y.groupby('security_code').mean().rename(columns={'pe': 'pe_mean_1y'})
 
         pe_sets = pd.merge(pe_sets_6m, pe_sets_3m, how='outer', on='security_code')

@@ -17,8 +17,6 @@ import pandas as pd
 from pandas.io.json import json_normalize
 from utilities.calc_tools import CalcTools
 from utilities.singleton import Singleton
-
-
 # from basic_derivation import app
 # from ultron.cluster.invoke.cache_data import cache_data
 pd.set_option('display.max_columns', None)
@@ -38,7 +36,8 @@ class FactorCapitalStructure(object):
         self.description = '财务指标二级指标-资本结构'
 
     @staticmethod
-    def NonCurrAssetRatio(tp_management, factor_management, dependencies=['total_non_current_assets', 'total_assets']):
+    def NonCurrAssetRatio(tp_management, factor_management, dependencies=['total_non_current_assets',
+                                                                          'total_assets']):
         """
         :name: 非流动资产比率
         :desc: 非流动资产/总资产*100%（MRQ）
@@ -53,7 +52,8 @@ class FactorCapitalStructure(object):
         return factor_management
 
     @staticmethod
-    def LongDebtToAsset(tp_management, factor_management, dependencies=['total_non_current_liability', 'total_assets']):
+    def LongDebtToAsset(tp_management, factor_management, dependencies=['total_non_current_liability',
+                                                                        'total_assets']):
         """
         :name: 长期负债与资产总计之比
         :desc: 非流动负债合计MRQ/资产总计MRQ
@@ -68,7 +68,8 @@ class FactorCapitalStructure(object):
         return factor_management
 
     @staticmethod
-    def LongBorrToAssert(tp_management, factor_management, dependencies=['longterm_loan', 'total_assets']):
+    def LongBorrToAssert(tp_management, factor_management, dependencies=['longterm_loan',
+                                                                         'total_assets']):
         """
         :name: 长期借款与资产总计之比
         :desc: 长期借款MRQ/资产总计MRQ
@@ -83,7 +84,10 @@ class FactorCapitalStructure(object):
         return factor_management
 
     @staticmethod
-    def IntangibleAssetRatio(tp_management, factor_management, dependencies=['intangible_assets', 'development_expenditure', 'good_will', 'total_assets']):
+    def IntangibleAssetRatio(tp_management, factor_management, dependencies=['intangible_assets',
+                                                                             'development_expenditure',
+                                                                             'good_will',
+                                                                             'total_assets']):
         """
         无形资产比率
         无形资产比率 = （无形资产 + 研发支出 + 商誉）/ 总资产
@@ -103,7 +107,10 @@ class FactorCapitalStructure(object):
         return factor_management
 
     @staticmethod
-    def FixAssetsRt(tp_management, factor_management, dependencies=['fixed_assets', 'construction_materials', 'constru_in_process', 'total_assets']):
+    def FixAssetsRt(tp_management, factor_management, dependencies=['fixed_assets',
+                                                                    'construction_materials',
+                                                                    'constru_in_process',
+                                                                    'total_assets']):
         """
         :name: 固定资产比率
         :desc: (固定资产*MRQ+工程物资MRQ+在建工程MRQ）/资产总计MRQ；分母为NAN的科目记为0
@@ -120,7 +127,8 @@ class FactorCapitalStructure(object):
         return factor_management
 
     @staticmethod
-    def EquityToAsset(tp_management, factor_management, dependencies=['total_owner_equities', 'total_assets']):
+    def EquityToAsset(tp_management, factor_management, dependencies=['total_owner_equities',
+                                                                      'total_assets']):
         """
         :name: 股东权益比率
         :desc: 股东权益MRQ/资产总计MRQ
@@ -135,7 +143,10 @@ class FactorCapitalStructure(object):
         return factor_management
 
     @staticmethod
-    def EquityToFixedAsset(tp_management, factor_management, dependencies=['total_owner_equities', 'fixed_assets', 'construction_materials', 'constru_in_process']):
+    def EquityToFixedAsset(tp_management, factor_management, dependencies=['total_owner_equities',
+                                                                           'fixed_assets',
+                                                                           'construction_materials',
+                                                                           'constru_in_process']):
         """
         :name: 股东权益与固定资产比率
         :desc: 股东权益MRQ/（固定资产MRQ+工程物资MRQ+在建工程MRQ）分子为NAN的科目记为0
@@ -154,7 +165,8 @@ class FactorCapitalStructure(object):
         return factor_management
 
     @staticmethod
-    def CurAssetsR(tp_management, factor_management, dependencies=['total_current_assets', 'total_assets']):
+    def CurAssetsR(tp_management, factor_management, dependencies=['total_current_assets',
+                                                                   'total_assets']):
         """
         :name: 流动资产比率
         :desc: 流动资产/总资产*100%（MRQ）

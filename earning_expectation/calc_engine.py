@@ -20,6 +20,7 @@ from vision.table.stk_consensus_expectation import StkConsensusExpectation
 from vision.table.stk_consensus_rating import StkConsensusRating
 from vision.db.signletion_engine import *
 from earning_expectation import app
+import numpy as np
 
 
 class CalcEngine(object):
@@ -149,17 +150,18 @@ class CalcEngine(object):
         factor_earning_expect = earning.OptIncFY11MRT(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.OptIncFY13MRT(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.OptIncFY16MRT(tp_earning, factor_earning_expect, trade_date)
-        # factor_earning_expect = earning.OptIncFY11WChg(tp_earning, factor_earning_expect, trade_date)
+        factor_earning_expect = earning.OptIncFY11WChg(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.OptIncFY11MChg(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.OptIncFY13MChg(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.OptIncFY16MChg(tp_earning, factor_earning_expect, trade_date)
-        factor_earning_expect = earning.OptIncFY1SDT(tp_earning, factor_earning_expect, trade_date)
+        # factor_earning_expect = earning.OptIncFY1SDT(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.CERATINGRATE1W(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.CERATINGRATE1M(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.CERATINGRATE3M(tp_earning, factor_earning_expect, trade_date)
         factor_earning_expect = earning.CERATINGRATE6M(tp_earning, factor_earning_expect, trade_date)
 
         factor_earning_expect['trade_date'] = str(trade_date)
+        factor_earning_expect.replace([-np.inf, np.inf], np.nan, inplace=True)
         return factor_earning_expect
 
 
