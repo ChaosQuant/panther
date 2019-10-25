@@ -75,12 +75,23 @@ class DBPolymerize(object):
         self._adaptation = Adaptation.create_adaptation(name)
         
      
+    def fill_technicalna(self, data):
+        tech_colums = ['pre_close', 'open', 'high', 'low', 
+                       'close', 'volume', 'money', 'change',
+                       'change_pct', 'tot_mkt_cap', 'turn_rate']
+        for col in tech_colums:
+            data[col] = data[col].replace(0,data[col].mean())
+        return data
+        
     def fetch_technical_data(self, begin_date, end_date, freq=None):
+        #均值填充Nan
         market_data = self._factory_sets['market'].result(begin_date, end_date, freq)
-        exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
+        market_data = market_data.groupby('security_code').apply(self.fill_technicalna)
+        #exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
         market_data = self._adaptation.market(market_data)
-        exposure_data = self._adaptation.risk_exposure(exposure_data)
-        total_data = market_data.merge(exposure_data, on=['security_code','trade_date'])
+        #exposure_data = self._adaptation.risk_exposure(exposure_data)
+        #total_data = market_data.merge(exposure_data, on=['security_code','trade_date'])
+        total_data = market_data
         return self._adaptation.calc_adaptation(total_data)
     
     def fetch_performance_data(self, benchmark, begin_date, end_date, freq=None):
