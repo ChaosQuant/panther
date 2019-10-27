@@ -112,7 +112,6 @@ class CalcEngine(object):
         # balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
         #                                                                    [BalanceTTM.MINYSHARRIGH,
         #                                                                    ], dates=[trade_date]).drop(columns, axis=1)
-
         income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                           [IncomeTTM.BIZTOTINCO,
                                                                            IncomeTTM.BIZTOTCOST,
