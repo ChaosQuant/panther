@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
+import sys
 from sqlalchemy import MetaData, create_engine, and_, or_, select
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker
-from PyFin.api import makeSchedule,BizDayConventions
+from PyFin.api import makeSchedule, BizDayConventions
 import pandas as pd
+
+sys.path.append('..')
+import config
 
 
 class FetchRLFactorEngine(object):
     def __init__(self, table_name):
-        self._engine = create_engine('mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision')
+        self._db_url = '''mysql+mysqlconnector://{0}:{1}@{2}:{3}/{4}'''.format(config.rl_db_user,
+                                                                               config.rl_db_pwd,
+                                                                               config.rl_db_host,
+                                                                               config.rl_db_port,
+                                                                               config.rl_db_database)
+        self._engine = create_engine(self._db_url)
         self._table = self._base_prepare(table_name)
 
     def _base_prepare(self, table_name):
@@ -26,7 +34,7 @@ class FetchRLFactorEngine(object):
         else:
             rebalance_dates = makeSchedule(begin_date, end_date, freq, 'china.sse', BizDayConventions.Preceding)
             query = select([self._table]).where(
-                and_(self._table.trade_date.in_(rebalance_dates),))
+                and_(self._table.trade_date.in_(rebalance_dates), ))
 
         data = pd.read_sql(query, self._engine)
 
@@ -38,8 +46,8 @@ class FetchRLFactorEngine(object):
 
 
 if __name__ == "__main__":
-
     import datetime as dt
+
     begin = dt.datetime(2018, 8, 1)
     end = dt.datetime(2018, 8, 10)
     tn = 'factor_reversal'
@@ -47,4 +55,3 @@ if __name__ == "__main__":
     process = FetchRLFactorEngine(tn)
     data = process.fetch_factors(begin, end, '2b')
     print(data.head())
-
