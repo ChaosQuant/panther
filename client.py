@@ -2,6 +2,8 @@
 import argparse
 import importlib
 
+#from performance.calc_engine import CalcEngine
+
 from data.rebuild import Rebuild
 from PyFin.api import *
 import time
@@ -97,3 +99,4 @@ if __name__ == "__main__":
         do_update(args.start_date, end_date, calc_engine, args.type)
     if args.schedule:
         do_schedule(factor_name, calc_engine, args.type)
+
