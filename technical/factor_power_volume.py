@@ -173,7 +173,7 @@ class FactorPowerVolume(object):
     def VROC12D(self, data, dependencies=['close_price'], max_window=13):
         '''
         This is alpha191_1
-        :name: 12 日变动速率(6-day Price Rate of Change)
+        :name: 12 日变动速率
         :desc: 12 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 12)
@@ -181,7 +181,7 @@ class FactorPowerVolume(object):
     def VROC6D(self, data, dependencies=['close_price'], max_window=7):
         '''
         This is alpha191_1
-        :name: 6 日变动速率(6-day Price Rate of Change)
+        :name: 6 日变动速率
         :desc: 6 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 6)
@@ -189,7 +189,7 @@ class FactorPowerVolume(object):
     def VROC10D(self, data, dependencies=['close_price'], max_window=11):
         '''
         This is alpha191_1
-        :name: 10 日变动速率(6-day Price Rate of Change)
+        :name: 10 日变动速率
         :desc: 10 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 10)
@@ -197,7 +197,7 @@ class FactorPowerVolume(object):
     def VROC20D(self, data, dependencies=['close_price'], max_window=21):
         '''
         This is alpha191_1
-        :name: 10 日变动速率(6-day Price Rate of Change)
+        :name: 10 日变动速率
         :desc: 10 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 20)

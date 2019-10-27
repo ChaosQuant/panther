@@ -4,6 +4,10 @@ import pandas as pd
 from PyFin.api import makeSchedule, BizDayConventions
 from sqlalchemy import create_engine, select, and_, or_
 from utilities.singleton import Singleton
+import sys
+
+sys.path.append('..')
+import config
 
 
 # 连接句柄
@@ -40,8 +44,12 @@ class FetchEngine(object):
 
 class FetchRLEngine(FetchEngine):
     def __init__(self):
-        super(FetchRLEngine, self).__init__('rl',
-                                            'mysql+mysqlconnector://factor_edit:factor_edit_2019@db1.irongliang.com/vision')
+        self._db_url = '''mysql+mysqlconnector://{0}:{1}@{2}:{3}/{4}'''.format(config.rl_db_user,
+                                                                               config.rl_db_pwd,
+                                                                               config.rl_db_host,
+                                                                               config.rl_db_port,
+                                                                               config.rl_db_database)
+        super(FetchRLEngine, self).__init__('rl', self._db_url)
 
     def market(self, begin_date, end_date, freq=None):
         table = importlib.import_module('data.rl_model').Market

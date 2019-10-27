@@ -602,7 +602,7 @@ class FactorBasicDerivation(object):
     @staticmethod
     def EBITFORPTTM(tp_derivation, factor_derivation, dependencies=['EBITFORP']):
         """
-        :name: ebit(TTM)
+        :name: EBIT(TTM)
         :desc: 根据截止指定日已披露的最新报告期“EBIT(正向）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
         """
         management = tp_derivation.loc[:, dependencies]
