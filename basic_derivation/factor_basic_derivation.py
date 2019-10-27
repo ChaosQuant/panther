@@ -307,7 +307,7 @@ class FactorBasicDerivation(object):
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
             return None
-        management = management.rename(columns={'FINALCASHBALA': 'CashAndCashEqu'})
+        management = management.rename(columns={'FINALCASHBALA': 'CashAn:   dCashEqu'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
