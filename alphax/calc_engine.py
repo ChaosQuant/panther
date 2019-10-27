@@ -11,8 +11,8 @@ from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'alphax.alpha191','class':'Alpha191'},
-                                    {'packet':'alphax.alpha101','class':'Alpha101'}]):
+    def __init__(self, name, url, methods=[{'packet':'alphax.factor_alpha191','class':'FactorAlpha191'},
+                                    {'packet':'alphax.factor_alpha101','class':'FactorAlpha101'}]):
         self._name= name
         self._methods = methods
         self._url = url
@@ -50,20 +50,20 @@ class CalcEngine(object):
     def calc_factor_by_date(self, data, trade_date):
         trade_date_list = list(set(data.trade_date))
         trade_date_list.sort(reverse=False)
-        benchmark_factor = data.set_index('trade_date').loc[trade_date_list[-1]][['code','factor']]
-        benchmark_factor.rename(columns={'factor':'benchmark_factor'},inplace=True)
-        mkt_df = data.merge(benchmark_factor, on=['code'])
-        mkt_df = mkt_df.set_index(['trade_date', 'code'])
+        benchmark_factor = data.set_index('trade_date').loc[trade_date_list[-1]][['security_code','pre_factor']]
+        benchmark_factor.rename(columns={'pre_factor':'benchmark_factor'},inplace=True)
+        mkt_df = data.merge(benchmark_factor, on=['security_code'])
+        mkt_df = mkt_df.set_index(['trade_date', 'security_code'])
         mkt_df = mkt_df[mkt_df['turnover_vol'] > 0]
         
         #
         for p in mkt_df.columns:
             if p in ['open_price', 'highest_price', 'lowest_price', 'close_price', 'vwap']:
-                mkt_df[p] = mkt_df[p] * mkt_df['factor'] / mkt_df['benchmark_factor']
+                mkt_df[p] = mkt_df[p] * mkt_df['pre_factor'] / mkt_df['benchmark_factor']
         indu_dict = {}
         indu_names = self._INDU_STYLES + ['COUNTRY']
         for date in trade_date_list:
-            date_indu_df = data[data['trade_date'] == trade_date_list[-1]].set_index('code')[indu_names]
+            date_indu_df = data[data['trade_date'] == trade_date_list[-1]].set_index('security_code')[indu_names]
             indu_check_se = date_indu_df.sum(axis=1).sort_values()
             date_indu_df.drop(indu_check_se[indu_check_se < 2].index, inplace=True)
             indu_dict[pd.Timestamp(date)] = date_indu_df.sort_index()
@@ -88,7 +88,7 @@ class CalcEngine(object):
         res = getattr(class_method(),func)(data)
         res = pd.DataFrame(res)
         res.columns=[func]
-        #res = res.reset_index().sort_values(by='code',ascending=True)
+        #res = res.reset_index().sort_values(by='security_code',ascending=True)
         return res
         
     def process_calc_factor(self, packet_name, class_name, mkt_df, trade_date):
@@ -99,7 +99,6 @@ class CalcEngine(object):
         func_sets = self._func_sets(class_method)
         start_time = time.time()
         for func in func_sets:
-            print(func)
             func_method = getattr(class_method,func)
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
@@ -112,10 +111,10 @@ class CalcEngine(object):
                 else:
                     data['indu'] = mkt_df['indu']
             calc_factor_list.append([class_name, packet_name, func, data])
-        with multiprocessing.Pool(processes=cpus*2) as p:
+        with multiprocessing.Pool(processes=cpus) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
-        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'code'})
+        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'security_code'})
         result = result.replace([np.inf, -np.inf], np.nan)
         result['trade_date'] = trade_date
         return result
@@ -129,7 +128,6 @@ class CalcEngine(object):
         
         start_time = time.time()
         for func in func_sets:
-            print(func)
             func_method = getattr(class_method,func)
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
@@ -144,9 +142,9 @@ class CalcEngine(object):
             res = getattr(class_method(),func)(data)
             res = pd.DataFrame(res)
             res.columns=[func]
-            res = res.reset_index().sort_values(by='code',ascending=True)
+            res = res.reset_index().sort_values(by='security_code',ascending=True)
             result[func] = res[func]
-        result['code'] = res['code']
+        result['security_code'] = res['security_code']
         result['trade_date'] = trade_date
         print(time.time() - start_time)
         return result

@@ -4,13 +4,13 @@ import numpy as np
 from utilities.singleton import Singleton
 
 @six.add_metaclass(Singleton)
-class Volume(object):
+class FactorVolume(object):
     def __init__(self):
-        __str__ = 'volume'
+        __str__ = 'factor_volume'
         self.name = '量能指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '量能指标'
-        self.desciption = '通过成交量与股价变动关系分析未来趋势'
+        self.description = '通过成交量与股价变动关系分析未来趋势'
         
     def VoT20D(self, data, dependencies=['turn_rate'], max_window=20):
         '''

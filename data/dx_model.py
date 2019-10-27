@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 metadata = Base.metadata
 
+
 class Market(Base):
     __tablename__ = 'market'
     __table_args__ = (
@@ -32,14 +33,14 @@ class Market(Base):
     PB = Column(Float(53))
     isOpen = Column(Integer)
     vwap = Column(Float(53))
-    
+
 
 class Exposure(Base):
     __tablename__ = 'risk_exposure'
     __table_args__ = (
         Index('trade_date', 'code', unique=True),
     )
-    trade_date =  Column(DateTime, primary_key=True, nullable=False)
+    trade_date = Column(DateTime, primary_key=True, nullable=False)
     code = Column(String, primary_key=True, nullable=False)
     BETA = Column(Float(53))
     MOMENTUM = Column(Float(53))
