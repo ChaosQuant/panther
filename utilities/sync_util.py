@@ -1,24 +1,31 @@
 #!/usr/bin/env python
 # coding=utf-8
+import sys
 import sqlalchemy as sa
 import pandas as pd
 from datetime import datetime
-import pdb
+
+sys.path.append('..')
+
+import config
 
 
 class SyncUtil(object):
     def __init__(self, source=None, is_db=True):
+        source_db = '''mssql+pymssql://{0}:{1}@{2}:{3}/{4}'''.format(config.hh_db_user, config.hh_db_pwd,
+                                                                     config.hh_db_host, config.hh_db_port,
+                                                                     config.hh_db_database)
         # 源数据库
         if is_db:
             if source == None:
-                self.source = sa.create_engine("mssql+pymssql://reader:reader@10.15.97.127:1433/dnds")
+                self.source = sa.create_engine(source_db)
             else:
                 self.source = source
 
     # 获取交易日
     def get_all_trades(self, exchange, start_date, end_date):
         sql = """select TRADEDATE FROM TQ_OA_TRDSCHEDULE WHERE EXCHANGE = '{0}'
-                AND ISVALID = 1 AND TRADEDATE >= '{1}' and TRADEDATE <= '{2}' ORDER BY TRADEDATE DESC;""".format(exchange,
+                AND ISVALID = 1 AND TRADEDATE >= {1} and TRADEDATE <= {2} ORDER BY TRADEDATE DESC;""".format(exchange,
                                                                                                              start_date,
                                                                                                              end_date)
         trades_sets = pd.read_sql(sql, self.source)
@@ -83,6 +90,8 @@ class SyncUtil(object):
     def create_report_date(self, min_year, max_year):
         report_date_list = []
         start_date = min_year - 1
+        if start_date < 2007:
+            start_date = 2007
         while start_date <= max_year:
             report_date_list.append(start_date * 10000 + 331)
             report_date_list.append(start_date * 10000 + 630)
@@ -94,9 +103,10 @@ class SyncUtil(object):
 
     # 从当前日期前推n个报告期，返回报告期日期
     def get_before_report_date(self, trade_date, num):
+        year_size = int(num / 4) + 1
         current_year = int(trade_date[:4])
         all_report_date = []
-        for year in [current_year, current_year - 1]:
+        for year in range(current_year - year_size, current_year + 1):
             all_report_date.append(year * 10000 + 331)
             all_report_date.append(year * 10000 + 630)
             all_report_date.append(year * 10000 + 930)
@@ -107,6 +117,7 @@ class SyncUtil(object):
                 num -= 1
                 if num == 0:
                     return report_date
+
     # 获取区间
     def every_report_range(self, trade_date, report_date_list):
         report_date_list.sort(reverse=True)
@@ -137,10 +148,8 @@ class SyncUtil(object):
 
 
 if __name__ == "__main__":
+    # pdb.set_trace()
     sync = SyncUtil()
-    # sync.ttm_report_date_by_year('2018-06-10', 5)
-    trade_date_sets = sync.get_trades_ago('001002', '20190801', '20190810', 1, order='DESC')
-    print('trade_date_sets: %s' % trade_date_sets)
     # test = sync.ttm_report_date_by_year('2018-06-10', 5)
     # test = sync.get_before_report_date('20180701', 2)
     test = sync.get_trades_ago('001002', '20180610', '20180615', 1, order='DESC')

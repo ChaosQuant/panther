@@ -41,108 +41,108 @@ dag = DAG(
 
 run_rebuild_factor_basic_derivation_performance = BashOperator(
     task_id='run_rebuild_factor_basic_derivation_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_basic_derivation"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_basic_derivation"',
     dag=dag,
 )
 
 run_rebuild_factor_earning_expectation_performance = BashOperator(
     task_id='run_rebuild_factor_earning_expectation_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_earning_expectation"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_earning_expectation"',
     dag=dag,
 )
 
 run_rebuild_factor_capital_structure_performance = BashOperator(
     task_id='run_rebuild_factor_capital_structure_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_capital_structure"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_capital_structure"',
     dag=dag,
 )
 run_rebuild_factor_cash_flow_performance = BashOperator(
     task_id='run_rebuild_factor_cash_flow_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_cash_flow"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_cash_flow"',
     dag=dag,
 )
 run_rebuild_factor_earning_performance = BashOperator(
     task_id='run_rebuild_factor_earning_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_earning"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_earning"',
     dag=dag,
 )
 run_rebuild_factor_historical_growth_performance = BashOperator(
     task_id='run_rebuild_factor_historical_growth_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_historical_growth"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_historical_growth"',
     dag=dag,
 )
 run_rebuild_factor_operation_capacity_performance = BashOperator(
     task_id='run_rebuild_factor_operation_capacity_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_operation_capacity"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_operation_capacity"',
     dag=dag,
 )
 run_rebuild_factor_per_share_indicators_performance = BashOperator(
     task_id='run_rebuild_factor_per_share_indicators_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_per_share_indicators"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_per_share_indicators"',
     dag=dag,
 )
 run_rebuild_factor_revenue_quality_performance = BashOperator(
     task_id='run_rebuild_factor_revenue_quality_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_revenue_quality"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_revenue_quality"',
     dag=dag,
 )
 run_rebuild_factor_solvency_performance = BashOperator(
     task_id='run_rebuild_factor_solvency_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_solvency"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_solvency"',
     dag=dag,
 )
 
 run_rebuild_factor_momentum_performance = BashOperator(
     task_id='run_rebuild_factor_momentum_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_momentum"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_momentum"',
     dag=dag,
 )
 run_rebuild_factor_power_volume_performance = BashOperator(
     task_id='run_rebuild_factor_power_volume_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_power_volume"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_power_volume"',
     dag=dag,
 )
 run_rebuild_factor_price_volume_performance = BashOperator(
     task_id='run_rebuild_factor_price_volume_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_price_volume"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_price_volume"',
     dag=dag,
 )
 run_rebuild_factor_reversal_performance = BashOperator(
     task_id='run_rebuild_factor_reversal_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_reversal"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_reversal"',
     dag=dag,
 )
 run_rebuild_factor_sentiment_performance = BashOperator(
     task_id='run_rebuild_factor_sentiment_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_sentiment"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_sentiment"',
     dag=dag,
 )
 run_rebuild_factor_volume_performance = BashOperator(
     task_id='run_rebuild_factor_volume_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_volume"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_volume"',
     dag=dag,
 )
 
 run_rebuild_factor_valuation_estimation_performance = BashOperator(
     task_id='run_rebuild_factor_valuation_estimation_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_valuation_estimation"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_valuation_estimation"',
     dag=dag,
 )
 
 run_rebuild_factor_alpha101_performance = BashOperator(
     task_id='run_rebuild_factor_alpha101_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_alpha101"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_alpha101"',
     dag=dag,
 )
 run_rebuild_factor_alpha191_performance = BashOperator(
     task_id='run_rebuild_factor_alpha191_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_alpha191"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_alpha191"',
     dag=dag,
 )
 
 run_rebuild_factor_volatility_value_performance = BashOperator(
     task_id='run_rebuild_factor_volatility_value_performance',
-    bash_command='cd ~/app/wjh/panther && python client.py --factor_name="factor_volatility_value"',
+    bash_command='cd /app/wjh/panther && python client.py --factor_name="factor_volatility_value"',
     dag=dag,
 )
 
