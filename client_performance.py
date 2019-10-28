@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_date', type=int, default=20150101)
     # parser.add_argument('--start_date', type=int, default=20180701)
-    parser.add_argument('--end_date', type=int, default=20170101)
+    parser.add_argument('--end_date', type=int, default=0)
     parser.add_argument('--factor_name', type=str, default='factor_capital_structure')  # factor_earning
     args = parser.parse_args()
     if args.end_date == 0:
