@@ -36,6 +36,7 @@ class FactorBasicDerivation(object):
         self.factor_type2 = '基础衍生'
         self.description = '基础衍生类因子'
 
+    '''
     @staticmethod
     def FCFF(tp_derivation, factor_derivation, dependencies=['',
                                                              'CURDEPANDAMOR',
@@ -50,7 +51,6 @@ class FactorBasicDerivation(object):
             return None
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
-
     @staticmethod
     def FCFE(tp_derivation, factor_derivation, dependencies=['',
                                                              'CURDEPANDAMOR',
@@ -69,6 +69,7 @@ class FactorBasicDerivation(object):
             return None
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
+    '''
 
     @staticmethod
     def NonRecGainLoss(tp_derivation, factor_derivation, dependencies=['NEGAL']):
@@ -107,7 +108,7 @@ class FactorBasicDerivation(object):
         :desc:  流动资产（MRQ）-流动负债（MRQ）
         """
         management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
+        if len(management) <= 0:
             return None
         management = management.rename(columns={'WORKCAP': 'WorkingCap'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
@@ -115,12 +116,12 @@ class FactorBasicDerivation(object):
 
     @staticmethod
     def TangibleAssets(tp_derivation, factor_derivation, dependencies=['RIGHAGGR',
-                                                                        'MINYSHARRIGH',
-                                                                        'INTAASSET',
-                                                                        'DEVEEXPE',
-                                                                        'GOODWILL',
-                                                                        'LOGPREPEXPE',
-                                                                        'DEFETAXASSET']):
+                                                                       'MINYSHARRIGH',
+                                                                       'INTAASSET',
+                                                                       'DEVEEXPE',
+                                                                       'GOODWILL',
+                                                                       'LOGPREPEXPE',
+                                                                       'DEFETAXASSET']):
         """
         :name: 有形资产(MRQ)
         :desc: 股东权益（不含少数股东权益）-无形资产+开发支出+商誉+长期待摊费用+递延所得税资产）
@@ -150,10 +151,10 @@ class FactorBasicDerivation(object):
 
     @staticmethod
     def InterestBearingLiabilities(tp_derivation, factor_derivation, dependencies=['shortterm_loan',
-                                                                                     'non_current_liability_in_one_year',
-                                                                                     'longterm_loan',
-                                                                                     'bonds_payable',
-                                                                                     'interest_payable']):
+                                                                                   'non_current_liability_in_one_year',
+                                                                                   'longterm_loan',
+                                                                                   'bonds_payable',
+                                                                                   'interest_payable']):
         """
         :name: 带息负债(MRQ)
         :desc: 带息负债 = 短期借款+一年内到期的长期负债+长期借款+应付债券+应付利息
@@ -311,6 +312,7 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
+    '''    
     @staticmethod
     def EBIAT(tp_derivation, factor_derivation, dependencies=['EBIT',
                                                               'INCOTAXEXPE']):
@@ -327,7 +329,7 @@ class FactorBasicDerivation(object):
         management = management.drop(dependencies, axis=1)
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
-
+    '''
     @staticmethod
     def SalesTTM(tp_derivation, factor_derivation, dependencies=['BIZTOTINCO']):
         """
@@ -488,7 +490,7 @@ class FactorBasicDerivation(object):
         management = management.rename(columns={'MANANETR': 'NetIncFromOptActTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
-
+    '''
     @staticmethod
     def NetIncFromValueChgTTM(tp_derivation, factor_derivation, dependencies=['NVALCHGIT']):
         """
@@ -501,6 +503,7 @@ class FactorBasicDerivation(object):
         management = management.rename(columns={'NVALCHGIT': 'NetIncFromValueChgTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
+    '''
 
     @staticmethod
     def OptProfitTTM(tp_derivation, factor_derivation, dependencies=['PERPROFIT']):
@@ -532,6 +535,7 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
+    '''
     @staticmethod
     def EBITTTM(tp_derivation, factor_derivation, dependencies=['EBIT']):
         """
@@ -545,6 +549,7 @@ class FactorBasicDerivation(object):
         management = management.rename(columns={'EBIT': 'EBITTTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
+    '''
 
     @staticmethod
     def IncTaxTTM(tp_derivation, factor_derivation, dependencies=['INCOTAXEXPE']):
@@ -611,6 +616,7 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
+    '''
     @staticmethod
     def EBITFORPTTM(tp_derivation, factor_derivation, dependencies=['TOTPROFIT',
                                                                     'FINEXPE']):
@@ -625,7 +631,9 @@ class FactorBasicDerivation(object):
         management['EBITFORPTTM'] = management[dependencies].apply(func, axis=1)
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
+    '''
 
+    '''
     @staticmethod
     def EBITDATTM(tp_derivation, factor_derivation, dependencies=['EBITDA']):
         """
@@ -638,7 +646,7 @@ class FactorBasicDerivation(object):
         management = management.rename(columns={'EBITDA': 'EBITDATTM'})
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
-
+    '''
     @staticmethod
     def CashRecForSGAndPSTTM(tp_derivation, factor_derivation, dependencies=['LABORGETCASH']):
         """
