@@ -6,13 +6,13 @@ from utilities.singleton import Singleton
 import talib
 
 @six.add_metaclass(Singleton)
-class Reversal(object):
+class FactorReversal(object):
     def __init__(self):
-        __str__ = 'momentum'
+        __str__ = 'factor_momentum'
         self.name = '反转指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '反转指标'
-        self.desciption = '主要用于捕捉趋势的转折点'
+        self.description = '主要用于捕捉趋势的转折点'
         
         
     def _ROCXD(self, data, param1, dependencies=['close_price']):
