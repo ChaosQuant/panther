@@ -85,7 +85,10 @@ class DBPolymerize(object):
                        'close', 'volume', 'money', 'change',
                        'change_pct', 'tot_mkt_cap', 'turn_rate']
         for col in tech_colums:
-            data[col] = data[col].replace(0,data[col].mean())
+            if col in ['open','high','low','close']:
+                data[col] = data[col].replace(0,data['pre_close'])
+            elif col in ['volume','money']:
+                data['volume'].replace(0,np.nan).fillna(method='ffill')
         return data
         
 
