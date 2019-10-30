@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pdb
+import numpy as np
 from .fech_data import MarketFactory, ExposureFactory, IndexFactory, IndustryFactory, FactorFactory, SecurityFactory, \
     IndexMarketFactory, FetchEngine
 
