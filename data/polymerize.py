@@ -78,24 +78,20 @@ class DBPolymerize(object):
             'index_market': IndexMarketFactory(FetchEngine.create_engine(name))
         }
         self._adaptation = Adaptation.create_adaptation(name)
-        
      
-    def fill_technicalna(self, data):
-        tech_colums = ['pre_close', 'open', 'high', 'low',
-                       'close', 'volume', 'money', 'change',
-                       'change_pct', 'tot_mkt_cap', 'turn_rate']
-        for col in tech_colums:
-            if col in ['open','high','low','close']:
-                data[col] = data[col].replace(0,data['pre_close'])
-            elif col in ['volume','money']:
-                data['volume'].replace(0,np.nan).fillna(method='ffill')
-        return data
-
-
     def fetch_technical_data(self, begin_date, end_date, freq=None):
         #均值填充Nan
         market_data = self._factory_sets['market'].result(begin_date, end_date, freq)
-        market_data = market_data.groupby('security_code').apply(self.fill_technicalna)
+        market_data['volume'] = np.where(market_data.volume.values == 0, np.nan,
+                                         market_data.volume.values)
+        market_data['money'] = np.where(market_data.money.values == 0, np.nan,
+                                         market_data.money.values)
+        market_data['volume'] = market_data['volume'].fillna(method='ffill')
+        market_data['money'] = market_data['money'].fillna(method='ffill')
+        market_data['open'] = np.where(market_data.open.values == 0, market_data.pre_close.values, market_data.open.values)
+        market_data['close'] = np.where(market_data.close.values == 0, market_data.pre_close.values, market_data.close.values)
+        market_data['high'] = np.where(market_data.high.values == 0, market_data.pre_close.values, market_data.high.values)
+        market_data['low'] = np.where(market_data.low.values == 0, market_data.pre_close.values, market_data.low.values)
         #exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
         market_data = self._adaptation.market(market_data)
 
@@ -112,52 +108,18 @@ class DBPolymerize(object):
         index_data = self._factory_sets['index_market'].result([security_code_dict['000300']], begin_date, end_date, freq)
         return self._adaptation.calc_adaptation(market_data), index_data
 
-    def fetch_integrated_data(self, begin_date, end_date, freq=None):
-        security_code_dict = {'000905.XSHG': '2070000187', '000300.XSHG': '2070000060'}
-
-        sw_industry = ['801010', '801020', '801030', '801040', '801050', '801080', '801110', '801120', '801130',
-                       '801140', '801150', '801160', '801170', '801180', '801200', '801210', '801230', '801710',
-                       '801720', '801730', '801740', '801750', '801760', '801770', '801780', '801790', '801880',
-                       '801890']
-
-        # 月末调仓
-        # 对应的行业
-        benchmark_industry_data = self._factory_sets['industry'].result(sw_industry, begin_date, end_date, freq).rename(
-            columns={'isymbol': 'industry_code', 'iname': 'industry'})
-
-        # 对应的权重,调仓日权重
-        benchmark_index_data = self._factory_sets['index'].result(security_code_dict.keys(), begin_date, begin_date).rename(
-            columns={'isymbol': 'index_code', 'iname': 'index_name'})
-        benchmark_index_data = benchmark_index_data.drop(['trade_date'], axis=1)
-        benchmark_data = benchmark_industry_data.merge(benchmark_index_data, on=['symbol'])
-
-        # 读取内码
-        benchmark_data['code'] = benchmark_data['symbol'].apply(lambda x: str(x.split('.')[0]))
-        security_code = self._factory_sets['security'].result(list(set(benchmark_data.code))).rename(
-            columns={'symbol': 'code'})
-        benchmark_data = benchmark_data.merge(security_code, on=['code']).drop(['code', 'symbol'], axis=1)
-
-        # index_data = self._factory_sets['index_market'].result(security_code_dict.values(), begin_date, end_date, freq)
-
-        market_data = self._factory_sets['market'].result_code(list(set(security_code.security_code)), begin_date,
-                                                               end_date, freq)
-
-        exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
-
-        return benchmark_data, market_data, exposure_data
-
     def fetch_performance_data(self, benchmark, begin_date, end_date, freq=None):
         #目前只有三个基准，故内码先固定
         security_code_dict = {'000905':'2070000187','000300':'2070000060'}
 
-        sw_industry = ['801010', '801020', '801030', '801040', '801050', '801080', '801110', '801120', '801130',
-                       '801140', '801150', '801160', '801170', '801180', '801200', '801210', '801230', '801710',
-                       '801720', '801730', '801740', '801750', '801760', '801770', '801780', '801790', '801880',
-                       '801890']
+        sw_industry = ['801010', '801020', '801030', '801040', '801050',
+                       '801080', '801110', '801120', '801130', '801150', '801160', '801170',
+                       '801180', '801200', '801210', '801230', '801710', '801720', '801730',
+                       '801740', '801750', '801760', '801770', '801790', '801880']
+
         # 对应的行业
         benchmark_industry_data = self._factory_sets['industry'].result(sw_industry, begin_date, end_date, freq).rename(
             columns={'isymbol': 'industry_code', 'iname': 'industry'})
-
         # 对应的权重
         benchmark_index_data = self._factory_sets['index'].result(benchmark, begin_date, end_date, freq).rename(
             columns={'isymbol': 'index_code', 'iname': 'index_name'})
@@ -173,11 +135,14 @@ class DBPolymerize(object):
         market_data = self._factory_sets['market'].result_code(list(set(security_code.security_code)), begin_date,
                                                                end_date, freq)
 
-        # # 读取因子数据
-        # factor_category = 'FactorReversal'
-        # factor_name = ['CMO20D', 'KDJK9D']
-        # factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
-
+        # 读取因子数据
+        factor_category = 'FactorReversal'
+        factor_name = ['CMO20D', 'KDJK9D']
+        factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
         exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
-        
-        return benchmark_data, index_data, market_data, exposure_data
+
+        cov_data = exposure_data
+
+        return benchmark_data, index_data, market_data, factor_data, exposure_data
+
+
