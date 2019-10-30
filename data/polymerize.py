@@ -78,24 +78,20 @@ class DBPolymerize(object):
             'index_market': IndexMarketFactory(FetchEngine.create_engine(name))
         }
         self._adaptation = Adaptation.create_adaptation(name)
-        
      
-    def fill_technicalna(self, data):
-        tech_colums = ['pre_close', 'open', 'high', 'low', 
-                       'close', 'volume', 'money', 'change',
-                       'change_pct', 'tot_mkt_cap', 'turn_rate']
-        for col in tech_colums:
-            if col in ['open','high','low','close']:
-                data[col] = data[col].replace(0,data['pre_close'])
-            elif col in ['volume','money']:
-                data['volume'].replace(0,np.nan).fillna(method='ffill')
-        return data
-        
-
     def fetch_technical_data(self, begin_date, end_date, freq=None):
         #均值填充Nan
         market_data = self._factory_sets['market'].result(begin_date, end_date, freq)
-        market_data = market_data.groupby('security_code').apply(self.fill_technicalna)
+        market_data['volume'] = np.where(market_data.volume.values == 0, np.nan,
+                                         market_data.volume.values)
+        market_data['money'] = np.where(market_data.money.values == 0, np.nan,
+                                         market_data.money.values)
+        market_data['volume'] = market_data['volume'].fillna(method='ffill')
+        market_data['money'] = market_data['money'].fillna(method='ffill')
+        market_data['open'] = np.where(market_data.open.values == 0, market_data.pre_close.values, market_data.open.values)
+        market_data['close'] = np.where(market_data.close.values == 0, market_data.pre_close.values, market_data.close.values)
+        market_data['high'] = np.where(market_data.high.values == 0, market_data.pre_close.values, market_data.high.values)
+        market_data['low'] = np.where(market_data.low.values == 0, market_data.pre_close.values, market_data.low.values)
         #exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
         market_data = self._adaptation.market(market_data)
 
