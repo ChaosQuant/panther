@@ -143,3 +143,21 @@ class Index(Base):
     symbol = Column(VARCHAR(32))
     sname = Column(VARCHAR(128))
     weighing = Column(DECIMAL(8, 2))
+
+class Integrated(Base):
+    __tablename__ = 'factor_integrated_basic'
+    # __table_args__ = (
+    #     Index('id', 'factor_name', unique=True),
+    # )
+    id = Column(VARCHAR(32))
+    factor_name = Column(VARCHAR(50), primary_key=True)
+    benchmark = Column(VARCHAR(20), primary_key=True)
+    factor_neu = Column(Integer, primary_key=True)
+    group_neu = Column(Integer, primary_key=True)
+    trade_date = Column(DATE, primary_key=True)
+    ret_q1 = Column(DECIMAL(26, 6))
+    ret_q2 = Column(DECIMAL(26, 6))
+    ret_q3 = Column(DECIMAL(26, 6))
+    ret_q4 = Column(DECIMAL(26, 6))
+    ret_q5 = Column(DECIMAL(26, 6))
+    spread = Column(DECIMAL(26, 6))

@@ -19,7 +19,7 @@ import sys
 sys.path.append('../')
 sys.path.append('../../')
 sys.path.append('../../../')
-from data.model import BalanceMRQ, BalanceTTM, IndicatorReport, IndicatorMRQ, CashFlowReport
+from data.model import BalanceMRQ, BalanceTTM, IndicatorReport, IndicatorMRQ
 from utilities.internal_code import InternalCode
 from utilities.sync_util import SyncUtil
 
@@ -74,21 +74,14 @@ class sqlEngine(object):
         filter_date_str = db_name.__pit_column__['filter_date'].name
         index_str = db_name.__pit_column__['index'].name
         deal_df = pd.DataFrame()
-        df = pd.DataFrame()
-        fundamentals_sets.sort_values(by=filter_date_str, ascending=False, inplace=True)
-        trades_date_fundamentals_groupd = fundamentals_sets.groupby([index_str])
-        for k, g in trades_date_fundamentals_groupd:
-            g.fillna(axis=0, method='bfill', limit=4, inplace=True)
-            df = df.append(g)
-        fundamentals_sets = df
         for trade_date in dates:
-            report_date = self._sync_util.get_before_report_date(trade_date, 4)
+            report_date = self._sync_util.get_before_report_date(trade_date, 2)
             trade_date = datetime.strptime(str(trade_date), '%Y%m%d').date()
             filter_date = datetime.strptime(str(report_date), '%Y%m%d').date()
             trades_date_fundamentals = fundamentals_sets[
                 (fundamentals_sets[filter_date_str] >= filter_date) & (
                         fundamentals_sets[pub_date_str] <= trade_date)]
-            # trades_date_fundamentals.sort_values(by=filter_date_str, ascending=False, inplace=True)
+            trades_date_fundamentals.sort_values(by=filter_date_str, ascending=False, inplace=True)
             trades_date_fundamentals.drop_duplicates(subset=[index_str], keep='first', inplace=True)
             trades_date_fundamentals['trade_date'] = trade_date
             trades_date_fundamentals = trades_date_fundamentals.dropna(how='all')
@@ -113,7 +106,7 @@ class sqlEngine(object):
                                    dates: Iterable[str] = None):
         dates = list(set(dates))
         dates.sort()
-        report_date = self._sync_util.get_before_report_date(dates[0], 4)
+        report_date = self._sync_util.get_before_report_date(dates[0], 2)
         query = self.session.query(*db_entities, db_name.PUBLISHDATE, db_name.ENDDATE).filter(
             db_name.PUBLISHDATE <= dates[-1], db_name.ENDDATE >= report_date, db_name.REPORTTYPE == 1
         )
@@ -132,7 +125,7 @@ class sqlEngine(object):
                                dates: Iterable[str] = None):
         dates = list(set(dates))
         dates.sort()
-        report_date = self._sync_util.get_before_report_date(dates[0], 4)
+        report_date = self._sync_util.get_before_report_date(dates[0], 2)
         query = self.session.query(*db_entities, db_name.__pit_column__['pub_date'],
                                    db_name.__pit_column__['filter_date']).filter(
             db_name.__pit_column__['pub_date'] <= dates[-1], db_name.__pit_column__['filter_date'] >= report_date,
@@ -153,33 +146,26 @@ class sqlEngine(object):
         db_entities.append(db_name.COMPCODE)
         df = self.fetch_fundamentals_pit(db_name, db_entities, db_filters, dates)
         df = self._internal.join_internal_code(df, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
-
         return df
 
 
 if __name__ == '__main__':
     internal = InternalCode()
     engine = sqlEngine()
-    # a = engine.fetch_fundamentals_pit(BalanceMRQ, [BalanceMRQ.COMPCODE,
-    #                                                BalanceMRQ.PUBLISHDATE,
-    #                                                BalanceMRQ.ENDDATE],
-    #                                   # [IndicatorReport.PUBLISHDATE <= '20190801'],
-    #                                   dates=['20190822', '20190818'])
-    # print(a)
+    a = engine.fetch_fundamentals_pit(BalanceMRQ, [BalanceMRQ.COMPCODE,
+                                                   BalanceMRQ.PUBLISHDATE,
+                                                   BalanceMRQ.ENDDATE],
+                                      # [IndicatorReport.PUBLISHDATE <= '20190801'],
+                                      dates=['20190822', '20190818'])
+    print(a)
     # 内码转换
-    # df = internal.join_internal_code(a, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
-    # print(df)
-    # df = engine.fetch_fundamentals_pit_extend_company_id(IndicatorMRQ, [IndicatorMRQ.COMPCODE,
-    #                                                                     IndicatorMRQ.PUBLISHDATE,
-    #                                                                     IndicatorMRQ.DIVCOVER,
-    #                                                                     IndicatorMRQ.ROE,
-    #                                                                     IndicatorMRQ.ENDDATE],
-    #                                                      # [IndicatorReport.PUBLISHDATE <= '20190801'],
-    #                                                      dates=['20190822', '20190818'])
-    df = engine.fetch_fundamentals_pit_extend_company_id(CashFlowReport, [CashFlowReport.COMPCODE,
-                                                                          CashFlowReport.PUBLISHDATE,
-                                                                          CashFlowReport.BIZNETCFLOW,
-                                                                          CashFlowReport.ENDDATE],
+    df = internal.join_internal_code(a, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
+    print(df)
+    df = engine.fetch_fundamentals_pit_extend_company_id(IndicatorMRQ, [IndicatorMRQ.COMPCODE,
+                                                                        IndicatorMRQ.PUBLISHDATE,
+                                                                        IndicatorMRQ.DIVCOVER,
+                                                                        IndicatorMRQ.ROE,
+                                                                        IndicatorMRQ.ENDDATE],
+                                                         # [IndicatorReport.PUBLISHDATE <= '20190801'],
                                                          dates=['20190822', '20190818'])
     print(df)
-    # df.to_csv('a.csv', encoding='utf-8')

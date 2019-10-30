@@ -38,6 +38,7 @@ class Other(object):
             #total_group_df = total_group_df.reset_index()[['trade_date','security_code','group']]
             #total_group_df['trade_date'] = total_group_df['trade_date'].apply(lambda x : x.date())
         else:
+            factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x: pd.Timestamp(x))
             total_group_df = factor_df.groupby(['trade_date']).apply(calc_grouped)
             
         return total_group_df.reset_index()[['trade_date','security_code','group']]
@@ -51,13 +52,13 @@ class Other(object):
         i = 1
         for k, g in grouped:
             if i == 1:
-                g_last = g.loc[:, ['code', 'group']].set_index('group')
+                g_last = g.loc[:, ['security_code', 'group']].set_index('group')
             else:
                 turnover_dict['trade_date'].append(k)
-                g = g.loc[:, ['code', 'group']].set_index('group')
+                g = g.loc[:, ['security_code', 'group']].set_index('group')
                 for i in range(1, n_bins + 1):
-                    stks = set(g.loc[i, 'code'].tolist())
-                    stks_last = set(g_last.loc[i, 'code'].tolist())
+                    stks = set(g.loc[i, 'security_code'].tolist())
+                    stks_last = set(g_last.loc[i, 'security_code'].tolist())
                     stks_overlap = stks & stks_last
                     turnover_dict[i].append(
                         (len(stks) + len(stks_last) - 2.0 * len(stks_overlap)) * 2 / (len(stks) + len(stks_last)))
@@ -66,7 +67,8 @@ class Other(object):
 
         turnover = pd.DataFrame(turnover_dict)
         # turnover = turnover.rename(columns={i:'q'+str(i) for i in range(1,6)})
-        turnover = turnover.shift(1).dropna(how='all')
+        # turnover = turnover.shift(1).dropna(how='all')
+        turnover = turnover.dropna(how='all')
         turnover.set_index('trade_date', inplace=True)
     
         return turnover
