@@ -449,22 +449,23 @@ class FactorEarning(object):
         factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
-    @staticmethod
-    def EBITToTORevTTM(ttm_earning, factor_earning, dependencies=['total_profit', 'financial_expense', 'interest_income', 'total_operating_revenue']):
-        """
-        :name: 息税前利润与营业总收入之比(TTM)
-        :desc: （利润总额+利息支出-利息收入)/营业总收入
-        """
-        earning = ttm_earning.loc[:, dependencies]
-        earning['EBITToTORevTTM'] = np.where(
-            CalcTools.is_zero(earning.total_operating_revenue.values), 0,
-            (earning.total_profit.values +
-             earning.financial_expense.values -
-             earning.interest_income.values)
-            / earning.total_operating_revenue.values)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
+    # @staticmethod
+    # def EBITToTORevTTM(ttm_earning, factor_earning, dependencies=['total_profit', 'financial_expense', 'interest_income', 'total_operating_revenue']):
+    #     """
+    #     缺利息收入
+    #     :name: 息税前利润与营业总收入之比(TTM)
+    #     :desc: （利润总额+利息支出-利息收入)/营业总收入
+    #     """
+    #     earning = ttm_earning.loc[:, dependencies]
+    #     earning['EBITToTORevTTM'] = np.where(
+    #         CalcTools.is_zero(earning.total_operating_revenue.values), 0,
+    #         (earning.total_profit.values +
+    #          earning.financial_expense.values -
+    #          earning.interest_income.values)
+    #         / earning.total_operating_revenue.values)
+    #     earning = earning.drop(dependencies, axis=1)
+    #     factor_earning = pd.merge(factor_earning, earning, on="security_code")
+    #     return factor_earning
 
     @staticmethod
     def PeridCostTTM(ttm_earning, factor_earning, dependencies=['financial_expense', 'sale_expense', 'administration_expense', 'operating_revenue']):
@@ -649,23 +650,24 @@ class FactorEarning(object):
         factor_earning = pd.merge(factor_earning, constrains, on="security_code")
         return factor_earning
 
-    @staticmethod
-    def ROTATTM(ttm_earning, factor_earning, dependencies=['total_profit', 'financial_expense', 'interest_income', 'total_assets']):
-        """
-        :name: 总资产报酬率(TTM)
-        :desc: ROAEBIT = EBIT*2/(期初总资产+期末总资产）(注，此处用过去四个季度资产均值）
-        """
-
-        earning = ttm_earning.loc[:, dependencies]
-        earning['ROTATTM'] = np.where(
-            CalcTools.is_zero(earning.total_assets.values), 0,
-            (earning.total_profit.values +
-             earning.financial_expense.values -
-             earning.interest_income.values)
-            / earning.total_assets.values / 4)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
+    # @staticmethod
+    # def ROTATTM(ttm_earning, factor_earning, dependencies=['total_profit', 'financial_expense', 'interest_income', 'total_assets']):
+    #     """
+    #     缺利息收入
+    #     :name: 总资产报酬率(TTM)
+    #     :desc: ROAEBIT = EBIT*2/(期初总资产+期末总资产）(注，此处用过去四个季度资产均值）
+    #     """
+    #
+    #     earning = ttm_earning.loc[:, dependencies]
+    #     earning['ROTATTM'] = np.where(
+    #         CalcTools.is_zero(earning.total_assets.values), 0,
+    #         (earning.total_profit.values +
+    #          earning.financial_expense.values -
+    #          earning.interest_income.values)
+    #         / earning.total_assets.values / 4)
+    #     earning = earning.drop(dependencies, axis=1)
+    #     factor_earning = pd.merge(factor_earning, earning, on="security_code")
+    #     return factor_earning
 
     @staticmethod
     def ROETTM(ttm_earning, factor_earning,
@@ -768,22 +770,23 @@ class FactorEarning(object):
         factor_earning = pd.merge(factor_earning, constrains, how='outer', on="security_code")
         return factor_earning
 
-    @staticmethod
-    def _invest_r_associates_to_tp_ttm(ttm_earning, factor_earning, dependencies=['invest_income_associates', 'total_profit']):
-        """
-        对联营和营公司投资收益/利润总额
-        :param dependencies:
-        :param ttm_earning:
-        :param factor_earning:
-        :return:
-        """
-
-        earning = ttm_earning.loc[:, dependencies]
-        earning['invest_r_associates_to_tp_ttm'] = np.where(
-            CalcTools.is_zero(earning.total_profit.values), 0,
-            earning.invest_income_associates.values
-            / earning.total_profit.values)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
+    # @staticmethod
+    # def _invest_r_associates_to_tp_ttm(ttm_earning, factor_earning, dependencies=['invest_income_associates', 'total_profit']):
+    #     """
+    #     缺对联营和营公司投资收益
+    #     对联营和营公司投资收益/利润总额
+    #     :param dependencies:
+    #     :param ttm_earning:
+    #     :param factor_earning:
+    #     :return:
+    #     """
+    #
+    #     earning = ttm_earning.loc[:, dependencies]
+    #     earning['invest_r_associates_to_tp_ttm'] = np.where(
+    #         CalcTools.is_zero(earning.total_profit.values), 0,
+    #         earning.invest_income_associates.values
+    #         / earning.total_profit.values)
+    #     earning = earning.drop(dependencies, axis=1)
+    #     factor_earning = pd.merge(factor_earning, earning, on="security_code")
+    #     return factor_earning
 

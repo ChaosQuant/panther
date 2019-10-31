@@ -255,42 +255,43 @@ class FactorSolvency(object):
         factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
         return factor_solvency
 
-    @staticmethod
-    def TNWorthToIBDebt(tp_solvency, factor_solvency, dependencies=['equities_parent_company_owners',
-                                                                    'intangible_assets',
-                                                                    'development_expenditure',
-                                                                    'good_will',
-                                                                    'long_deferred_expense',
-                                                                    'deferred_tax_assets',
-                                                                    'shortterm_loan',
-                                                                    'non_current_liability_in_one_year',
-                                                                    'longterm_loan',
-                                                                    'bonds_payable',
-                                                                    'interest_payable']):
-        """
-        :name:有形净值/带息负债
-        :desc:有形净值/带息负债（MRQ）
-        """
-
-        management = tp_solvency.loc[:, dependencies]
-        management['ta'] = (management.equities_parent_company_owners -
-                            management.intangible_assets -
-                            management.development_expenditure -
-                            management.good_will -
-                            management.long_deferred_expense -
-                            management.deferred_tax_assets)
-        management['ibd'] = (management.shortterm_loan +
-                             management.non_current_liability_in_one_year +
-                             management.longterm_loan +
-                             management.bonds_payable +
-                             management.interest_payable)
-        management['TNWorthToIBDebt'] = np.where(
-            CalcTools.is_zero(management.ibd.values), 0,
-            management.ta.values / management.ibd.values)
-        dependencies = dependencies + ['ta', 'ibd']
-        management = management.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
-        return factor_solvency
+    # @staticmethod
+    # def TNWorthToIBDebt(tp_solvency, factor_solvency, dependencies=['equities_parent_company_owners',
+    #                                                                 'intangible_assets',
+    #                                                                 'development_expenditure',
+    #                                                                 'good_will',
+    #                                                                 'long_deferred_expense',
+    #                                                                 'deferred_tax_assets',
+    #                                                                 'shortterm_loan',
+    #                                                                 'non_current_liability_in_one_year',
+    #                                                                 'longterm_loan',
+    #                                                                 'bonds_payable',
+    #                                                                 'interest_payable']):
+    #     """
+    #
+    #     :name:有形净值/带息负债
+    #     :desc:有形净值/带息负债（MRQ）
+    #     """
+    #
+    #     management = tp_solvency.loc[:, dependencies]
+    #     management['ta'] = (management.equities_parent_company_owners -
+    #                         management.intangible_assets -
+    #                         management.development_expenditure -
+    #                         management.good_will -
+    #                         management.long_deferred_expense -
+    #                         management.deferred_tax_assets)
+    #     management['ibd'] = (management.shortterm_loan +
+    #                          management.non_current_liability_in_one_year +
+    #                          management.longterm_loan +
+    #                          management.bonds_payable +
+    #                          management.interest_payable)
+    #     management['TNWorthToIBDebt'] = np.where(
+    #         CalcTools.is_zero(management.ibd.values), 0,
+    #         management.ta.values / management.ibd.values)
+    #     dependencies = dependencies + ['ta', 'ibd']
+    #     management = management.drop(dependencies, axis=1)
+    #     factor_solvency = pd.merge(factor_solvency, management, how='outer', on="security_code")
+    #     return factor_solvency
 
     @staticmethod
     def SupQuickRatio(tp_solvency, factor_solvency, dependencies=['cash_equivalents',
@@ -402,22 +403,23 @@ class FactorSolvency(object):
         factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
-    @staticmethod
-    def InterestCovTTM(ttm_solvency, factor_solvency, dependencies=['total_profit',
-                                                                        'financial_expense',
-                                                                        'interest_income']):
-        """
-        :name: 利息保障倍数
-        :desc:息税前利润/利息费用，息税前利润=利润总额+利息费用，利息费用=利息支出-利息收入
-        """
-        earning = ttm_solvency.loc[:, dependencies]
-        earning['InterestCovTTM'] = np.where(
-            CalcTools.is_zero(earning.financial_expense.values - earning.interest_income.values), 0,
-            (earning.total_profit.values + earning.financial_expense.values - earning.interest_income.values) /
-            (earning.financial_expense.values - earning.interest_income.values))
-        earning = earning.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, earning, how='outer', on="security_code")
-        return factor_solvency
+    # @staticmethod
+    # def InterestCovTTM(ttm_solvency, factor_solvency, dependencies=['total_profit',
+    #                                                                     'financial_expense',
+    #                                                                     'interest_income']):
+    #     """
+    #     缺利息收入
+    #     :name: 利息保障倍数
+    #     :desc:息税前利润/利息费用，息税前利润=利润总额+利息费用，利息费用=利息支出-利息收入
+    #     """
+    #     earning = ttm_solvency.loc[:, dependencies]
+    #     earning['InterestCovTTM'] = np.where(
+    #         CalcTools.is_zero(earning.financial_expense.values - earning.interest_income.values), 0,
+    #         (earning.total_profit.values + earning.financial_expense.values - earning.interest_income.values) /
+    #         (earning.financial_expense.values - earning.interest_income.values))
+    #     earning = earning.drop(dependencies, axis=1)
+    #     factor_solvency = pd.merge(factor_solvency, earning, how='outer', on="security_code")
+    #     return factor_solvency
 
     @staticmethod
     def OptCFToLiabilityTTM(ttm_solvency, factor_solvency,

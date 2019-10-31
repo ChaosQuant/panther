@@ -83,28 +83,27 @@ class FactorCapitalStructure(object):
         factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
-    @staticmethod
-    def IntangibleAssetRatio(tp_management, factor_management, dependencies=['intangible_assets',
-                                                                             'development_expenditure',
-                                                                             'good_will',
-                                                                             'total_assets']):
-        """
-        无形资产比率
-        无形资产比率 = （无形资产 + 研发支出 + 商誉）/ 总资产
-        :name: 无形资产比率
-        :desc:（无形资产MRQ+开发支出MRQ+商誉MRQ）/资产总计MRQ           分母为NAN的科目记为0
-        """
-
-        management = tp_management.loc[:, dependencies]
-        management["ia"] = (management.intangible_assets + management.development_expenditure + management.good_will)
-        management['IntangibleAssetRatio'] = np.where(
-            CalcTools.is_zero(management.total_assets.values), 0,
-            management.ia.values / management.total_assets.values)
-        dependencies = dependencies + ['ia']
-        management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
-        # factor_management['IntangibleAssetRatio'] = management['IntangibleAssetRatio']
-        return factor_management
+    # @staticmethod
+    # def IntangibleAssetRatio(tp_management, factor_management, dependencies=['intangible_assets',
+    #                                                                          'development_expenditure',
+    #                                                                          'good_will',
+    #                                                                          'total_assets']):
+    #     """
+    #     缺少开发支出
+    #     :name: 无形资产比率
+    #     :desc:（无形资产MRQ+开发支出MRQ+商誉MRQ）/资产总计MRQ           分母为NAN的科目记为0
+    #     """
+    #
+    #     management = tp_management.loc[:, dependencies]
+    #     management["ia"] = (management.intangible_assets + management.development_expenditure + management.good_will)
+    #     management['IntangibleAssetRatio'] = np.where(
+    #         CalcTools.is_zero(management.total_assets.values), 0,
+    #         management.ia.values / management.total_assets.values)
+    #     dependencies = dependencies + ['ia']
+    #     management = management.drop(dependencies, axis=1)
+    #     factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+    #     # factor_management['IntangibleAssetRatio'] = management['IntangibleAssetRatio']
+    #     return factor_management
 
     @staticmethod
     def FixAssetsRt(tp_management, factor_management, dependencies=['fixed_assets',

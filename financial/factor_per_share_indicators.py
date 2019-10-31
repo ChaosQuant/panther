@@ -63,17 +63,18 @@ class FactorPerShareIndicators(object):
         factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
         return factor_share_indicators
 
-    @staticmethod
-    def DivPS(tp_share_indicators, factor_share_indicators, dependencies=['dividend_receivable']):
-        """
-        :name: 每股股利(税前)
-        :desc: 根据分红预案公告日，即中报或年报披露日期，披露的分红教据（每股股利税前（已宣告），若读公司不分红返回为空
-        """
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        share_indicators = share_indicators.rename(columns={'dividend_receivable': 'DivPS'})
-        # share_indicators = share_indicators.drop(columns=dependencies, axis=1)
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
-        return factor_share_indicators
+    # @staticmethod
+    # def DivPS(tp_share_indicators, factor_share_indicators, dependencies=['dividend_receivable']):
+    #     """
+    #     缺每股股利
+    #     :name: 每股股利(税前)
+    #     :desc: 根据分红预案公告日，即中报或年报披露日期，披露的分红教据（每股股利税前（已宣告），若读公司不分红返回为空
+    #     """
+    #     share_indicators = tp_share_indicators.loc[:, dependencies]
+    #     share_indicators = share_indicators.rename(columns={'dividend_receivable': 'DivPS'})
+    #     # share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+    #     factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+    #     return factor_share_indicators
 
     @staticmethod
     def EPS(tp_share_indicators, factor_share_indicators, dependencies=['basic_eps']):
