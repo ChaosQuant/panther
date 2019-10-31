@@ -230,13 +230,13 @@ class CalcEngine(object):
                                                                            IncomeTTM.BIZTOTINCO,  # 营业总收入
                                                                            IncomeTTM.TOTPROFIT,  # 利润总额
                                                                            IncomeTTM.FINEXPE,  # 财务费用
-                                                                           IncomeTTM.INTEINCO,  # 利息收入
+                                                                           # IncomeTTM.INTEINCO,  # 利息收入
                                                                            IncomeTTM.SALESEXPE,  # 销售费用
                                                                            IncomeTTM.BIZTOTCOST,  # 营业总成本
                                                                            IncomeTTM.PERPROFIT,  # 营业利润
                                                                            IncomeTTM.PARENETP,  # 归属于母公司所有者的净利润
                                                                            IncomeTTM.BIZCOST,  # 营业成本
-                                                                           IncomeTTM.ASSOINVEPROF,  # 对联营企业和合营企业的投资收益
+                                                                           # IncomeTTM.ASSOINVEPROF,  # 对联营企业和合营企业的投资收益
                                                                            IncomeTTM.BIZTAX,  # 营业税金及附加
                                                                            IncomeTTM.ASSEIMPALOSS,  # 资产减值损失
                                                                            ], dates=[trade_date])
@@ -249,13 +249,13 @@ class CalcEngine(object):
                                                           'BIZTOTINCO': 'total_operating_revenue',  # 营业总收入
                                                           'TOTPROFIT': 'total_profit',  # 利润总额
                                                           'FINEXPE': 'financial_expense',  # 财务费用
-                                                          'INTEINCO': 'interest_income',  # 利息收入
+                                                          # 'INTEINCO': 'interest_income',  # 利息收入
                                                           'SALESEXPE': 'sale_expense',  # 销售费用
                                                           'BIZTOTCOST': 'total_operating_cost',  # 营业总成本
                                                           'PERPROFIT': 'operating_profit',  # 营业利润
                                                           'PARENETP': 'np_parent_company_owners',  # 归属于母公司所有者的净利润
                                                           'BIZCOST': 'operating_cost',  # 营业成本
-                                                          'ASSOINVEPROF': 'invest_income_associates',  # 对联营企业和合营企业的投资收益
+                                                          # 'ASSOINVEPROF': 'invest_income_associates',  # 对联营企业和合营企业的投资收益
                                                           'BIZTAX': 'operating_tax_surcharges',  # 营业税金及附加
                                                           'ASSEIMPALOSS': 'asset_impairment_loss',  # 资产减值损失
                                                           })
@@ -414,7 +414,7 @@ class CalcEngine(object):
         earning_sets = earning.BerryRtTTM(ttm_earning, earning_sets)
         earning_sets = earning.CFARatioMinusROATTM(ttm_earning, earning_sets)
         earning_sets = earning.SalesCostTTM(ttm_earning, earning_sets)
-        earning_sets = earning.EBITToTORevTTM(ttm_earning, earning_sets)
+        # earning_sets = earning.EBITToTORevTTM(ttm_earning, earning_sets)
         earning_sets = earning.PeridCostTTM(ttm_earning, earning_sets)
         earning_sets = earning.FinExpTTM(ttm_earning, earning_sets)
         earning_sets = earning.ImpLossToTOITTM(ttm_earning, earning_sets)
@@ -427,7 +427,7 @@ class CalcEngine(object):
         earning_sets = earning.OptProfitRtTTM(ttm_earning, earning_sets)
         # factor_earning = earning.operating_profit_to_tor(ttm_earning, earning_sets)
         earning_sets = earning.ROCTTM(ttm_earning, earning_sets)
-        earning_sets = earning.ROTATTM(ttm_earning, earning_sets)
+        # earning_sets = earning.ROTATTM(ttm_earning, earning_sets)
         earning_sets = earning.ROETTM(ttm_earning, earning_sets)
         earning_sets = earning.ROICTTM(ttm_earning, earning_sets)
         earning_sets = earning.OwnROETTM(ttm_earning, earning_sets)

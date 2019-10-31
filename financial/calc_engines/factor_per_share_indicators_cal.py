@@ -118,7 +118,7 @@ class CalcEngine(object):
                                                                          [IndicatorReport.FCFE,  # 股东自由现金流量
                                                                           IndicatorReport.FCFF,  # 企业自由现金流量
                                                                           IndicatorReport.EPSBASIC,  # 基本每股收益
-                                                                          IndicatorReport.DPS,  # 每股股利（税前）
+                                                                          # IndicatorReport.DPS,  # 每股股利（税前）
                                                                           ], dates=[trade_date])
         for col in columns:
             if col in list(indicator_sets.keys()):
@@ -126,7 +126,7 @@ class CalcEngine(object):
         indicator_sets = indicator_sets.rename(columns={'FCFE': 'shareholder_fcfps',  # 股东自由现金流量
                                                         'FCFF': 'enterprise_fcfps',  # 企业自由现金流量
                                                         'EPSBASIC': 'basic_eps',  # 基本每股收益
-                                                        'DPS': 'dividend_receivable',  # 每股股利（税前）
+                                                        # 'DPS': 'dividend_receivable',  # 每股股利（税前）
                                                         })
 
         # TTM data
@@ -185,7 +185,7 @@ class CalcEngine(object):
         factor_share_indicators = per_share.EPS(valuation_sets, factor_share_indicators)
         factor_share_indicators = per_share.DilutedEPSTTM(valuation_sets, factor_share_indicators)
         factor_share_indicators = per_share.CashEquPS(valuation_sets, factor_share_indicators)
-        factor_share_indicators = per_share.DivPS(valuation_sets, factor_share_indicators)
+        # factor_share_indicators = per_share.DivPS(valuation_sets, factor_share_indicators)
         factor_share_indicators = per_share.EPSTTM(valuation_sets, factor_share_indicators)
         factor_share_indicators = per_share.NetAssetPS(valuation_sets, factor_share_indicators)
         factor_share_indicators = per_share.TotalRevPSTTM(valuation_sets, factor_share_indicators)
