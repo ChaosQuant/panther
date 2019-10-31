@@ -88,7 +88,7 @@ class CalcEngine(object):
                                                                             BalanceMRQ.TOTALNONCASSETS,
                                                                             BalanceMRQ.INVE,
                                                                             BalanceMRQ.INTAASSET,
-                                                                            BalanceMRQ.DEVEEXPE,
+                                                                            # BalanceMRQ.DEVEEXPE,
                                                                             BalanceMRQ.GOODWILL,
                                                                             BalanceMRQ.LOGPREPEXPE,
                                                                             BalanceMRQ.DEFETAXASSET,
@@ -115,7 +115,7 @@ class CalcEngine(object):
             'OTHERRECE': 'other_receivable',  # 其他应收款
             'PARESHARRIGH': 'equities_parent_company_owners',  # 归属于母公司股东权益合计
             'INTAASSET': 'intangible_assets',  # 无形资产
-            'DEVEEXPE': 'development_expenditure',  # 开发支出
+            # 'DEVEEXPE': 'development_expenditure',  # 开发支出
             'GOODWILL': 'good_will',  # 商誉
             'LOGPREPEXPE': 'long_deferred_expense',  # 长期待摊费用
             'DEFETAXASSET': 'deferred_tax_assets',  # 递延所得税资产
@@ -145,14 +145,14 @@ class CalcEngine(object):
         income_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeTTM,
                                                                           [IncomeTTM.TOTPROFIT,
                                                                            IncomeTTM.FINEXPE,
-                                                                           IncomeTTM.INTEINCO,
+                                                                           # IncomeTTM.INTEINCO,
                                                                            ], dates=[trade_date])
         for col in columns:
             if col in list(income_ttm_sets.keys()):
                 income_ttm_sets = income_ttm_sets.drop(col, axis=1)
         income_ttm_sets = income_ttm_sets.rename(columns={'TOTPROFIT': 'total_profit',  # 利润总额
                                                           'FINEXPE': 'financial_expense',  # 财务费用
-                                                          'INTEINCO': 'interest_income',  # 利息收入
+                                                          # 'INTEINCO': 'interest_income',  # 利息收入
                                                           })
 
         balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
@@ -229,7 +229,7 @@ class CalcEngine(object):
         solvency_sets = solvency.MktLev(tp_solvency, solvency_sets)
         solvency_sets = solvency.QuickRatio(tp_solvency, solvency_sets)
         solvency_sets = solvency.SupQuickRatio(tp_solvency, solvency_sets)
-        solvency_sets = solvency.TNWorthToIBDebt(tp_solvency, solvency_sets)
+        # solvency_sets = solvency.TNWorthToIBDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.TNWorthToNDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.OPCToDebt(tp_solvency, solvency_sets)
         solvency_sets = solvency.OptCFToCurrLiability(tp_solvency, solvency_sets)
