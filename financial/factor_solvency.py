@@ -36,7 +36,9 @@ class FactorSolvency(object):
     def BondsToAsset(tp_solvency, factor_solvency, dependencies=['bonds_payable', 'total_assets']):
         """
         :name: 应付债券与总资产之比
-        :desc: 应付债券MRQ/资产总计MRQ*100%
+        :desc: 应付债券MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_solvency.loc[:, dependencies]
         management['BondsToAsset'] = np.where(
@@ -51,6 +53,8 @@ class FactorSolvency(object):
         """
         :name: 账面杠杆
         :desc:非流动负债合计/股东权益合计（含少数股东权益）（MRQ)
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_solvency.loc[:, dependencies]
         management['BookLev'] = np.where(
@@ -65,6 +69,8 @@ class FactorSolvency(object):
         """
         :name: 流动比率
         :desc: 流动资产合计/流动负债合计（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_solvency.loc[:, dependencies]
         management['CurrentRatio'] = np.where(
@@ -79,6 +85,8 @@ class FactorSolvency(object):
         """
         :name: 债务总资产比
         :desc:负债合计MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
         contrarian = tp_solvency.loc[:, dependencies]
         contrarian['DA'] = np.where(
@@ -94,6 +102,8 @@ class FactorSolvency(object):
         """
         :name:有形净值债务率
         :desc:负债合计/有形净值（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         contrarian = tp_solvency.loc[:, dependencies]
         contrarian['DTE'] = np.where(
@@ -110,6 +120,8 @@ class FactorSolvency(object):
         """
         :name:权益比率
         :desc:负债合计/归属母公司股东的权益（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_solvency.loc[:, dependencies]
 
@@ -129,6 +141,8 @@ class FactorSolvency(object):
         """
         :name:归属母公司股东的权益/带息负债
         :desc:归属母公司股东的权益/带息负债（补充 带息负债 = 短期借款+一年内到期的长期负债+长期借款+应付债券+应付利息）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_solvency.loc[:, dependencies]
@@ -157,6 +171,8 @@ class FactorSolvency(object):
 
         :name:归属母公司股东的权益/全部投入资本 (补充 全部投入资本=所有者权益合计+带息债务）
         :desc: 归属母公司股东的权益/全部投入资本 (补充 全部投入资本=所有者权益合计+带息债务）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_solvency.loc[:, dependencies]
@@ -188,7 +204,9 @@ class FactorSolvency(object):
         """
 
         :name:带息负债/全部投入资本
-        :desc:带息债务/全部投入资本*100%（MRQ）
+        :desc:带息债务/全部投入资本（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         contrarian = tp_solvency.loc[:, dependencies]
         contrarian['interest_bearing_liability'] = contrarian['shortterm_loan'] + \
@@ -213,6 +231,8 @@ class FactorSolvency(object):
         """
         :name:长期负债与营运资金比率
         :desc:非流动负债合计/（流动资产合计-流动负债合计）
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_solvency.loc[:, dependencies]
         management['LDebtToWCap'] = np.where(
@@ -228,6 +248,8 @@ class FactorSolvency(object):
         """
         :name:市场杠杆
         :desc:非流动负债合计MRQ/（非流动负债台计MRO+总市值）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_solvency.loc[:, dependencies]
@@ -245,6 +267,8 @@ class FactorSolvency(object):
         """
         :name:速动比率
         :desc:（流动资产合计-存货）/流动负债合计（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_solvency.loc[:, dependencies]
         management['QuickRatio'] = np.where(
@@ -303,6 +327,8 @@ class FactorSolvency(object):
         """
         :name:超速动比率
         :desc:（货币资金+交易性金融资资产+应收票据+应收帐款+其他应收款）/流动负债合计（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_solvency.loc[:, dependencies]
@@ -334,6 +360,8 @@ class FactorSolvency(object):
         """
         :name:有形净值/净债务
         :desc:有形净值/净债务（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_solvency.loc[:, dependencies]
@@ -362,7 +390,9 @@ class FactorSolvency(object):
                   dependencies=['net_operate_cash_flow_mrq', 'total_current_liability']):
         """
         :name:现金流债务比
-        :desc:经营活动现金净流量（MRQ）/流动负债（MRQ）*100%
+        :desc:经营活动现金净流量（MRQ）/流动负债（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['OPCToDebt'] = np.where(
@@ -378,6 +408,8 @@ class FactorSolvency(object):
         """
         :name:经营活动产生的现金流量净额（MRQ）/流动负债（MRQ）
         :desc:经营活动产生的现金流量净额（MRQ）/流动负债（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = tp_solvency.loc[:, dependencies]
         cash_flow['OptCFToCurrLiability'] = np.where(
@@ -393,6 +425,8 @@ class FactorSolvency(object):
         """
         :name:期末现金及现金等价物余额（TTM）/流动负债（TTM）
         :desc:期末现金及现金等价物余额（TTM）/流动负债（TTM）
+        :unit:
+        :view_dimension: 0.01
         """
 
         cash_flow = ttm_solvency.loc[:, dependencies]
@@ -427,6 +461,8 @@ class FactorSolvency(object):
         """
         :name:经营活动净现金流（TTM）/负债（TTM）
         :desc:经营活动净现金流（TTM）/负债（TTM）
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['OptCFToLiabilityTTM'] = np.where(
@@ -447,6 +483,8 @@ class FactorSolvency(object):
         """
         :name:经营活动净现金流（TTM）/带息负债（TTM）
         :desc:经营活动净现金流（TTM）/带息负债（TTM）
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['interest_bearing_liability'] = cash_flow['shortterm_loan'] + \
@@ -466,6 +504,8 @@ class FactorSolvency(object):
         """
         :name:经营活动净现金流（TTM）/净负债（TTM）
         :desc:经营活动净现金流（TTM）/净负债（TTM）
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['OptCFToNetDebtTTM'] = np.where(CalcTools.is_zero(cash_flow.net_liability.values), 0,
@@ -479,7 +519,9 @@ class FactorSolvency(object):
                                 dependencies=['net_operate_cash_flow', 'total_current_liability_ttm']):
         """
         :name:现金流债务比(TTM)
-        :desc:经营活动现金净流量（TTM）/流动负债（MRQ）*100%
+        :desc:经营活动现金净流量（TTM）/流动负债（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_solvency.loc[:, dependencies]
         cash_flow['OPCToDebtTTM'] = np.where(

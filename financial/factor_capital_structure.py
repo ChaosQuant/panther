@@ -41,6 +41,8 @@ class FactorCapitalStructure(object):
         """
         :name: 非流动资产比率
         :desc: 非流动资产/总资产*100%（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -57,6 +59,8 @@ class FactorCapitalStructure(object):
         """
         :name: 长期负债与资产总计之比
         :desc: 非流动负债合计MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -73,6 +77,8 @@ class FactorCapitalStructure(object):
         """
         :name: 长期借款与资产总计之比
         :desc: 长期借款MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -113,6 +119,8 @@ class FactorCapitalStructure(object):
         """
         :name: 固定资产比率
         :desc: (固定资产*MRQ+工程物资MRQ+在建工程MRQ）/资产总计MRQ；分母为NAN的科目记为0
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -131,6 +139,8 @@ class FactorCapitalStructure(object):
         """
         :name: 股东权益比率
         :desc: 股东权益MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -149,6 +159,8 @@ class FactorCapitalStructure(object):
         """
         :name: 股东权益与固定资产比率
         :desc: 股东权益MRQ/（固定资产MRQ+工程物资MRQ+在建工程MRQ）分子为NAN的科目记为0
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_management.loc[:, dependencies]
         management['EquityToFixedAsset'] = np.where(
@@ -169,6 +181,8 @@ class FactorCapitalStructure(object):
         """
         :name: 流动资产比率
         :desc: 流动资产/总资产*100%（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_management.loc[:, dependencies]
         management['CurAssetsR'] = np.where(

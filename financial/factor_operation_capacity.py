@@ -43,6 +43,8 @@ class FactorOperationCapacity(object):
         """
         :name: 应付账款周转率(TTM)
         :desc: 营业成本/（应付账款+应付票据-预付账款）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -66,6 +68,8 @@ class FactorOperationCapacity(object):
         """
         :name:应付账款周转天数(TTM)
         :desc:360/应付账款周转率
+        :unit: 天
+        :view_dimension: 1
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -89,6 +93,8 @@ class FactorOperationCapacity(object):
         """
         :name:应收账款周转率(TTM)
         :desc:营业收入/（应收账款+应收票据-预收账款）
+        :unit:
+        :view_dimension: 0.01
         """
         management = ttm_management.loc[:, dependencies]
         management['ar'] = (management.account_receivable
@@ -111,6 +117,8 @@ class FactorOperationCapacity(object):
         """
         :name:应收账款周转天数(TTM)
         :desc:360/应收账款周转率
+        :unit: 天
+        :view_dimension: 1
         """
         management = ttm_management.loc[:, dependencies]
         management['ar'] = (management.account_receivable
@@ -130,6 +138,8 @@ class FactorOperationCapacity(object):
         """
         :name:存货周转率(TTM)
         :desc:营业成本/存货 (补充，此处存货为过去4期的均值）
+        :unit:
+        :view_dimension: 0.01
         """
         management = ttm_management.loc[:, dependencies]
         management['InvRateTTM'] = np.where(
@@ -145,6 +155,8 @@ class FactorOperationCapacity(object):
         """
         :name:存货周转天数(TTM)
         :desc:360/存货周转率
+        :unit:
+        :view_dimension: 0.01
         """
         management = ttm_management.loc[:, dependencies]
         management['InvDaysTTM'] = np.where(
@@ -160,6 +172,8 @@ class FactorOperationCapacity(object):
         """
         :name:现金转换周期(TTM)
         :desc:应收账款周转天数 + 存货周转天数 - 应付账款周转天数
+        :unit: 天
+        :view_dimension: 1
         """
         factor_management['CashCovCycle'] = (factor_management['ARDaysTTM'] +
                                              factor_management['InvDaysTTM'] -
@@ -171,6 +185,8 @@ class FactorOperationCapacity(object):
         """
         :name:流动资产周转率(TTM)
         :desc:营业收入/流动资产合计
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -190,6 +206,8 @@ class FactorOperationCapacity(object):
         """
         :name: 固定资产周转率(TTM)
         :desc: 营业收入/（固定资产+工程物资+在建工程）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = ttm_management.loc[:, dependencies]
@@ -211,6 +229,8 @@ class FactorOperationCapacity(object):
         """
         :name:营业周期(TTM)
         :desc:应收账款周转天数+存货周转天数。任意一项为空则不计算。
+        :unit: 天
+        :view_dimension: 1
         """
         factor_management['OptCycle'] = (factor_management['ARDaysTTM'] +
                                          factor_management['InvDaysTTM'])
@@ -221,6 +241,8 @@ class FactorOperationCapacity(object):
         """
         :name: 净资产周转率(TTM)
         :desc: 营业总收入/股东权益
+        :unit:
+        :view_dimension: 0.01
         """
         management = ttm_management.loc[:, dependencies]
 
@@ -237,6 +259,8 @@ class FactorOperationCapacity(object):
         """
         :name: 总资产周转率(TTM)
         :desc: 营业收入/总资产
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = ttm_management.loc[:, dependencies]
