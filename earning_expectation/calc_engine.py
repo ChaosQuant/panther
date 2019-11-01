@@ -81,6 +81,11 @@ class CalcEngine(object):
         tp_earning = pd.merge(consensus_expectation_sets, consensus_rating_sets, on=['publish_date', 'symbol'],
                               how='left')
         tp_earning['publish_date'] = pd.to_datetime(tp_earning['publish_date'], format='%Y-%m-%d')
+        # 原始数据单位为万元
+        tp_earning['net_profit_fy1'] = tp_earning['net_profit_fy1'] * 10000
+        tp_earning['net_profit_fy2'] = tp_earning['net_profit_fy2'] * 10000
+        tp_earning['operating_revenue_fy1'] = tp_earning['operating_revenue_fy1'] * 10000
+        tp_earning['operating_revenue_fy2'] = tp_earning['operating_revenue_fy2'] * 10000
         return tp_earning
 
     # 计算因子
