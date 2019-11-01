@@ -235,7 +235,7 @@ class CalcEngine(object):
         solvency_sets = solvency.OptCFToCurrLiability(tp_solvency, solvency_sets)
 
         # TTM计算
-        solvency_sets = solvency.InterestCovTTM(tp_solvency, solvency_sets)
+        # solvency_sets = solvency.InterestCovTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency.OptCFToLiabilityTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency.OptCFToIBDTTM(tp_solvency, solvency_sets)
         solvency_sets = solvency.OptCFToNetDebtTTM(tp_solvency, solvency_sets)

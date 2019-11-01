@@ -42,6 +42,8 @@ class FactorBasicDerivation(object):
         """
         :name: 企业自由现金流量(MRQ)
         :desc: 息前税后利润+折旧与摊销-营运资本增加-资本支出 = 息税前利润(1-所得税率)+ 折旧与摊销-营运资本增加-构建固定无形和长期资产支付的现金
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -54,6 +56,8 @@ class FactorBasicDerivation(object):
         """
         :name: 股东自由现金流量(MRQ)
         :desc: 企业自由现金流量-偿还债务所支付的现金+取得借款收到的现金+发行债券所收到的现金（MRQ)
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <= 0:
@@ -66,6 +70,8 @@ class FactorBasicDerivation(object):
         """
         :name: 非经常性损益(MRQ)
         :desc: 非经常性损益(MRQ)
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <= 0:
@@ -79,10 +85,9 @@ class FactorBasicDerivation(object):
         """
 
         :name: 经营活动净收益(MRQ)
-        :desc: "旧准则：主营业务利润+其他业务利润-营业费用-管理费用-财务费用 新准则（一般企业）：营业总收入-营业总成本
-        新准则（银行）：手续费及佣金净收入+利息净收入+其他业务净收益-营业支出
-        新准则（证券）：手续费及佣金净收入+利息净收入+其他业务收入-营业支出
-        新准则（保险）：营业收入-营业支出-（公允价值变动净收益+投资争收益+汇兑净收益）"
+        :desc: "旧准则：主营业务利润+其他业务利润-营业费用-管理费用-财务费用 新准则（一般企业）：营业总收入-营业总成本新准则（银行）：手续费及佣金净收入+利息净收入+其他业务净收益-营业支出新准则（证券）：手续费及佣金净收入+利息净收入+其他业务收入-营业支出新准则（保险）：营业收入-营业支出-（公允价值变动净收益+投资争收益+汇兑净收益）"
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -96,6 +101,8 @@ class FactorBasicDerivation(object):
         """
         :name:  运营资本(MRQ)
         :desc:  流动资产（MRQ）-流动负债（MRQ）
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <= 0:
@@ -132,6 +139,8 @@ class FactorBasicDerivation(object):
         """
         :name: 留存收益(MRQ)
         :desc: 盈余公积+未分配利润（MRQ）
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -149,6 +158,8 @@ class FactorBasicDerivation(object):
         """
         :name: 带息负债(MRQ)
         :desc: 带息负债 = 短期借款+一年内到期的长期负债+长期借款+应付债券+应付利息
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -165,6 +176,8 @@ class FactorBasicDerivation(object):
         """
         :name: 净债务(MRQ)
         :desc: 带息债务-货币资金（MRQ）
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -178,6 +191,8 @@ class FactorBasicDerivation(object):
         """
         :name: 无息流动负债(MRQ)
         :desc: 应付帐款+预收款项+应付职工薪酬+应交税费+其他应付款+预提费用+递延收益.流动负债+其他流动负债
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -191,6 +206,8 @@ class FactorBasicDerivation(object):
         """
         :name: 无息非流动负债(MRQ)
         :desc: 旧准则：长期负债合计-长期借款-应付债券 新准则：非流动负债合计-长期借款-应付债券
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -218,6 +235,8 @@ class FactorBasicDerivation(object):
         """
         :name: 归属于母公司的股东权益(MRQ)
         :desc: 归属于母公司的股东权益(MRQ) balance
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -231,6 +250,8 @@ class FactorBasicDerivation(object):
         """
         :name: 全部投入资本(MRQ)
         :desc: 全部投入资本(MRQ)
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -244,6 +265,8 @@ class FactorBasicDerivation(object):
         """
         :name: 资产总计(MRQ)
         :desc: 资产总计(MRQ) balance
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -257,6 +280,8 @@ class FactorBasicDerivation(object):
         """
         :name: 固定资产合计(MRQ)
         :desc: 固定资产合计(MRQ)balance
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -270,6 +295,8 @@ class FactorBasicDerivation(object):
         """
         :name: 负债合计(MRQ)
         :desc: 负债合计(MRQ)balance
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -283,6 +310,8 @@ class FactorBasicDerivation(object):
         """
         :name: 股东权益(MRQ)
         :desc: 股东权益(MRQ) balance
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -296,6 +325,8 @@ class FactorBasicDerivation(object):
         """
         :name: 期末现金及现金等价物(MRQ)
         :desc: 期末现金及现金等价物(MRQ) cashflow
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -309,8 +340,9 @@ class FactorBasicDerivation(object):
                                                               'INCOTAXEXPE']):
         """
         :name: 息前税后利润(MRQ)
-        :desc: 息前税后利润 = 息税前利润－息税前利润所得税。 息税前利润所得税 = 全部所得税－利息净损益所得税
-        利润总额+财务费用
+        :desc: 息前税后利润 = 息税前利润－息税前利润所得税。 息税前利润所得税 = 全部所得税－利息净损益所得税 利润总额+财务费用
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -326,6 +358,8 @@ class FactorBasicDerivation(object):
         """
         :name: 营业总收入(TTM)
         :desc: 根据截止指定日已披露的最新报告期“营业总收入”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -339,6 +373,8 @@ class FactorBasicDerivation(object):
         """
         :name: 营业总成本(TTM)
         :desc: 根据截止指定日已披露的最新报告期“营业总成本”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -352,6 +388,8 @@ class FactorBasicDerivation(object):
         """
         :name: 营业收入(TTM)
         :desc: 根据截止指定日已披露的最新报告期“营业收入”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -365,6 +403,8 @@ class FactorBasicDerivation(object):
         """
         :name: 毛利(TTM) 营业毛利润
         :desc: 根据截止指定日已披露的最新报告期“毛利”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -378,6 +418,8 @@ class FactorBasicDerivation(object):
         """
         :name: 销售费用(TTM)
         :desc: 根据截止指定日已披露的最新报告期“销售费用”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -391,6 +433,8 @@ class FactorBasicDerivation(object):
         """
         :name: 管理费用(TTM)
         :desc: 根据截止指定日已披露的最新报告期“管理费用”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -404,6 +448,8 @@ class FactorBasicDerivation(object):
         """
         :name: 财务费用(TTM)
         :desc: 根据截止指定日已披露的最新报告期“财务费用”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -420,6 +466,8 @@ class FactorBasicDerivation(object):
         """
         :name: 期间费用(TTM)
         :desc: 根据截止指定日已披露的最新报告期“期间费用”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -449,6 +497,8 @@ class FactorBasicDerivation(object):
         """
         :name: 少数股东损益(TTM)
         :desc: 根据截止指定日已披露的最新报告期“少数股东损益”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -462,6 +512,8 @@ class FactorBasicDerivation(object):
         """
         :name: 资产减值损失(TTM)
         :desc: 根据截止指定日已披露的最新报告期“资产减值损失”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -475,6 +527,8 @@ class FactorBasicDerivation(object):
         """
         :name: 经营活动净收益(TTM)
         :desc: 根据截止指定日已披露的最新报告期“经营活动净收益”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -488,6 +542,8 @@ class FactorBasicDerivation(object):
         """
         :name: 价值变动净收益(TTM)
         :desc: 根据截止指定日已披露的最新报告期“价值变动净收益”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <= 0:
@@ -501,6 +557,8 @@ class FactorBasicDerivation(object):
         """
         :name: 营业利润(TTM) income
         :desc: 根据截止指定日已披露的最新报告期“营业利润”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -515,6 +573,8 @@ class FactorBasicDerivation(object):
         """
         :name: 营业外收支净额(TTM)
         :desc: 根据截止指定日已披露的最新报告期“营业外收支净额”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -531,6 +591,8 @@ class FactorBasicDerivation(object):
         """
         :name: 息税前利润(TTM)
         :desc: 根据截止指定日已披露的最新报告期“EBIT(反推法）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
 
@@ -545,6 +607,8 @@ class FactorBasicDerivation(object):
         """
         :name: 所得税(TTM)
         :desc:根据截止指定日已披露的最新报告期“所得税”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <= 0:
@@ -558,6 +622,8 @@ class FactorBasicDerivation(object):
         """
         :name: 利润总额(TTM)
         :desc: 根据截止指定日已披露的最新报告期“利润总额”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -571,6 +637,8 @@ class FactorBasicDerivation(object):
         """
         :name: 净利润(TTM)
         :desc: 根据截止指定日已披露的最新报告期“净利润（含少数股东权益）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -584,6 +652,8 @@ class FactorBasicDerivation(object):
         """
         :name: 归属母公司股东的净利润(TTM)
         :desc: 根据截止指定日已披露的最新报告期“归属母公司股东的净利润”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。注：交易日匹配财报数据披露日，业绩快报数据不参与计算
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -597,6 +667,8 @@ class FactorBasicDerivation(object):
         """
         :name: 扣除非经常性损益后的净利润(TTM)
         :desc: 根据截止指定日已披露的最新报告期“扣除非经常性损益后的净利润”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -610,6 +682,8 @@ class FactorBasicDerivation(object):
         """
         :name: EBIT(TTM)
         :desc: EBIT=利润总额+财务费用, 根据截止指定日已披露的最新报告期“EBIT(正向）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -624,6 +698,8 @@ class FactorBasicDerivation(object):
         """
         :name: EBITDA(TTM)
         :desc: 根据截止指定日已披露的最新报告期“EBITDA(正向）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -637,6 +713,8 @@ class FactorBasicDerivation(object):
         """
         :name: 销售商品提供劳务收到的现金(TTM)
         :desc: 根据截止指定日已披露的最新报告期“销售商品提供劳务收到的现金”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -650,6 +728,8 @@ class FactorBasicDerivation(object):
         """
         :name: 经营活动现金净流量(TTM)
         :desc: 根据截止指定日已披露的最新报告期“经营活动现金净流量”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -663,6 +743,8 @@ class FactorBasicDerivation(object):
         """
         :name: 投资活动现金净流量(TTM)
         :desc: 根据截止指定日已披露的最新报告期“投资活动现金净流量”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -676,6 +758,8 @@ class FactorBasicDerivation(object):
         """
         :name: 筹资活动现金净流量(TTM)
         :desc: 根据截止指定日已披露的最新报告期“筹资活动现金净流量”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -687,8 +771,10 @@ class FactorBasicDerivation(object):
     @staticmethod
     def NetCashFlowTTM(tp_derivation, factor_derivation, dependencies=['CASHNETI']):
         """
-        :name:现金净流量(TTM)
-        :desc:根据截止指定日已披露的最新报告期“现金及现金等价物净增加额”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :name: 现金净流量(TTM)
+        :desc: 根据截止指定日已披露的最新报告期“现金及现金等价物净增加额”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:
@@ -700,9 +786,10 @@ class FactorBasicDerivation(object):
     @staticmethod
     def BusTaxAndSuchgTTM(tp_derivation, factor_derivation, dependencies=['BIZTAX']):
         """
-
         :name: 营业税金及附加(TTM)
         :desc: 根据截止指定日已披露的最新报告期“营业税金及附加”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+        :unit: 元
+        :view_dimension: 10000
         """
         management = tp_derivation.loc[:, dependencies]
         if len(management) <=0:

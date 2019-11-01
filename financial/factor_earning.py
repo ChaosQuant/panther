@@ -47,6 +47,8 @@ class FactorEarning(object):
         五年营业收入增长率
         :name:
         :desc:
+        :unit:
+        :view_dimension: 0.01
         """
         regr = linear_model.LinearRegression()
         # 读取五年的时间和净利润
@@ -92,6 +94,8 @@ class FactorEarning(object):
         5年收益增长率
         :name:
         :desc:
+        :unit:
+        :view_dimension: 0.01
         """
 
         regr = linear_model.LinearRegression()
@@ -140,6 +144,8 @@ class FactorEarning(object):
         毛利率增长率，与去年同期相比
         :name:
         :desc:
+        :unit:
+        :view_dimension: 0.01
         """
 
         earning = ttm_earning.loc[:, dependencies]
@@ -167,6 +173,8 @@ class FactorEarning(object):
         """
         :name: 5年资产回报率
         :desc: 5年收益关于时间（年）进行线性回归的回归系数/（5年收益均值的绝对值）对于上市新股以上市前已披露的3年净利润计算之后新的年报数据披露后再计算四年、五年的收益增长率数据每年变化一次，在年报披露日
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning_5y.loc[:, dependencies]
         earning['ROA5YChg'] = np.where(
@@ -181,7 +189,9 @@ class FactorEarning(object):
         """
 
         :name: 5年平均权益回报率
-        :desc: AVG（净利润*2/（本年股东权益（MRQ）+上年末股东权益（MRQ））*100      限定只计算过去五年的年报
+        :desc: AVG（净利润*2/（本年股东权益（MRQ）+上年末股东权益（MRQ）      限定只计算过去五年的年报
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning_5y.loc[:, dependencies]
         earning['ROE5Y'] = np.where(
@@ -196,6 +206,8 @@ class FactorEarning(object):
         """
         :name: 扣除非经常损益后的净利润/净利润
         :desc: 扣除非经常损益后的净利润/净利润
+        :unit:
+        :view_dimension: 0.01
         """
         earning = tp_earning.loc[:, dependencies]
         earning['NPCutToNP'] = np.where(
@@ -212,6 +224,8 @@ class FactorEarning(object):
         """
         :name: 净资产收益率（摊薄）
         :desc: 归属于母公司的净利润/期末归属于母公司的所有者权益
+        :unit:
+        :view_dimension: 0.01
         """
         earning = tp_earning.loc[:, dependencies]
         earning['ROE'] = np.where(
@@ -227,7 +241,9 @@ class FactorEarning(object):
                dependencies=['np_parent_company_owners', 'equities_parent_company_owners']):
         """
         :name:  净资产收益率（平均）
-        :desc: 净资产收益率（平均）=归属于母公司的净利润*2/(期末归属于母公司的所有者权益 + 期初归属于母公司的所有者权益）*100%
+        :desc: 净资产收益率（平均）=归属于母公司的净利润*2/(期末归属于母公司的所有者权益 + 期初归属于母公司的所有者权益)
+        :unit:
+        :view_dimension: 0.01
         """
 
         earning = tp_earning.loc[:, dependencies]
@@ -244,6 +260,8 @@ class FactorEarning(object):
         """
         :name: 净资产收益率（扣除/摊薄）
         :desc: 净资产收益率（扣除/摊薄）
+        :unit:
+        :view_dimension: 0.01
         """
         earning = tp_earning.loc[:, dependencies]
         earning['ROEcut'] = np.where(
@@ -260,6 +278,8 @@ class FactorEarning(object):
         对联营和营公司投资收益/利润总额
         :name:
         :desc:
+        :unit:
+        :view_dimension: 0.01
         """
 
         earning = tp_earning.loc[:, dependencies]
@@ -278,6 +298,8 @@ class FactorEarning(object):
         """
         :name: 5年收益增长率(TTM)
         :desc: 5年收益关于时间（年）进行线性回归的回归系数/（5年收益均值的绝对值）对于上市新股以上市前已披露的3年净利润计算之后新的年报数据披露后再计算四年、五年的收益增长率数据每年变化一次，在年报披露日
+        :unit:
+        :view_dimension: 0.01
         """
         regr = linear_model.LinearRegression()
         # 读取五年的时间和净利润
@@ -324,6 +346,8 @@ class FactorEarning(object):
         """
         :name: 5 年营业收入增长率(TTM)
         :desc: 5 年营收关于时间（年）进行线性回归的回归系数/5 年营业收入均值的绝对值
+        :unit:
+        :view_dimension: 0.01
         """
         regr = linear_model.LinearRegression()
         # 读取五年的时间和净利润
@@ -370,6 +394,8 @@ class FactorEarning(object):
         资产回报率=净利润/总资产
         :name:
         :desc:
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning.loc[:, dependencies]
         earning['roa'] = np.where(
@@ -384,6 +410,8 @@ class FactorEarning(object):
         """
         :name: 管理费用与营业总收入之比
         :desc: 管理费用/营业总收入
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         constrains['AdminExpTTM'] = np.where(
@@ -404,7 +432,9 @@ class FactorEarning(object):
                                       ]):
         """
         :name: 贝里比率(TTM)
-        :desc: 毛利（TTM）/运营费用（TTM）*100%，其中运营费用=销售费用+管理费用+财务费用
+        :desc: 毛利（TTM）/运营费用（TTM），其中运营费用=销售费用+管理费用+财务费用
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: (x[0] + x[1]) / (x[2] + x[3] + x[4])\
@@ -425,7 +455,9 @@ class FactorEarning(object):
                                           'total_assets_mrq_pre']):
         """
         :name: 现金流资产比-资产回报率（TTM）
-        :desc: （筹资活动现金净流量（ITM）-净利润（TTM））*2/（本期资产总计（MRQ）+上年同期产总计（MRQ））*100
+        :desc: （筹资活动现金净流量（ITM）-净利润（TTM））*2/（本期资产总计（MRQ）+上年同期产总计（MRQ）)
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: (x[0] - x[1]) * 2 / (x[2] + x[3]) if x[2] is not None and x[3] is not None and (x[2] + x[3]) !=0 else None
@@ -439,6 +471,8 @@ class FactorEarning(object):
         """
         :name: 销售成本率(TTM)
         :desc: 营业成本(TTM)/营业收入(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         constrains['SalesCostTTM'] = np.where(
@@ -472,6 +506,8 @@ class FactorEarning(object):
         """
         :name: 销售期间费用率(TTM)
         :desc: (财务费用 + 销售费用 + 管理费用) / (营业收入)
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         constrains['PeridCostTTM'] = np.where(
@@ -488,6 +524,8 @@ class FactorEarning(object):
         """
         :name: 财务费用与营业总收入之比(TTM)
         :desc: 财务费用(TTM)/营业总收入(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         constrains['FinExpTTM'] = np.where(
@@ -504,6 +542,8 @@ class FactorEarning(object):
         """
         :name: 资产减值损失/营业总收入(TTM)
         :desc: 资产减值损失/营业总收入(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -519,6 +559,8 @@ class FactorEarning(object):
         """
         :name: 归属母公司股东的净利润/营业收入(TTM)
         :desc: 归属母公司股东的净利润/营业收入 TTM
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -535,6 +577,8 @@ class FactorEarning(object):
 
         :name: 总资产净利率(TTM)(不含少数股东损益)
         :desc: 总资产净利率(不含少数股东损益)
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -550,6 +594,8 @@ class FactorEarning(object):
         """
         :name: 营业总成本/营业总收入(TTM)
         :desc: 营业总成本/营业总收入
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -564,6 +610,8 @@ class FactorEarning(object):
         """
         :name: 销售净利率(TTM)
         :desc: 净利润/营业收入
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning.loc[:, dependencies]
         earning['NetProfitRtTTM'] = np.where(
@@ -578,6 +626,8 @@ class FactorEarning(object):
         """
         :name: 净利润与营业总收入之比(TTM)
         :desc: 净利润/营业总收入
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning.loc[:, dependencies]
         earning['NPToTORevTTM'] = np.where(
@@ -592,6 +642,8 @@ class FactorEarning(object):
         """
         :name: 营业费用率(TTM)
         :desc: 营业费用与营业总收入之比=销售费用(TTM)/营业总收入(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         constrains['OperExpRtTTM'] = np.where(
@@ -607,6 +659,8 @@ class FactorEarning(object):
         """
         :name: 营业净利率(TTM)
         :desc: 营业利润/营业收入
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning.loc[:, dependencies]
         earning['OptProfitRtTTM'] = np.where(
@@ -621,6 +675,8 @@ class FactorEarning(object):
         """
         :name: 营业利润与营业总收入之比
         :desc: 营业利润/营业总收入
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning.loc[:, dependencies]
         earning['operating_profit_to_tor'] = np.where(
@@ -640,7 +696,9 @@ class FactorEarning(object):
                              ]):
         """
         :name: 资本报酬率(TTM)
-        :desc: 净利润（TTM）*2/（本期股东权益（MRQ）+本期长期负债（MRQ）+上年同期股东权益（MRQ）+上年同期长期负债（MRQ））*100
+        :desc: 净利润（TTM）*2/（本期股东权益（MRQ）+本期长期负债（MRQ）+上年同期股东权益（MRQ）+上年同期长期负债（MRQ））
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: x[0] * 2 / (x[1] + x[2] + x[3] + x[4]) \
@@ -674,7 +732,9 @@ class FactorEarning(object):
                dependencies=['np_parent_company_owners', 'equities_parent_company_owners_mrq']):
         """
         :name: 净资产收益率(TTM)
-        :desc: 归属于母公司的净利润（TTM）/归属于母公司的股东权益（MRQ）*100%
+        :desc: 归属于母公司的净利润（TTM）/归属于母公司的股东权益（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -688,8 +748,10 @@ class FactorEarning(object):
     def ROICTTM(ttm_earning, factor_earning,
                 dependencies=['np_parent_company_owners', 'total_assets_mrq']):
         """
-        :name:  归属母公司股东的净利润（TTM）/全部投入资本（MRQ）*100%
-        :desc:  归属母公司股东的净利润（TTM）/全部投入资本（MRQ）*100%
+        :name:  归属母公司股东的净利润（TTM）/全部投入资本（MRQ）
+        :desc:  归属母公司股东的净利润（TTM）/全部投入资本（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
@@ -704,6 +766,8 @@ class FactorEarning(object):
         """
         :name: 权益回报率(TTM)
         :desc: 净利润/股东权益
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning.loc[:, dependencies]
         earning['OwnROETTM'] = np.where(
@@ -718,6 +782,8 @@ class FactorEarning(object):
         """
         :name: 销售毛利率(TTM)
         :desc:（营业收入-营业成本）/营业收入
+        :unit:
+        :view_dimension: 0.01
         """
         earning = ttm_earning.loc[:, dependencies]
         earning['SalesGrossMarginTTM'] = np.where(
@@ -733,6 +799,8 @@ class FactorEarning(object):
         """
         :name: 销售税金率(TTM)
         :desc: 营业税金及附加(TTM)/营业收入(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
 
         constrains = ttm_earning.loc[:, dependencies]
@@ -753,7 +821,9 @@ class FactorEarning(object):
                                                   'administration_expense']):
         """
         :name:成本费用利润率(TTM)
-        :desc: 利润总额 / (营业成本+财务费用+销售费用+管理费用）*100
+        :desc: 利润总额 / (营业成本+财务费用+销售费用+管理费用
+        :unit:
+        :view_dimension: 0.01
         """
         constrains = ttm_earning.loc[:, dependencies]
         constrains['cost'] = (constrains.operating_cost +
