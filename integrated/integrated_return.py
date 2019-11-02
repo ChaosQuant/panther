@@ -135,7 +135,7 @@ class IntegratedReturn(object):
         group_rets_df_non_neu = self.calc_group_rets(total_data, 5)
         group_rets_df_non_neu = group_rets_df_non_neu.rename(
             columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
-        group_rets_df_non_neu['spread'] = group_rets_df_non_neu['ret_q1'] - group_rets_df_non_neu['ret_q5']
+        group_rets_df_non_neu['spread'] = group_rets_df_non_neu['ret_q5'] - group_rets_df_non_neu['ret_q1']
         group_rets_df_non_neu['benchmark'] = benchmark
         group_rets_df_non_neu['universe'] = universe
         group_rets_df_non_neu['factor_name'] = factor_name
@@ -152,7 +152,7 @@ class IntegratedReturn(object):
         total_data = pd.merge(total_data, groups, on=['trade_date', 'security_code'])
         group_rets_df_neu = self.calc_group_rets(total_data, 5, benchmark_weights=benchmark_weights_dict, industry=True)
         group_rets_df_neu = group_rets_df_neu.rename(columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
-        group_rets_df_neu['spread'] = group_rets_df_neu['ret_q1'] - group_rets_df_neu['ret_q5']
+        group_rets_df_neu['spread'] = group_rets_df_neu['ret_q5'] - group_rets_df_neu['ret_q1']
         group_rets_df_neu['benchmark'] = benchmark
         group_rets_df_neu['universe'] = universe
         group_rets_df_neu['factor_name'] = factor_name

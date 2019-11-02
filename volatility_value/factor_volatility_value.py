@@ -94,21 +94,21 @@ class FactorVolatilityValue(object):
 
     def Alpha20D(self, data, dependencies=['returns', 'returns_index'], max_window=20):
         """
-        :name: 20日 Jensen Alpha
+        :name: 20日Jensen Alpha
         :desc: 20日年化 Jensen Alpha, alpha = (E(r)-rf) - beta(rm-rf), r代表每日收益，rf代表无风险收益，rm代表市场收益，beta代表收益的beta值
         """
         return self._AlphaXD(data, 20)
 
     def Alpha60D(self, data, dependencies=['returns', 'returns_index'], max_window=60):
         """
-        :name: 60日 Jensen Alpha
+        :name: 60日Jensen Alpha
         :desc: 60日年化 Jensen Alpha, alpha = (E(r)-rf) - beta(rm-rf), r代表每日收益，rf代表无风险收益，rm代表市场收益，beta代表收益的beta值
         """
         return self._AlphaXD(data, 60)
 
     def Alpha120D(self, data, dependencies=['returns', 'returns_index'], max_window=120):
         """
-        :name: 120日 Jensen Alpha
+        :name: 120日Jensen Alpha
         :desc: 120日年化 Jensen Alpha, alpha = (E(r)-rf) - beta(rm-rf), r代表每日收益，rf代表无风险收益，rm代表市场收益，beta代表收益的beta值
         """
         return self._AlphaXD(data, 120)
@@ -428,7 +428,7 @@ if __name__ == "__main__":
     with open('../mkt_df.pkl', 'rb') as f:
         data = pickle.load(f)
 
-    process = VolatilityValue()
+    process = FactorVolatilityValue()
 
     print("-----------Variance20D-----------")
     print(process.Variance20D(data))
