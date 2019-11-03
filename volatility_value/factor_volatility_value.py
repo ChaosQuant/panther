@@ -29,6 +29,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日收益方差
         :desc: 20日收益方差(20 Day of Variance), sigma^2 = Var(r) = E(r-E(r))^2, 因子值为年化后的值，等于日度方差*250
+        :unit:
+        :view_dimension:
         """
         return self._VarianceXD(data, 20)
 
@@ -36,6 +38,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日收益方差
         :desc: 60日收益方差(60 Day of Variance), sigma^2 = Var(r) = E(r-E(r))^2, 因子值为年化后的值，等于日度方差*250
+        :unit:
+        :view_dimension:
         """
         return self._VarianceXD(data, 60)
 
@@ -43,6 +47,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日收益方差
         :desc: 120日收益方差(120 Day of Variance), sigma^2 = Var(r) = E(r-E(r))^2, 因子值为年化后的值，等于日度方差*250
+        :unit:
+        :view_dimension:
         """
         return self._VarianceXD(data, 120)
 
@@ -60,6 +66,8 @@ class FactorVolatilityValue(object):
         """
         :name: 个股收益的20日峰度
         :desc: 个股收益的20日峰度(20D Kurtosis), k = E(r-E(r))^4/sigma^4
+        :unit:
+        :view_dimension:
         """
         return self._KurtosisXD(data, 20)
 
@@ -67,6 +75,8 @@ class FactorVolatilityValue(object):
         """
         :name: 个股收益的60日峰度
         :desc: 个股收益的60日峰度(60D Kurtosis), k = E(r-E(r))^4/sigma^4
+        :unit:
+        :view_dimension:
         """
         return self._KurtosisXD(data, 60)
 
@@ -74,6 +84,8 @@ class FactorVolatilityValue(object):
         """
         :name: 个股收益的120日峰度
         :desc: 个股收益的120日峰度(120D Kurtosis), k = E(r-E(r))^4/sigma^4
+        :unit:
+        :view_dimension:
         """
         return self._KurtosisXD(data, 120)
 
@@ -96,6 +108,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日Jensen Alpha
         :desc: 20日年化 Jensen Alpha, alpha = (E(r)-rf) - beta(rm-rf), r代表每日收益，rf代表无风险收益，rm代表市场收益，beta代表收益的beta值
+        :unit:
+        :view_dimension:
         """
         return self._AlphaXD(data, 20)
 
@@ -103,6 +117,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日Jensen Alpha
         :desc: 60日年化 Jensen Alpha, alpha = (E(r)-rf) - beta(rm-rf), r代表每日收益，rf代表无风险收益，rm代表市场收益，beta代表收益的beta值
+        :unit:
+        :view_dimension:
         """
         return self._AlphaXD(data, 60)
 
@@ -110,6 +126,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日Jensen Alpha
         :desc: 120日年化 Jensen Alpha, alpha = (E(r)-rf) - beta(rm-rf), r代表每日收益，rf代表无风险收益，rm代表市场收益，beta代表收益的beta值
+        :unit:
+        :view_dimension:
         """
         return self._AlphaXD(data, 120)
 
@@ -134,6 +152,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日Beta
         :desc: 20日Beta, beta = cov(r, rm)/var(rm)
+        :unit:
+        :view_dimension:
         """
         return self._BetaXD(data, 20)
 
@@ -141,6 +161,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日Beta
         :desc: 60日Beta, beta = cov(r, rm)/var(rm)
+        :unit:
+        :view_dimension:
         """
         return self._BetaXD(data, 60)
 
@@ -148,6 +170,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日Beta
         :desc: 120日Beta, beta = cov(r, rm)/var(rm)
+        :unit:
+        :view_dimension:
         """
         return self._BetaXD(data, 120)
 
@@ -155,6 +179,8 @@ class FactorVolatilityValue(object):
         """
         :name: 252日Beta
         :desc: 252日Beta, beta = cov(r, rm)/var(rm)
+        :unit:
+        :view_dimension:
         """
         return self._BetaXD(data, 252)
 
@@ -177,6 +203,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日夏普比率
         :desc: 20日夏普比率，表示每承受一单位总风险，会产生多少的超额报酬，可以同时对策略的收益与风险进行综合考虑，sharpe ratio = (E(r)-rf)/sigma
+        :unit:
+        :view_dimension:
         """
         return self._SharpeXD(data, 20)
 
@@ -184,6 +212,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日夏普比率
         :desc: 60日夏普比率，表示每承受一单位总风险，会产生多少的超额报酬，可以同时对策略的收益与风险进行综合考虑，sharpe ratio = (E(r)-rf)/sigma
+        :unit:
+        :view_dimension:
         """
         return self._SharpeXD(data, 60)
 
@@ -191,6 +221,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日夏普比率
         :desc: 120日夏普比率，表示每承受一单位总风险，会产生多少的超额报酬，可以同时对策略的收益与风险进行综合考虑，sharpe ratio = (E(r)-rf)/sigma
+        :unit:
+        :view_dimension:
         """
         return self._SharpeXD(data, 120)
 
@@ -213,6 +245,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日特诺雷比率
         :desc: 20日特诺雷比率(20D Treynor Ratio),用以衡量投资回报率。TR = (E(r)-rf)/beta
+        :unit:
+        :view_dimension:
         """
         return self._TRXD(data, 20)
 
@@ -220,6 +254,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日特诺雷比率
         :desc: 60日特诺雷比率(60D Treynor Ratio),用以衡量投资回报率。TR = (E(r)-rf)/beta
+        :unit:
+        :view_dimension:
         """
         return self._TRXD(data, 60)
 
@@ -227,6 +263,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日特诺雷比率
         :desc: 120日特诺雷比率(120D Treynor Ratio),用以衡量投资回报率。TR = (E(r)-rf)/beta
+        :unit:
+        :view_dimension:
         """
         return self._TRXD(data, 120)
 
@@ -248,6 +286,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日信息比率
         :desc: 20日信息比率(20D InformationRatio), IR = E(r-rm)/sqrt(var(r-rm)),其中r代表每日收益，rm代表指数收益，选用沪深300指数
+        :unit:
+        :view_dimension:
         """
         return self._IRXD(data, 20)
 
@@ -255,6 +295,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日信息比率
         :desc: 60日信息比率(60D InformationRatio), IR = E(r-rm)/sqrt(var(r-rm)),其中r代表每日收益，rm代表指数收益，选用沪深300指数
+        :unit:
+        :view_dimension:
         """
         return self._IRXD(data, 60)
 
@@ -262,6 +304,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日信息比率
         :desc: 120日信息比率(120D InformationRatio), IR = E(r-rm)/sqrt(var(r-rm)),其中r代表每日收益，rm代表指数收益，选用沪深300指数
+        :unit:
+        :view_dimension:
         """
         return self._IRXD(data, 120)
 
@@ -283,6 +327,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日收益方差
         :desc: 20日收益方差(20D Gain Variance), 类似于方差，主要衡量收益的表现. GV(r) = E(r-E(r)|r>=0)^2 = E(r^2|r>=0) - E(r|r>=0)^2,其中r代表每日收益，因子值是年化后的值，等于日度值*250
+        :unit:
+        :view_dimension:
         """
         return self._GainVarianceXD(data, 20)
 
@@ -290,6 +336,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日收益方差
         :desc: 60日收益方差(60D Gain Variance), 类似于方差，主要衡量收益的表现. GV(r) = E(r-E(r)|r>=0)^2 = E(r^2|r>=0) - E(r|r>=0)^2,其中r代表每日收益，因子值是年化后的值，等于日度值*250
+        :unit:
+        :view_dimension:
         """
         return self._GainVarianceXD(data, 60)
 
@@ -297,6 +345,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日收益方差
         :desc: 120日收益方差(120D Gain Variance), 类似于方差，主要衡量收益的表现. GV(r) = E(r-E(r)|r>=0)^2 = E(r^2|r>=0) - E(r|r>=0)^2,其中r代表每日收益，因子值是年化后的值，等于日度值*250
+        :unit:
+        :view_dimension:
         """
         return self._GainVarianceXD(data, 120)
 
@@ -318,6 +368,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日损失方差
         :desc: 20日损失方差(20D Loss Variance), 类似于方差，主要衡量损失的表现.LV(r) = E(r-E(r)|r<=0)^2 = E(r^2|r<=0) - E(r|r<=0)^2,其中r代表每日收益，因子值是年化后的值，等于日度值*250.
+        :unit:
+        :view_dimension:
         """
         return self._LossVarianceXD(data, 20)
 
@@ -325,6 +377,8 @@ class FactorVolatilityValue(object):
         """
         :name: 60日损失方差
         :desc: 60日损失方差(60D Loss Variance), 类似于方差，主要衡量损失的表现.LV(r) = E(r-E(r)|r<=0)^2 = E(r^2|r<=0) - E(r|r<=0)^2,其中r代表每日收益，因子值是年化后的值，等于日度值*250.
+        :unit:
+        :view_dimension:
         """
         return self._LossVarianceXD(data, 60)
 
@@ -332,6 +386,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日损失方差
         :desc: 120日损失方差(120D Loss Variance), 类似于方差，主要衡量损失的表现.LV(r) = E(r-E(r)|r<=0)^2 = E(r^2|r<=0) - E(r|r<=0)^2,其中r代表每日收益，因子值是年化后的值，等于日度值*250.
+        :unit:
+        :view_dimension:
         """
         return self._LossVarianceXD(data, 120)
 
@@ -351,6 +407,8 @@ class FactorVolatilityValue(object):
         """
         :name: 20日收益损失方差比
         :desc: 20日收益损失方差比, GL Ratio = GV/LV = E(r-E(r)|r>=0)^2) / E(r-E(r)|r<=0)^2,其中r代表每日收益
+        :unit:
+        :view_dimension:
         """
         return self._GainLossVarianceRatioXD(data, 20)
 
@@ -358,6 +416,8 @@ class FactorVolatilityValue(object):
         """
         :name: 70日收益损失方差比
         :desc: 70日收益损失方差比, GL Ratio = GV/LV = E(r-E(r)|r>=0)^2) / E(r-E(r)|r<=0)^2,其中r代表每日收益
+        :unit:
+        :view_dimension:
         """
         return self._GainLossVarianceRatioXD(data, 70)
 
@@ -365,6 +425,8 @@ class FactorVolatilityValue(object):
         """
         :name: 120日收益损失方差比
         :desc: 120日收益损失方差比, GL Ratio = GV/LV = E(r-E(r)|r>=0)^2) / E(r-E(r)|r<=0)^2,其中r代表每日收益
+        :unit:
+        :view_dimension:
         """
         return self._GainLossVarianceRatioXD(data, 120)
 
@@ -372,6 +434,8 @@ class FactorVolatilityValue(object):
         """
         :name: 252日超额收益标准差
         :desc: 252日超额收益标准差，DailyReturnSTD252D
+        :unit:
+        :view_dimension:
         """
         returns = data['returns'].copy().fillna(method='ffill').fillna(0)
 
@@ -382,6 +446,8 @@ class FactorVolatilityValue(object):
         """
         :name:过往12个月下跌波动
         :desc:过往12个月下跌波动(12M Downside standard deviations ratio),过往12个月中，市场组合日收益为负时，日股日收益标准差和市场组合日收益标准差之比。DDNCR=sd(r)/sd(rm),其中市场组合日收益rm的计算采用沪深300的数据，仅考虑市场收益为负的数据。
+        :unit:
+        :view_dimension:
         """
         returns = data['returns'].copy().fillna(method='ffill').fillna(0).iloc[-252:]
         returns_index = data['returns_index'].copy().fillna(method='ffill').fillna(0).iloc[-252:]
@@ -394,7 +460,9 @@ class FactorVolatilityValue(object):
     def DDNCR12M(self, data, dependencies=['returns', 'returns_index'], max_window=252):
         """
         :name: 下跌相关系数
-        :desc:
+        :desc: 过往12个月中，市场组合日收益为负时，个股日收益关于市场组合日收益的相关系数。
+        :unit:
+        :view_dimension:
         """
         returns = data['returns'].copy().fillna(method='ffill').fillna(0).iloc[-252:]
         returns_index = data['returns_index'].copy().fillna(method='ffill').fillna(0).iloc[-252:]
@@ -407,8 +475,9 @@ class FactorVolatilityValue(object):
     def DVRAT(self, data, dependencies=['returns'], max_window=520):
         """
         :name: 收益相对波动
-        :desc: 收益相对波动, 记rt股票日收益，rft为每日的无风险收益，则股票当日超额收益为et,收益相对波动表示为
-                DVRAT = sigma_q^2/sigma^2 -1
+        :desc: 收益相对波动, 记rt股票日收益，rft为每日的无风险收益，则股票当日超额收益为et,收益相对波动表示为DVRAT = sigma_q^2/sigma^2 -1
+        :unit:
+        :view_dimension:
         """
         q = 10
         t = 252*2
