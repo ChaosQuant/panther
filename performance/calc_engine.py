@@ -81,10 +81,11 @@ class CalcEngine(object):
         benchmark_code_dict = {'000905.XSHG': '2070000187', '000300.XSHG': '2070000060'}
 
         db_factor = FetchRLFactorEngine(table)
-        factor_data = db_factor.fetch_factors(begin_date=begin_date, end_date=trade_date, freq=freq)
+        # factor_data = db_factor.fetch_factors(begin_date=begin_date, end_date=trade_date, freq=freq)
 
         db_polymerize = DBPolymerize(self._name)
-        benchmark_data, index_data, market_data, exposure_data = db_polymerize.fetch_performance_data(
+
+        benchmark_data, index_data, market_data, factor_data, exposure_data = db_polymerize.fetch_performance_data(
             benchmark_code_dict.keys(), begin_date, trade_date, freq)
 
         # 针对不同的基准
@@ -142,7 +143,8 @@ class CalcEngine(object):
             factor_name = str(factor_name)
 
             # 判断因子是否为空
-            if total_data_dict['2070000187'][factor_name].isnull().all() or total_data_dict['2070000060'][factor_name].isnull().all():
+            if total_data_dict['2070000187'][factor_name].isnull().all() or total_data_dict['2070000060'][
+                factor_name].isnull().all():
                 print('The factor {0} is null!'.format(factor_name))
                 continue
 
@@ -526,7 +528,8 @@ class CalcEngine(object):
         group_rets_df_non_neu = group_rets_df_non_neu.rename(
             columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
         for i in range(1, 6):
-            group_rets_df_non_neu['relative_ret_q'+str(i)] = group_rets_df_non_neu['ret_q'+str(i)] - equal_weighted_rets
+            group_rets_df_non_neu['relative_ret_q' + str(i)] = group_rets_df_non_neu[
+                                                                   'ret_q' + str(i)] - equal_weighted_rets
         group_rets_df_non_neu['spread'] = group_rets_df_non_neu['ret_q5'] - group_rets_df_non_neu['ret_q1']
         group_rets_df_non_neu['benchmark'] = benchmark
         group_rets_df_non_neu['universe'] = universe
@@ -547,7 +550,7 @@ class CalcEngine(object):
                                                    industry=True)
         group_rets_df_neu = group_rets_df_neu.rename(columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
         for i in range(1, 6):
-            group_rets_df_neu['relative_ret_q'+str(i)] = group_rets_df_neu['ret_q'+str(i)] - equal_weighted_rets
+            group_rets_df_neu['relative_ret_q' + str(i)] = group_rets_df_neu['ret_q' + str(i)] - equal_weighted_rets
         group_rets_df_neu['spread'] = group_rets_df_neu['ret_q5'] - group_rets_df_neu['ret_q1']
         group_rets_df_neu['benchmark'] = benchmark
         group_rets_df_neu['universe'] = universe
