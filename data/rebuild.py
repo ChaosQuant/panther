@@ -42,21 +42,36 @@ class Rebuild(object):
         session.commit()
 
     def _update_factor_detail(self, class_name, class_method, func_sets, session):
-        update_sql = ''
         delete_sql = """delete from `{0}` where factor_type='{1}'""".format('factor_detail', class_name)
         session.execute(delete_sql)
         session.commit()
         for func in func_sets:
             try:
-                desc = str(str(getattr(class_method, func).__doc__.split('\n')[-2]).split('desc:')[-1]).replace(' ', '')
-                desc = desc.replace(':', '：')
-                name = str(str(getattr(class_method, func).__doc__.split('\n')[-3]).split('name:')[-1]).replace(' ', '')
-                name = name.replace(':', '：')
+                view_dimension, unit, desc, name = [None] * 4
+                _doc = getattr(class_method, func).__doc__
+                if 'view_dimension:' in _doc:
+                    view_dimension = str(str(_doc.split('\n')[-2]).split('view_dimension:')[-1]).replace(' ', '')
+                    view_dimension = view_dimension.replace(':', '：')
+                if 'unit' in _doc:
+                    unit = str(str(getattr(class_method, func).__doc__.split('\n')[-3]).split('unit:')[-1]).replace(' ',
+                                                                                                                    '')
+                    unit = unit.replace(':', '：')
+                if 'desc' in _doc:
+                    desc = str(str(getattr(class_method, func).__doc__.split('\n')[-4]).split('desc:')[-1]).replace(' ',
+                                                                                                                    '')
+                    desc = desc.replace(':', '：')
+                if 'name' in _doc:
+                    name = str(str(getattr(class_method, func).__doc__.split('\n')[-5]).split('name:')[-1]).replace(' ',
+                                                                                                                    '')
+                    name = name.replace(':', '：')
             except:
+                view_dimension = None
+                unit = None
                 desc = None
                 name = None
-            update_sql = """insert into `{0}` (`factor_type`,`factor_name`,`factor_cn_name`, `description`) values('{1}','{2}','{3}','{4}');""".format(
-                'factor_detail', class_name.lower(), str(func), name, desc)
+            update_sql = """insert into `{0}` (`factor_type`,`factor_name`,`factor_cn_name`, `description`,`unit`,`view_dimension`) 
+                            values('{1}','{2}','{3}','{4}','{5}',{6});""".format(
+                'factor_detail', class_name.lower(), str(func), name, desc, unit, view_dimension)
             session.execute(update_sql)
             session.commit()
 
