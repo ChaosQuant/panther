@@ -113,10 +113,10 @@ class DBPolymerize(object):
         #目前只有三个基准，故内码先固定
         security_code_dict = {'000905':'2070000187','000300':'2070000060'}
 
-        sw_industry = ['801010', '801020', '801030', '801040', '801050',
-                       '801080', '801110', '801120', '801130', '801150', '801160', '801170',
-                       '801180', '801200', '801210', '801230', '801710', '801720', '801730',
-                       '801740', '801750', '801760', '801770', '801790', '801880']
+        sw_industry = ['801010', '801020', '801030', '801040', '801050', '801080', '801110', '801120', '801130',
+                       '801140', '801150', '801160', '801170', '801180', '801200', '801210', '801230', '801710',
+                       '801720', '801730', '801740', '801750', '801760', '801770', '801780', '801790', '801880',
+                       '801890']
 
         # 对应的行业
         benchmark_industry_data = self._factory_sets['industry'].result(sw_industry, begin_date, end_date, freq).rename(
@@ -136,14 +136,13 @@ class DBPolymerize(object):
         market_data = self._factory_sets['market'].result_code(list(set(security_code.security_code)), begin_date,
                                                                end_date, freq)
 
-        # 读取因子数据
-        factor_category = 'FactorReversal'
-        factor_name = ['CMO20D', 'KDJK9D']
-        factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
+        # # 读取因子数据
+        # factor_category = 'FactorReversal'
+        # factor_name = ['CMO20D', 'KDJK9D']
+        # factor_data = self._factory_sets['factor'].result(factor_category, begin_date, end_date, factor_name, freq)
+
         exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
 
-        cov_data = exposure_data
-
-        return benchmark_data, index_data, market_data, factor_data, exposure_data
+        return benchmark_data, index_data, market_data, exposure_data
 
 

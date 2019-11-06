@@ -63,7 +63,8 @@ class CalcEngine(object):
         total_data = pd.merge(total_data, benchmark_data, on=['trade_date', 'security_code'])
         mkt_se['trade_date'] = mkt_se['trade_date'].apply(lambda x: x.to_pydatetime().date())
         total_data = pd.merge(total_data, mkt_se, on=['trade_date', 'security_code'], how='left')
-        # return total_data.dropna(), index_rets
+        total_data = total_data.dropna(subset=['returns'])
+
         return total_data, index_rets
 
     def _factor_preprocess(self, data):
@@ -97,7 +98,7 @@ class CalcEngine(object):
                                                                     index_data[index_data.security_code == value],
                                                                     market_data,
                                                                     factor_data, exposure_data)
-            # 中性化处理
+            # 中性化处理，因子值填充待修改
             total_data = total_data.sort_values(['trade_date', 'security_code'])
             total_data = total_data.groupby(['trade_date']).apply(self._factor_preprocess)
             total_data.loc[:, self._factor_columns] = total_data.loc[:, self._factor_columns].fillna(0)
@@ -211,18 +212,18 @@ class CalcEngine(object):
             other_basic_df = pd.concat(other_basic_list, axis=0)
             other_sub_df = pd.concat(other_sub_list, axis=0)
 
-            storage_engine = PerformanceStorageEngine(self._url)
-            storage_engine.update_destdb('factor_performance_return_basic', factor_name, return_basic_df)
-            storage_engine.update_destdb('factor_performance_return_sub', factor_name, return_sub_df)
-
-            storage_engine.update_destdb('factor_performance_ic_ir_basic', factor_name, ic_df)
-            storage_engine.update_destdb('factor_performance_ic_ir_sub', factor_name, ic_sub_df)
-            storage_engine.update_destdb('factor_performance_ic_ir_group', factor_name, group_ic_df)
-            storage_engine.update_destdb('factor_performance_ic_ir_group_sub', factor_name, group_ic_sub_df)
-            storage_engine.update_destdb('factor_performance_ic_industry', factor_name, industry_ic_df)
-
-            storage_engine.update_destdb('factor_performance_other_basic', factor_name, other_basic_df)
-            storage_engine.update_destdb('factor_performance_other_sub', factor_name, other_sub_df)
+            # storage_engine = PerformanceStorageEngine(self._url)
+            # storage_engine.update_destdb('factor_performance_return_basic', factor_name, return_basic_df)
+            # storage_engine.update_destdb('factor_performance_return_sub', factor_name, return_sub_df)
+            #
+            # storage_engine.update_destdb('factor_performance_ic_ir_basic', factor_name, ic_df)
+            # storage_engine.update_destdb('factor_performance_ic_ir_sub', factor_name, ic_sub_df)
+            # storage_engine.update_destdb('factor_performance_ic_ir_group', factor_name, group_ic_df)
+            # storage_engine.update_destdb('factor_performance_ic_ir_group_sub', factor_name, group_ic_sub_df)
+            # storage_engine.update_destdb('factor_performance_ic_industry', factor_name, industry_ic_df)
+            #
+            # storage_engine.update_destdb('factor_performance_other_basic', factor_name, other_basic_df)
+            # storage_engine.update_destdb('factor_performance_other_sub', factor_name, other_sub_df)
 
     def calc_other(self, benchmark, universe, trade_date, factor_name, total_data, benchmark_weights):
         if 'other' not in self._methods:
@@ -270,6 +271,7 @@ class CalcEngine(object):
             turnover = turnover.rename(columns={i: 'turnover_q' + str(i) for i in range(1, 6)})
 
             # 计算覆盖率
+            # 需要加入分组
             coverage = total_data.groupby(['trade_date', 'group']).apply(len)
             coverage = coverage.unstack()
             coverage = coverage.rename(columns={i: 'coverage_q' + str(i) for i in range(1, 6)})
@@ -546,6 +548,7 @@ class CalcEngine(object):
         group_rets_df_neu = engine.calc_group_rets(total_data, 5, benchmark_weights=benchmark_weights_dict,
                                                    industry=True)
         group_rets_df_neu = group_rets_df_neu.rename(columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
+
         for i in range(1, 6):
             group_rets_df_neu['relative_ret_q'+str(i)] = group_rets_df_neu['ret_q'+str(i)] - equal_weighted_rets
         group_rets_df_neu['spread'] = group_rets_df_neu['ret_q5'] - group_rets_df_neu['ret_q1']
