@@ -31,7 +31,7 @@ def get_start_date(factor_name):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start_date', type=int, default=20140101)
+    parser.add_argument('--start_date', type=int, default=20180101)
     parser.add_argument('--end_date', type=int, default=0)
     parser.add_argument('--factor_name', type=str, default='factor_sentiment')  # factor_earning
     parser.add_argument('--update', type=bool, default=False)

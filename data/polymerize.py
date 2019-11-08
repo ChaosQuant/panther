@@ -145,4 +145,38 @@ class DBPolymerize(object):
 
         return benchmark_data, index_data, market_data, exposure_data
 
+    def fetch_integrated_data(self, begin_date, end_date, freq=None):
+        security_code_dict = {'000905.XSHG': '2070000187', '000300.XSHG': '2070000060'}
+
+        sw_industry = ['801010', '801020', '801030', '801040', '801050', '801080', '801110', '801120', '801130',
+                       '801140', '801150', '801160', '801170', '801180', '801200', '801210', '801230', '801710',
+                       '801720', '801730', '801740', '801750', '801760', '801770', '801780', '801790', '801880',
+                       '801890']
+
+        # 月末调仓
+        # 对应的行业
+        benchmark_industry_data = self._factory_sets['industry'].result(sw_industry, begin_date, end_date, freq).rename(
+            columns={'isymbol': 'industry_code', 'iname': 'industry'})
+
+        # 对应的权重,调仓日权重
+        benchmark_index_data = self._factory_sets['index'].result(security_code_dict.keys(), begin_date, begin_date).rename(
+            columns={'isymbol': 'index_code', 'iname': 'index_name'})
+        benchmark_index_data = benchmark_index_data.drop(['trade_date'], axis=1)
+        benchmark_data = benchmark_industry_data.merge(benchmark_index_data, on=['symbol'])
+
+        # 读取内码
+        benchmark_data['code'] = benchmark_data['symbol'].apply(lambda x: str(x.split('.')[0]))
+        security_code = self._factory_sets['security'].result(list(set(benchmark_data.code))).rename(
+            columns={'symbol': 'code'})
+        benchmark_data = benchmark_data.merge(security_code, on=['code']).drop(['code', 'symbol'], axis=1)
+
+        # index_data = self._factory_sets['index_market'].result(security_code_dict.values(), begin_date, end_date, freq)
+
+        market_data = self._factory_sets['market'].result_code(list(set(security_code.security_code)), begin_date,
+                                                               end_date, freq)
+
+        exposure_data = self._factory_sets['exposure'].result(begin_date, end_date, freq)
+
+        return benchmark_data, market_data, exposure_data
+
 

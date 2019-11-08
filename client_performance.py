@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # factor_table = 'factor_reversal'  # 因子表名
     # calc_engine.local_run(begin_date, factor_table)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start_date', type=int, default=20180101)
+    parser.add_argument('--start_date', type=int, default=20160101)
     parser.add_argument('--end_date', type=int, default=20190101)
     # parser.add_argument('--start_date', type=int, default=20180701)
     # parser.add_argument('--end_date', type=int, default=0)
