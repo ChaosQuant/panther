@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#针对191，101 量价进行通用计算
 import pandas as pd
 import numpy as np
 import multiprocessing
@@ -9,11 +8,11 @@ from data.polymerize import DBPolymerize
 from data.storage_engine import StorageEngine
 from ultron.cluster.invoke.cache_data import cache_data
 from alphax import app
+import pickle
 
 class CalcEngine(object):
-    def __init__(self, name, url, methods=[{'packet':'alphax.factor_alpha191','class':'FactorAlpha191'},
-                                    {'packet':'alphax.factor_alpha101','class':'FactorAlpha101'}]):
-        self._name= name
+    def __init__(self, name, url, methods=[{'packet': 'volatility_value.factor_volatility_value.py', 'class': 'FactorVolatilityValue'}]):
+        self._name = name
         self._methods = methods
         self._url = url
         self._INDU_STYLES = ['Bank','RealEstate','Health','Transportation','Mining','NonFerMetal',
@@ -45,8 +44,7 @@ class CalcEngine(object):
             max_window = self._method_max_windows(method['packet'],method['class'])
             alpha_max_window = max_window if max_window > alpha_max_window else alpha_max_window
         return alpha_max_window
-        
-        
+
     def calc_factor_by_date(self, data, trade_date):
         trade_date_list = list(set(data.trade_date))
         trade_date_list.sort(reverse=False)
@@ -60,27 +58,42 @@ class CalcEngine(object):
         for p in mkt_df.columns:
             if p in ['open_price', 'highest_price', 'lowest_price', 'close_price', 'vwap']:
                 mkt_df[p] = mkt_df[p] * mkt_df['pre_factor'] / mkt_df['benchmark_factor']
+        '''
         indu_dict = {}
         indu_names = self._INDU_STYLES + ['COUNTRY']
         for date in trade_date_list:
-            date_indu_df = data[data['trade_date'] == trade_date_list[-1]].set_index('security_code')[indu_names]
+            date_indu_df = data[data['trade_date'] == trade_date_list[-1]].set_index('code')[indu_names]
             indu_check_se = date_indu_df.sum(axis=1).sort_values()
             date_indu_df.drop(indu_check_se[indu_check_se < 2].index, inplace=True)
             indu_dict[pd.Timestamp(date)] = date_indu_df.sort_index()
+        '''
         total_data = {}
         for col in mkt_df.columns:
             total_data[col] = mkt_df[col].unstack().sort_index()
         total_data['returns'] = total_data['close_price'].pct_change()
-        total_data['indu'] = indu_dict
+        #total_data['indu'] = indu_dict
         return total_data
-    
-    
+
+    def calc_index_rets_by_date(self, data):
+        """
+        提取
+        :param data:
+        :param trade_date:
+        :return:
+        """
+        index_data = data.copy()
+        index_data = index_data.set_index('trade_date')
+        index_data.index = pd.to_datetime(index_data.index, format='%Y-%m-%d')
+        index_data.sort_index(inplace=True)
+        return {'returns_index':index_data['change_pct']}
+
     def loadon_data(self, trade_date):
         db_polymerize = DBPolymerize(self._name)
         max_windows = self._maximization_windows()
         begin_date = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_windows + 1))
-        total_data = db_polymerize.fetch_data(begin_date, trade_date,'1b')
-        return total_data
+        market_data, index_data = db_polymerize.fetch_volatility_value_data(begin_date, trade_date, '1b')
+        # market_data, index_data = db_polymerize.fetch_volatility_value_data('2018-08-15', trade_date, '1b')
+        return market_data, index_data
     
     def process_calc(self, params):
         [class_name, packet_name, func, data] = params
@@ -88,7 +101,7 @@ class CalcEngine(object):
         res = getattr(class_method(),func)(data)
         res = pd.DataFrame(res)
         res.columns=[func]
-        #res = res.reset_index().sort_values(by='security_code',ascending=True)
+        #res = res.reset_index().sort_values(by='code',ascending=True)
         return res
         
     def process_calc_factor(self, packet_name, class_name, mkt_df, trade_date):
@@ -103,18 +116,19 @@ class CalcEngine(object):
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
             max_window = fun_param['max_window'].default
-            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window - 1))
+            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window))
             data = {}
             for dep in dependencies:
                 if dep not in ['indu']:
-                    data[dep] = mkt_df[dep].loc[begin.strftime("%Y-%m-%d"):trade_date]
+                    # data[dep] = mkt_df[dep].loc[begin.strftime("%Y-%m-%d"):trade_date]
+                    data[dep] = mkt_df[dep].loc[begin:datetime.datetime.strptime(trade_date, '%Y-%m-%d')]
                 else:
                     data['indu'] = mkt_df['indu']
             calc_factor_list.append([class_name, packet_name, func, data])
-        with multiprocessing.Pool(processes=cpus) as p:
+        with multiprocessing.Pool(processes=cpus*2) as p:
             res = p.map(self.process_calc, calc_factor_list)
         print(time.time() - start_time)
-        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'security_code'})
+        result = pd.concat(res,axis=1).reset_index().rename(columns={'index':'security_code','code':'security_code'})
         result = result.replace([np.inf, -np.inf], np.nan)
         result['trade_date'] = trade_date
         return result
@@ -128,11 +142,12 @@ class CalcEngine(object):
         
         start_time = time.time()
         for func in func_sets:
+            print(func)
             func_method = getattr(class_method,func)
             fun_param = inspect.signature(func_method).parameters
             dependencies = fun_param['dependencies'].default
             max_window = fun_param['max_window'].default
-            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window - 1))
+            begin = advanceDateByCalendar('china.sse', trade_date, '-%sb' % (max_window))
             data = {}
             for dep in dependencies:
                 if dep not in ['indu']:
@@ -142,23 +157,26 @@ class CalcEngine(object):
             res = getattr(class_method(),func)(data)
             res = pd.DataFrame(res)
             res.columns=[func]
-            res = res.reset_index().sort_values(by='security_code',ascending=True)
+            #res = res.reset_index().sort_values(by='code',ascending=True)
+            res = res.reset_index().sort_values(by='security_code', ascending=True)
             result[func] = res[func]
+        #result['symbol'] = res['code']
         result['security_code'] = res['security_code']
         result['trade_date'] = trade_date
         print(time.time() - start_time)
-        return result
+        return result.replace([np.inf, -np.inf], np.nan)
     
     def local_run(self, trade_date):
-        total_data = self.loadon_data(trade_date)
-        mkt_df = self.calc_factor_by_date(total_data,trade_date)
+        market_data, index_data = self.loadon_data(trade_date)
+        mkt_df = self.calc_factor_by_date(market_data, trade_date)
+        idx_rets_se = self.calc_index_rets_by_date(index_data)
+
+        mkt_df.update(idx_rets_se)
         storage_engine = StorageEngine(self._url)
         for method in self._methods:
             result = self.process_calc_factor(method['packet'],method['class'],mkt_df,trade_date)
             storage_engine.update_destdb(str(method['packet'].split('.')[-1]), trade_date, result)
-            print('----')
-        
-        
+
     def remote_run(self, trade_date):
         total_data = self.loadon_data(trade_date)
         #存储数据

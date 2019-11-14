@@ -151,13 +151,13 @@ def df_indneutralize(df, indu_dict):
 
 
 @six.add_metaclass(Singleton)
-class Alpha101(object):
+class FactorAlpha101(object):
     def __init__(self):
-        __str__ = 'alpha101'
+        __str__ = 'factor_alpha101'
         self.name = 'Alpha101'
         self.factor_type1 = 'Features'
         self.factor_type2 = 'Features'
-        self.desciption = 'price and volumns features'
+        self.description = 'price and volumns features'
     
     def alpha101_2(self, data, param1=2, param2=6, dependencies=['turnover_vol', 'close_price', 'open_price'], 
                 max_window=10):

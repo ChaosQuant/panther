@@ -4,13 +4,13 @@ import numpy as np
 from utilities.singleton import Singleton
 
 @six.add_metaclass(Singleton)
-class PowerVolume(object):
+class FactorPowerVolume(object):
     def __init__(self):
-        __str__ = 'volume'
+        __str__ = 'factor_power_volume'
         self.name = '量能指标'
         self.factor_type1 = '技术指标因子'
         self.factor_type2 = '量能指标'
-        self.desciption = '通过成交量与股价变动关系分析未来趋势'
+        self.description = '通过成交量与股价变动关系分析未来趋势'
         
     def VoT20D(self, data, dependencies=['turn_rate'], max_window=20):
         '''
@@ -173,7 +173,7 @@ class PowerVolume(object):
     def VROC12D(self, data, dependencies=['close_price'], max_window=13):
         '''
         This is alpha191_1
-        :name: 12 日变动速率(6-day Price Rate of Change)
+        :name: 12 日变动速率
         :desc: 12 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 12)
@@ -181,7 +181,7 @@ class PowerVolume(object):
     def VROC6D(self, data, dependencies=['close_price'], max_window=7):
         '''
         This is alpha191_1
-        :name: 6 日变动速率(6-day Price Rate of Change)
+        :name: 6 日变动速率
         :desc: 6 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 6)
@@ -189,7 +189,7 @@ class PowerVolume(object):
     def VROC10D(self, data, dependencies=['close_price'], max_window=11):
         '''
         This is alpha191_1
-        :name: 10 日变动速率(6-day Price Rate of Change)
+        :name: 10 日变动速率
         :desc: 10 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 10)
@@ -197,7 +197,7 @@ class PowerVolume(object):
     def VROC20D(self, data, dependencies=['close_price'], max_window=21):
         '''
         This is alpha191_1
-        :name: 10 日变动速率(6-day Price Rate of Change)
+        :name: 10 日变动速率
         :desc: 10 日变动速率(6-day Price Rate of Change)。是一个动能指标，其以当日的收盘价和 N 天前的收盘价比较，通 过计算股价某一段时间内收盘价变动的比例，应用价格的移动比较来测量价位动量，属于反趋向的指标之一。
         '''
         return self._VROCXD(data, 20)
