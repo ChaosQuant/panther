@@ -145,7 +145,7 @@ class sqlEngine(object):
                                                  dates: Iterable[str] = None):
         db_entities.append(db_name.COMPCODE)
         df = self.fetch_fundamentals_pit(db_name, db_entities, db_filters, dates)
-        df = self._internal.join_internal_code(df, left=['trade_date', 'COMPCODE'], right=['trade_date', 'company_id'])
+        df = self._internal.join_internal_code(df, left=['COMPCODE'], right=['company_id'])
         return df
 
 
