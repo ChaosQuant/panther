@@ -12,7 +12,7 @@ from financial import factor_per_share_indicators
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
-from data.model import IndicatorReport
+# from data.model import IndicatorReport
 from data.model import IncomeReport, IncomeTTM
 
 from vision.table.valuation import Valuation

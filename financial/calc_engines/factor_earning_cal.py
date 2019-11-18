@@ -107,10 +107,8 @@ class CalcEngine(object):
                                                   })
 
         indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorReport,
-                                                                         [
-                                                                             IndicatorReport.NETPROFITCUT,
-                                                                             # 扣除非经常损益后的净利润
-                                                                             IndicatorReport.MGTEXPRT
+                                                                         [IndicatorReport.NETPROFITCUT, # 扣除非经常损益后的净利润
+                                                                          IndicatorReport.MGTEXPRT, # 管理费用率
                                                                          ], dates=[trade_date])
         for column in columns:
             if column in list(indicator_sets.keys()):

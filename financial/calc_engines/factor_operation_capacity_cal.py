@@ -12,7 +12,6 @@ from financial import factor_operation_capacity
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
-from data.model import IndicatorReport
 from data.model import IncomeReport, IncomeTTM
 
 from vision.db.signletion_engine import *

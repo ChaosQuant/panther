@@ -499,20 +499,20 @@ class FactorSolvency(object):
         factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
         return factor_solvency
 
-    @staticmethod
-    def OptCFToNetDebtTTM(ttm_solvency, factor_solvency, dependencies=['net_operate_cash_flow', 'net_liability']):
-        """
-        :name:经营活动净现金流（TTM）/净负债（TTM）
-        :desc:经营活动净现金流（TTM）/净负债（TTM）
-        :unit:
-        :view_dimension: 0.01
-        """
-        cash_flow = ttm_solvency.loc[:, dependencies]
-        cash_flow['OptCFToNetDebtTTM'] = np.where(CalcTools.is_zero(cash_flow.net_liability.values), 0,
-                                                  cash_flow.net_operate_cash_flow.values / cash_flow.net_liability.values)
-        cash_flow = cash_flow.drop(dependencies, axis=1)
-        factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
-        return factor_solvency
+    # @staticmethod
+    # def OptCFToNetDebtTTM(ttm_solvency, factor_solvency, dependencies=['net_operate_cash_flow', 'net_liability']):
+    #     """
+    #     :name:经营活动净现金流（TTM）/净负债（TTM）
+    #     :desc:经营活动净现金流（TTM）/净负债（TTM）
+    #     :unit:
+    #     :view_dimension: 0.01
+    #     """
+    #     cash_flow = ttm_solvency.loc[:, dependencies]
+    #     cash_flow['OptCFToNetDebtTTM'] = np.where(CalcTools.is_zero(cash_flow.net_liability.values), 0,
+    #                                               cash_flow.net_operate_cash_flow.values / cash_flow.net_liability.values)
+    #     cash_flow = cash_flow.drop(dependencies, axis=1)
+    #     factor_solvency = pd.merge(factor_solvency, cash_flow, how='outer', on="security_code")
+    #     return factor_solvency
 
     @staticmethod
     def OPCToDebtTTM(ttm_solvency, factor_solvency,
