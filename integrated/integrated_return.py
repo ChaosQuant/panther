@@ -43,28 +43,6 @@ class IntegratedReturn(object):
             total_group_df = factor_df.groupby(['trade_date']).apply(calc_grouped)
 
         return total_group_df.reset_index()[['trade_date', 'security_code', 'group']]
-        '''
-        if industry:
-            grouped = factor_df.groupby(['trade_date', 'industry'])
-        else:
-            grouped = factor_df.groupby(['trade_date'])
-
-        group_list = []
-
-
-        for k, g in grouped:
-            group_df = pd.DataFrame(columns=['trade_date', 'security_code', 'group'])
-            group_df['group'] = self._se_group(g[factor_name], n_bins)
-            group_df['security_code'] = g['security_code']
-            group_df['trade_date'] = g['trade_date']
-            group_list.append(group_df)
-
-
-        total_group_df = pd.concat(group_list, axis=0)
-
-        total_group_df.sort_values(['trade_date', 'security_code'], inplace=True)
-        total_group_df.reset_index(drop=True, inplace=True)
-        '''
 
     def calc_group_rets(self, group_df, n_bins, benchmark_weights=None, industry=False):
         def calc_groupd(data):
@@ -158,3 +136,34 @@ class IntegratedReturn(object):
         group_rets_df_neu['factor_name'] = factor_name
         group_rets_df_neu['neutralization'] = 1
         return group_rets_df_neu
+
+    def calc_top_rets(self, total_data, factor_name, factor_direction, benchmark):
+        """
+        计算投资域内因子排名前10%（如数量超过100则取前100）股票组合的收益。当因子方向为1取因子值最大的股票；
+        当因子方向为-1取因子值最小的股票。
+        :param total_data:
+        :param factor_name:
+        :param factor_direction:
+        :param benchmark:
+        :param universe:
+        :return:
+        """
+
+        grouped = total_data.groupby(['trade_date'])
+        res = []
+
+        for i, g in grouped:
+            group_dict = {}
+            group_dict['trade_date'] = i
+            group_dict['factor_name'] = factor_name
+            group_dict['factor_direction'] = factor_direction
+
+            g = g.sort_values([factor_name], ascending=factor_direction, na_position='first')
+            top = min(round(len(g)/10), 100)
+            group_dict['top_returns'] = g.iloc[-top:]['returns'].mean()
+
+            res.append(group_dict)
+
+        df = pd.DataFrame(res)
+
+        return df.loc[:, ['trade_date', 'factor_name', 'factor_direction', 'top_returns']]

@@ -32,9 +32,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_date', type=int, default=20180101)
-    parser.add_argument('--end_date', type=int, default=0)
+    parser.add_argument('--end_date', type=int, default=20180110)
     parser.add_argument('--factor_name', type=str, default='factor_sentiment')  # factor_earning
-    parser.add_argument('--update', type=bool, default=False)
+    parser.add_argument('--update', type=bool, default=True)
     parser.add_argument('--schedule', type=bool, default=False)
     args = parser.parse_args()
     if args.end_date == 0:
