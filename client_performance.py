@@ -15,13 +15,9 @@ if __name__ == "__main__":
                                                                      config.rl_db_port,
                                                                      config.rl_db_database)
     calc_engine = CalcEngine('rl', db_url)
-    # begin_date = '2018-08-23'
-    # factor_table = 'factor_reversal'  # 因子表名
-    # calc_engine.local_run(begin_date, factor_table)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start_date', type=int, default=20120101)
-    # parser.add_argument('--start_date', type=int, default=20180701)
-    parser.add_argument('--end_date', type=int, default=0)
+    parser.add_argument('--start_date', type=int, default=20180701)
+    parser.add_argument('--end_date', type=int, default=20181201)
     parser.add_argument('--factor_name', type=str, default='factor_power_volume')  # factor_earning
     args = parser.parse_args()
     if args.end_date == 0:

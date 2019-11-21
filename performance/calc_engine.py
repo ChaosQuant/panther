@@ -46,17 +46,17 @@ class CalcEngine(object):
         index_data['returns'] = np.log(index_data['close'].shift(-1) / index_data['close'])
         return index_data.loc[:, ['returns']].dropna().reset_index()
 
+    def _factor_coverage_rate(self, factor_df):
+        factor_df = factor_df.loc[:, self._factor_columns]
+        coverage_rate = 1-factor_df.isnull().sum()/len(factor_df)
+        return coverage_rate
+
     def performance_preprocessing(self, benchmark_data, index_data, market_data, factor_data, exposure_data):
-        # 修改 index_se_dict, 直接删除基准df
-        # index_se_dict = {}
         self._factor_columns = [i for i in factor_data.columns if i not in ['id', 'trade_date', 'security_code']]
 
-        # security_code_sets = index_data.security_code.unique()
-        # for security_code in security_code_sets:
-        #     index_se = index_data.set_index('security_code').loc[security_code].reset_index()
-        #     index_se_dict[security_code] = self._index_return(index_se)
-        index_rets = self._index_return(index_data)
+        coverage_rate = factor_data.groupby(['trade_date']).apply(self._factor_coverage_rate)
 
+        index_rets = self._index_return(index_data)
         mkt_se = self._stock_return(market_data)
         mkt_se['returns'] = mkt_se['returns'].replace([np.inf, -np.inf], np.nan)
         total_data = pd.merge(factor_data, exposure_data, on=['trade_date', 'security_code'])
@@ -65,28 +65,28 @@ class CalcEngine(object):
         total_data = pd.merge(total_data, mkt_se, on=['trade_date', 'security_code'], how='left')
         total_data = total_data.dropna(subset=['returns'])
 
-        return total_data, index_rets
+        return total_data, index_rets, coverage_rate
 
     def _factor_preprocess(self, data):
         for factor in self._factor_columns:
             data[factor] = se_winsorize(data[factor], method='med')
+            data[factor] = se_standardize(data[factor])
             data[factor] = se_neutralize(data[factor], data.loc[:, self._neutralized_styles])
+            data[factor] = se_winsorize(data[factor], method='med')
             data[factor] = se_standardize(data[factor])
         return data.drop(['index_name', 'sname', 'industry'], axis=1)
 
     def loadon_data(self, begin_date, trade_date, table):
-        # 若两个指数有重合，需要重构该函数；已改
         # 确定获取的日期范围
         freq = '1m'
-        # begin_date = advanceDate(trade_date, '-3y')
-        benchmark_code_dict = {'000905.XSHG': '2070000187', '000300.XSHG': '2070000060'}
+        benchmark_code_dict = {'000905.XSHG': '2070000187',
+                               '000300.XSHG': '2070000060'}
 
         db_factor = FetchRLFactorEngine(table)
-        # factor_data = db_factor.fetch_factors(begin_date=begin_date, end_date=trade_date, freq=freq)
+        factor_data = db_factor.fetch_factors(begin_date=begin_date, end_date=trade_date, freq=freq)
 
         db_polymerize = DBPolymerize(self._name)
-
-        benchmark_data, index_data, market_data, factor_data, exposure_data = db_polymerize.fetch_performance_data(
+        benchmark_data, index_data, market_data, exposure_data = db_polymerize.fetch_performance_data(
             benchmark_code_dict.keys(), begin_date, trade_date, freq)
 
         # 针对不同的基准
@@ -95,10 +95,11 @@ class CalcEngine(object):
         benchmark_industry_weights_dict = {}
 
         for key, value in benchmark_code_dict.items():
-            total_data, index_rets = self.performance_preprocessing(benchmark_data[benchmark_data.index_code == key],
+            total_data, index_rets, coverage_rate = self.performance_preprocessing(benchmark_data[benchmark_data.index_code == key],
                                                                     index_data[index_data.security_code == value],
                                                                     market_data,
-                                                                    factor_data, exposure_data)
+                                                                    factor_data,
+                                                                    exposure_data)
             # 中性化处理，因子值填充待修改
             total_data = total_data.sort_values(['trade_date', 'security_code'])
             total_data = total_data.groupby(['trade_date']).apply(self._factor_preprocess)
@@ -214,18 +215,18 @@ class CalcEngine(object):
             other_basic_df = pd.concat(other_basic_list, axis=0)
             other_sub_df = pd.concat(other_sub_list, axis=0)
 
-            storage_engine = PerformanceStorageEngine(self._url)
-            storage_engine.update_destdb('factor_performance_return_basic', factor_name, return_basic_df)
-            storage_engine.update_destdb('factor_performance_return_sub', factor_name, return_sub_df)
-
-            storage_engine.update_destdb('factor_performance_ic_ir_basic', factor_name, ic_df)
-            storage_engine.update_destdb('factor_performance_ic_ir_sub', factor_name, ic_sub_df)
-            storage_engine.update_destdb('factor_performance_ic_ir_group', factor_name, group_ic_df)
-            storage_engine.update_destdb('factor_performance_ic_ir_group_sub', factor_name, group_ic_sub_df)
-            storage_engine.update_destdb('factor_performance_ic_industry', factor_name, industry_ic_df)
-
-            storage_engine.update_destdb('factor_performance_other_basic', factor_name, other_basic_df)
-            storage_engine.update_destdb('factor_performance_other_sub', factor_name, other_sub_df)
+            # storage_engine = PerformanceStorageEngine(self._url)
+            # storage_engine.update_destdb('factor_performance_return_basic', factor_name, return_basic_df)
+            # storage_engine.update_destdb('factor_performance_return_sub', factor_name, return_sub_df)
+            #
+            # storage_engine.update_destdb('factor_performance_ic_ir_basic', factor_name, ic_df)
+            # storage_engine.update_destdb('factor_performance_ic_ir_sub', factor_name, ic_sub_df)
+            # storage_engine.update_destdb('factor_performance_ic_ir_group', factor_name, group_ic_df)
+            # storage_engine.update_destdb('factor_performance_ic_ir_group_sub', factor_name, group_ic_sub_df)
+            # storage_engine.update_destdb('factor_performance_ic_industry', factor_name, industry_ic_df)
+            #
+            # storage_engine.update_destdb('factor_performance_other_basic', factor_name, other_basic_df)
+            # storage_engine.update_destdb('factor_performance_other_sub', factor_name, other_sub_df)
 
     def calc_other(self, benchmark, universe, trade_date, factor_name, total_data, benchmark_weights):
         if 'other' not in self._methods:
