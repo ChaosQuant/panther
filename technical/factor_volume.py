@@ -35,7 +35,7 @@ class FactorVolume(object):
         :name: 20日成交金额的移动平均值
         :desc: 20日成交金额的移动平均值(20-day Turnover Value Moving Average)
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._TVMAXD(data, 20)
     
@@ -45,7 +45,7 @@ class FactorVolume(object):
         :name: 20日成交金额的移动平均值
         :desc: 20日成交金额的移动平均值(6-day Turnover Value Moving Average)
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._TVMAXD(data, 6)
     
@@ -55,7 +55,7 @@ class FactorVolume(object):
         :name: 20日成交金额的标准差
         :desc: 20日成交金额的标准差(20-day Turnover Value STD)
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return data['turnover_value'].std()
     
@@ -65,7 +65,7 @@ class FactorVolume(object):
         :name: 6日成交金额的标准差
         :desc: 6日成交金额的标准差(6-day Turnover Value STD)
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return data['turnover_value'].std()
         
@@ -83,7 +83,7 @@ class FactorVolume(object):
         :name: 10日成交量的指数移动平均
         :desc: 10 日指数移动均线(12-day Exponential moving average)。取前 N 天的收益和当日的价格，当日价格除以(1+ 当日收益)得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平均。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._TVMAXD(data, 10)
     
@@ -93,7 +93,7 @@ class FactorVolume(object):
         :name: 12日成交量的指数移动平均
         :desc: 12日指数移动均线(12-day Exponential moving average)。取前 N 天的收益和当日的价格，当日价格除以(1+ 当日收益)得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平均。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._TVMAXD(data, 12)
     
@@ -103,7 +103,7 @@ class FactorVolume(object):
         :name: 26日成交量的指数移动平均
         :desc: 26日指数移动均线(12-day Exponential moving average)。取前 N 天的收益和当日的价格，当日价格除以(1+ 当日收益)得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平均。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._TVMAXD(data, 26)
     
@@ -113,7 +113,7 @@ class FactorVolume(object):
         :name: 5日成交量的指数移动平均
         :desc: 5日指数移动均线(12-day Exponential moving average)。取前 N 天的收益和当日的价格，当日价格除以(1+ 当日收益)得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平均。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._TVMAXD(data, 5)
     
@@ -123,7 +123,7 @@ class FactorVolume(object):
         :name: VMACD 因子的中间变量
         :desc: VMACD 因子的中间变量
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         turnover_vol = data['turnover_vol'].fillna(0).T
         def _12ema(data):
@@ -281,7 +281,7 @@ class FactorVolume(object):
         :name: 月度换手率对数
         :desc: 月度换手率对数,使用近 1 个月的换手率的累加和的对数
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         turn_rate = data['turn_rate']
         turn_rate_sum = turn_rate.sum()
@@ -293,7 +293,7 @@ class FactorVolume(object):
         :name: 季度度换手率对数
         :desc: 季度换手率对数,使用近 3 个月的换手率的累加和的对数
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return np.log((np.exp(data['turn_rate']).sum() / 3))
     
@@ -303,6 +303,6 @@ class FactorVolume(object):
         :name: 年换手率对数
         :desc: 年换手率对数,使用近 12 个月的换手率的累加和的对数
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return np.log((np.exp(data['turn_rate']).sum() / 12))

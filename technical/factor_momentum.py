@@ -66,7 +66,7 @@ class FactorMomentum(object):
         :name: 过去 5 天的价格动量
         :desc: 过去 5 天的价格动量=close[i]/close[i-5],注 1：若公司在过去的 5 天内有停牌，停牌日也计算在统计天数内；注 2：若公司在今天停牌，不计算该因子的值
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PMXD(data, 5)
 
@@ -76,7 +76,7 @@ class FactorMomentum(object):
         :name: 过去 10 天的价格动量
         :desc: 过去 10 天的价格动量=close[i]/close[i-10],注 1：若公司在过去的 10 天内有停牌，停牌日也计算在统计天数内；注 2：若公司在今天停牌，不计算该因子的值
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PMXD(data, 10)
 
@@ -86,7 +86,7 @@ class FactorMomentum(object):
          :name: 过去 20 天的价格动量
          :desc: 过去 20 天的价格动量=close[i]/close[i-20],注 1：若公司在过去的 20 天内有停牌，停牌日也计算在统计天数内；下同。注 2：若公司在今天停牌，不计算该因子的值；
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._PMXD(data, 20)
 
@@ -96,7 +96,7 @@ class FactorMomentum(object):
          :name: 过去 60 天的价格动量
          :desc: 过去 60 天的价格动量=close[i]/close[i-60],注 1：若公司在过去的 6 天内有停牌，停牌日也计算在统计天数内；。注 2：若公司在今天停牌，不计算该因子的值；
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._PMXD(data, 60)
 
@@ -106,7 +106,7 @@ class FactorMomentum(object):
          :name: 过去 120 天的价格动量
          :desc: 过去 120 天的价格动量=close[i]/close[i-120],注 1：若公司在过去的 120 天内有停牌，停牌日也计算在统计天数内；注 2：若公司在今天停牌，不计算该因子的值；
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._PMXD(data, 120)
 
@@ -116,7 +116,7 @@ class FactorMomentum(object):
          :name: 过去 250 天的价格动量
          :desc: 过去 250 天的价格动量=close[i]/close[i-250],注 1：若公司在过去的 250 天内有停牌，停牌日也计算在统计天数内；注 2：若公司在今天停牌，不计算该因子的值
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PMXD(data, 250)
 
@@ -126,7 +126,7 @@ class FactorMomentum(object):
          :name: 过去 5 天的价格动量减去过去 1 个月的价格动量
          :desc: 过去 5 天的价格动量减去过去 1 个月的价格动量, PMDif5D20D=PM5D- PM20D
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         pm5d = self.PM5D(data)
         pm20d = self.PM20D(data)
@@ -138,7 +138,7 @@ class FactorMomentum(object):
          :name: 过去 5 天的价格动量减去过去 3 个月的价格动量
          :desc: 过去 5 天的价格动量减去过去 3 个月的价格动量, PMDif5D60D=PM5D-PM60D
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         pm5d = self.PM5D(data)
         pm20d = self.PM60D(data)
@@ -150,7 +150,7 @@ class FactorMomentum(object):
          :name: 12 日变化率指数
          :desc: 12 日变化率指数（12-day Rate of Change），类似于动力指数。如果价格始终是上升的，则变化率指数始终在 100%线以上，且如果变化速度指数在向上发展时，说明价格上升的速度在加快。公式：RCI[t]=close[t]/close[t-N]
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._PMXD(data, 12)
 
@@ -160,7 +160,7 @@ class FactorMomentum(object):
          :name: 24 日变化率指数
          :desc: 24 日变化率指数（24-day Rate of Change），类似于动力指数。如果价格始终是上升的，则变化率指数始终在 100%线以上，且如果变化速度指数在向上发展时，说明价格上升的速度在加快。公式：RCI[t]=close[t]/close[t-N]
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._PMXD(data, 24)
 
@@ -170,7 +170,7 @@ class FactorMomentum(object):
          :name: 变化率指数均值
          :desc: 变化率指数均值 (Average Rate of Change)。股票的价格变化率 RC 指标的均值，用以判断前一段交易周期内股票的平均价格变化率。ARC=EMA(RC,N,1/N),其中RCt=close[t]/close[t-N], N=50, 1/N为指数移动平均加权系数。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         close_price = data['close_price']
         prev_close = close_price.shift(50)
@@ -186,7 +186,7 @@ class FactorMomentum(object):
          :name: 绝对偏差移动平均
          :desc: 变化率指数均值 (Average Rate of Change)。股票的价格变化率 RC 指标的均值，用以判断前一段交易周期内股票的平均价格变化率。ARC=EMA(RC,N,1/N),其中RCt=close[t]/close[t-N], N=50, 1/N为指数移动平均加权系数。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
@@ -201,7 +201,7 @@ class FactorMomentum(object):
          :name: 均线价格比
          :desc: 均线价格比 (10-day moving average to close price ratio)。由于股票的成交价格有响起均线回归的趋势，计算均线价格比可以预测股票在未来周期的运动趋势。MA10Close = MA(close, N) / close
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _ma(data):
@@ -261,7 +261,7 @@ class FactorMomentum(object):
          :name: 当前价格处于过去1 年股价的位置
          :desc: 当前价格处于过去1 年股价的位置(Price level during the pasted 52 weeks)。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         close_price = data['close_price']
         min_price = np.min(close_price)
@@ -280,7 +280,7 @@ class FactorMomentum(object):
          :name: 当前股价除以过去 1个月股价均值再减 1
          :desc: 当前股价除以过去 1个月股价均值再减 1。公式：close/avg(close,20)-1
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._ChgToXMAvg(data)
 
@@ -291,7 +291,7 @@ class FactorMomentum(object):
          :name: 当前股价除以过去 3个月股价均值再减 1
          :desc: 当前股价除以过去 3个月股价均值再减 1。公式：close/avg(close,60)-1
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._ChgToXMAvg(data)
 
@@ -301,7 +301,7 @@ class FactorMomentum(object):
          :name: 当前股价除以过去 1年股价均值再减 1
          :desc: 当前股价除以过去 1年股价均值再减 1。公式：close/avg(close,250)-1
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._ChgToXMAvg(data)
 
@@ -311,7 +311,7 @@ class FactorMomentum(object):
          :name: DEA9D
          :desc: 计算 MACD 因子的中间变量 (Difference in Exponential Average（mediator in calculating MACD))。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _macd(data):
@@ -342,7 +342,7 @@ class FactorMomentum(object):
          :name: 14日简易波动指标
          :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。成交量以亿为单位。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._EMVXD(data, 14)
 
@@ -352,7 +352,7 @@ class FactorMomentum(object):
          :name: 6日简易波动指标
          :desc: 简易波动指标（14-days Ease of Movement Value）。 EMV 将价格与成交量的变化结合成一个波动指标来反映股价或指数的变动状况。由于股价的变化和成交量的变化都可以引发该指标数值的变动，EMV 实际上也是一个量价合成指标。成交量以亿为单位。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._EMVXD(data, 6)
     
@@ -363,7 +363,7 @@ class FactorMomentum(object):
          :name: 平滑异同移动平均线
          :desc: 平滑异同移动平均线（Moving Average Convergence Divergence）,又称移动平均聚散指标。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         close_price = data['close_price'].fillna(method='ffill').fillna(0).T
         def _macd(data):
@@ -377,7 +377,7 @@ class FactorMomentum(object):
          :name: 动量指标
          :desc: 动量指标（Momentom Index）。动量指数以分析股价波动的速度为目的，研究股价在波动过程中各种加速，减速，惯性作用以及股价由静到动或由动转静的现象。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return data['close_price'].diff(10).iloc[-1]
 
@@ -393,7 +393,7 @@ class FactorMomentum(object):
          :name: 10 日指数移动均线
          :desc: 10 日指数移动均线（10-day Exponential moving average）。取前 N 天的收益和当日的价格，当日价格除以（1+当日收益）得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._EMAXD(data, 10)
 
@@ -411,7 +411,7 @@ class FactorMomentum(object):
          :name: 120 日指数移动均线
          :desc: 120 日指数移动均线（10-day Exponential moving average）。取前 N 天的收益和当日的价格，当日价格除以（1+当日收益）得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._EMAXD(data, 120)
 
@@ -421,7 +421,7 @@ class FactorMomentum(object):
          :name: 20 日指数移动均线
          :desc: 20 日指数移动均线（10-day Exponential moving average）。取前 N 天的收益和当日的价格，当日价格除以（1+当日收益）得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._EMAXD(data, 20)
 
@@ -431,7 +431,7 @@ class FactorMomentum(object):
          :name: 26 日指数移动均线
          :desc: 26 日指数移动均线（10-day Exponential moving average）。取前 N 天的收益和当日的价格，当日价格除以（1+当日收益）得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._EMAXD(data, 26)
 
@@ -441,7 +441,7 @@ class FactorMomentum(object):
          :name: 5 日指数移动均线
          :desc: 5 日指数移动均线（10-day Exponential moving average）。取前 N 天的收益和当日的价格，当日价格除以（1+当日收益）得到前一日价格，依次计算得到前 N 日价格，并对前 N 日价格计算指数移动平均，即为当日的前复权价移动平。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._EMAXD(data, 5)
 
@@ -467,7 +467,7 @@ class FactorMomentum(object):
          :name: 20 日移动均线
          :desc: 最近 120交易日的前复权价格的均值
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._MAXD(data, 20)
 
@@ -477,7 +477,7 @@ class FactorMomentum(object):
          :name: 120 日移动均线
          :desc: 最近 120交易日的前复权价格的均值
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._MAXD(data, 120)
 
@@ -487,7 +487,7 @@ class FactorMomentum(object):
          :name: 10 日移动均线
          :desc: 最近 10交易日的前复权价格的均值
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._MAXD(data, 10)
 
@@ -497,7 +497,7 @@ class FactorMomentum(object):
          :name: 5 日移动均线
          :desc: 最近 5交易日的前复权价格的均值
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._MAXD(data, 5)
 
@@ -517,7 +517,7 @@ class FactorMomentum(object):
          :name: 多空指数
          :desc: 多空指数（Bull and Bear Index）。是一种将不同日数移动平均线加权平均之后的综合指标，属于均线型指标。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return (self._MAXD(data, 3) + self._MAXD(data, 6) + self._MAXD(data, 12) + self._MAXD(data, 24)) / 4
 
@@ -533,7 +533,7 @@ class FactorMomentum(object):
          :name: 10 日三重指数移动平均线
          :desc: 10 日三重指数移动平均线（10-day Triple Exponential Moving Average）。取时间 N 内的收盘价分别计算其一至三重指数加权平均
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._TEMAXD(data, 10)
 
@@ -543,7 +543,7 @@ class FactorMomentum(object):
          :name: 5 日三重指数移动平均线
          :desc: 5 日三重指数移动平均线（5-day Triple Exponential Moving Average）。取时间 N 内的收盘价分别计算其一至三重指数加权平均
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         return self._TEMAXD(data, 5)
     
@@ -571,7 +571,7 @@ class FactorMomentum(object):
         :name: 10 日顺势指标
         :desc: 10 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._CCIXD(data, 10)
     
@@ -582,7 +582,7 @@ class FactorMomentum(object):
         :name: 20 日顺势指标
         :desc: 20 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._CCIXD(data, 20)
     
@@ -592,7 +592,7 @@ class FactorMomentum(object):
         :name: 5 日顺势指标
         :desc: 5 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._CCIXD(data, 5)
     
@@ -602,7 +602,7 @@ class FactorMomentum(object):
         :name: 88 日顺势指标
         :desc: 88 日顺势指标(10-day Commodity Channel Index)，专门测量股价是否已超出常态分布范围。CCI 指标波动于正无 穷大到负无穷大之间，不会出现指标钝化现象，有利于投资者更好地研判行情，特别是那些短期内暴涨暴跌的非常态行情。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._CCIXD(data, 88)
     
@@ -612,7 +612,7 @@ class FactorMomentum(object):
          :name: 平均动向指数
          :desc: 平均动向指数 (Average directional index)，DMI 因子的构成部分。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
@@ -638,7 +638,7 @@ class FactorMomentum(object):
          :name: 相对平均动向指数
          :desc: 相对平均动向指数 (Relative average directional index)，DMI 因子的构成
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
@@ -663,7 +663,7 @@ class FactorMomentum(object):
          :name: 终极指标
          :desc: 终极指标（Ultimate Oscillator）。现行使用的各种振荡指标，对于周期参数的选择相当敏感。不同市况、不同参数设定的振荡指标，产生的结果截然不同。因此，选择最佳的参数组合，成为使用振荡指标之前最重要的一道手续。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
@@ -689,7 +689,7 @@ class FactorMomentum(object):
          :name: 佳庆指标
          :desc: 佳庆指标(Chaikin Oscillator)。该指标基于 AD 曲线的指数移动均线而计算得到。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
@@ -727,7 +727,7 @@ class FactorMomentum(object):
          :name: 佳庆离散指标
          :desc: 佳庆离散指标(Chaikin Volatility，简称 CVLT，VCI，CV)，又称“佳庆变异率指数”，是通过测量一段时间内价格 幅度平均值的变化来反映价格的离散程度。
          :unit:
-         :view_dimension:0.01
+         :view_dimension:1
         '''
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
@@ -767,7 +767,7 @@ class FactorMomentum(object):
         :name: 10 日价格平均线 12 日线性回归系数
         :desc: 10 日价格平均线 12 日线性回归系数 (regression coefficient of 10-day moving average (in predicting 12-day moving average))。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._MA10RegressCoeffX(data, 12)
     
@@ -793,7 +793,7 @@ class FactorMomentum(object):
         :name: 6日价格线性回归系数
         :desc: 价格线性回归系数(6-day Price Linear Regression Coefficient)
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PLRCXD(data, 6)
     
@@ -803,6 +803,6 @@ class FactorMomentum(object):
         :name: 12日价格线性回归系数
         :desc: 价格线性回归系数(12-day Price Linear Regression Coefficient)
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PLRCXD(data, 12)
