@@ -47,7 +47,7 @@ class CalcEngine(object):
                                                                         BalanceMRQ.TOTALNONCLIAB,
                                                                         BalanceMRQ.LONGBORR,
                                                                         BalanceMRQ.INTAASSET,
-                                                                        BalanceMRQ.DEVEEXPE,
+                                                                        # BalanceMRQ.DEVEEXPE,
                                                                         BalanceMRQ.GOODWILL,
                                                                         BalanceMRQ.FIXEDASSENET,
                                                                         BalanceMRQ.ENGIMATE,
@@ -64,7 +64,7 @@ class CalcEngine(object):
             'TOTALNONCLIAB': 'total_non_current_liability',  # 非流动负债合计
             'LONGBORR': 'longterm_loan',  # 长期借款
             'INTAASSET': 'intangible_assets',  # 无形资产
-            'DEVEEXPE': 'development_expenditure',  # 开发支出
+            # 'DEVEEXPE': 'development_expenditure',  # 开发支出
             'GOODWILL': 'good_will',  # 商誉
             'FIXEDASSENET': 'fixed_assets',  # 固定资产
             'ENGIMATE': 'construction_materials',  # 工程物资
@@ -88,7 +88,7 @@ class CalcEngine(object):
         factor_management = management.NonCurrAssetRatio(tp_management, factor_management)
         factor_management = management.LongDebtToAsset(tp_management, factor_management)
         factor_management = management.LongBorrToAssert(tp_management, factor_management)
-        factor_management = management.IntangibleAssetRatio(tp_management, factor_management)
+        # factor_management = management.IntangibleAssetRatio(tp_management, factor_management)
         factor_management = management.FixAssetsRt(tp_management, factor_management)
         factor_management = management.EquityToAsset(tp_management, factor_management)
         factor_management = management.EquityToFixedAsset(tp_management, factor_management)

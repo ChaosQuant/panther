@@ -74,7 +74,7 @@ class FactorMomentum(Base):
     UOS7D14D28D = Column(Float(53))
     
 class FactorReversal(Base):
-    __tablename__ = 'reversal'
+    __tablename__ = 'factor_reversal'
     __table_args__ = (
         Index('id', 'trade_date', 'security_code', unique=True),
     )

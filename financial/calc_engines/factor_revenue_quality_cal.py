@@ -12,7 +12,7 @@ from financial import factor_revenue_quality
 
 from data.model import BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
-from data.model import IndicatorTTM
+# from data.model import IndicatorTTM
 from data.model import IncomeReport, IncomeTTM
 from vision.table.valuation import Valuation
 from vision.db.signletion_engine import *
