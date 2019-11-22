@@ -67,12 +67,14 @@ class CalcEngine(object):
         '''
         for factor in self._factor_columns:
             data[factor] = se_winsorize(data[factor], method='med')
-            if neu:
-                data[factor] = se_neutralize(data[factor], data.loc[:, self._neutralized_styles])
+            data[factor] = se_standardize(data[factor])
+            data[factor] = se_neutralize(data[factor], data.loc[:, self._neutralized_styles])
+            data[factor] = se_winsorize(data[factor], method='med')
             data[factor] = se_standardize(data[factor])
         return data.drop(['index_name', 'sname', 'industry'], axis=1)
 
     def loadon_data(self, begin_date, end_date, benchmark_code_dict, table):
+        # 需要增加因子方向
 
         db_polymerize = DBPolymerize(self._name)
         db_factor = FetchRLFactorEngine(table)
@@ -103,43 +105,13 @@ class CalcEngine(object):
         return total_data_dict, benchmark_industry_weights_dict
 
     def integrated_basic(self, engine, benchmark, factor_name, total_data, benchmark_weights):
-        # 非中性化
-        # 分组收益
-        groups = engine.calc_group(total_data, factor_name)
-        total_data = pd.merge(total_data, groups, on=['trade_date', 'security_code'])
-        group_rets_df_non_neu = engine.calc_group_rets(total_data, 5)
-        group_rets_df_non_neu = group_rets_df_non_neu.rename(
-            columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
-        group_rets_df_non_neu['spread'] = group_rets_df_non_neu['ret_q1'] - group_rets_df_non_neu['ret_q5']
-        group_rets_df_non_neu['benchmark'] = benchmark
-        group_rets_df_non_neu['factor_name'] = factor_name
-        group_rets_df_non_neu['factor_neu'] = 1
-        group_rets_df_non_neu['group_neu'] = 0
+        group_rets_df_neu = engine.group_rets_df_neu(total_data, benchmark_weights, factor_name, benchmark, benchmark)
+        group_rets_df_neu = group_rets_df_neu.reset_index()
 
-        # 中性化
-        ## 预处理 基准行业权重
-        benchmark_weights_dict = benchmark_weights.T.to_dict()
+        top_rets = engine.calc_top_rets(total_data, factor_name, 1, benchmark)
+        integrated_df = pd.merge(group_rets_df_neu, top_rets, on=['trade_date', 'factor_name'])
 
-        if 'group' in total_data.columns:
-            total_data = total_data.drop(['group'], axis=1)
-        groups = engine.calc_group(total_data, factor_name, industry=True)
-        total_data = pd.merge(total_data, groups, on=['trade_date', 'security_code'])
-        total_data['trade_date'] = total_data['trade_date'].apply(lambda x: x.date())
-        group_rets_df_neu = engine.calc_group_rets(total_data, 5, benchmark_weights=benchmark_weights_dict,
-                                                   industry=True)
-        group_rets_df_neu = group_rets_df_neu.rename(columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
-        group_rets_df_neu['spread'] = group_rets_df_neu['ret_q1'] - group_rets_df_neu['ret_q5']
-        group_rets_df_neu['benchmark'] = benchmark
-        group_rets_df_neu['factor_name'] = factor_name
-        group_rets_df_neu['factor_neu'] = 1
-        group_rets_df_neu['group_neu'] = 1
-
-        group_rets = pd.concat([group_rets_df_non_neu, group_rets_df_neu], axis=0)
-        group_rets.reset_index(inplace=True)
-
-        return group_rets.loc[:,
-               ['benchmark', 'trade_date', 'factor_name', 'factor_neu', 'group_neu',
-                'ret_q1', 'ret_q2', 'ret_q3', 'ret_q4', 'ret_q5', 'spread']]
+        return integrated_df
 
     def calc_daily_return(self, benchmark_code_dict, total_data_dict, benchmark_industry_weights_dict):
         if 'integrated_return' not in self._methods:
@@ -151,6 +123,8 @@ class CalcEngine(object):
 
         for factor_name in self._factor_columns:
             factor_name = str(factor_name)
+
+            # 获取因子方向
 
             # 判断因子是否为空
             if total_data_dict['2070000187'][factor_name].isnull().all() or total_data_dict['2070000060'][
@@ -179,8 +153,8 @@ class CalcEngine(object):
             start_date = dates[0].strftime('%Y-%m-%d')
             stop_date = dates[-1].strftime('%Y-%m-%d')
             integrated_rets_df['factor_type'] = self._factor_type
-            storage_engine.update_destdb('factor_integrated_basic', start_date, stop_date, factor_name,
-                                         integrated_rets_df)
+            # storage_engine.update_destdb('factor_integrated_basic', start_date, stop_date, factor_name,
+            #                              integrated_rets_df)
             print(integrated_rets_df.head())
 
     def calc_interval_rets(self, trade_date):
@@ -215,14 +189,14 @@ class CalcEngine(object):
             ret_dict['trade_date'] = trade_date
 
             g = g.sort_values('trade_date')
-            ret_dict['week_ret'] = g.spread.iloc[-5:].sum()
-            ret_dict['month_ret'] = g.spread.iloc[-21:].sum()
-            ret_dict['year_ret'] = g.spread.iloc[-252:].sum()
-            ret_dict['three_ann_ret'] = g.spread.iloc[-252 * 3:].sum() / len(g.spread.iloc[-252 * 3:]) * 252
+            ret_dict['week_ret'] = g.top_returns.iloc[-5:].sum()
+            ret_dict['month_ret'] = g.top_returns.iloc[-21:].sum()
+            ret_dict['year_ret'] = g.top_returns.iloc[-252:].sum()
+            ret_dict['three_ann_ret'] = g.top_returns.iloc[-252 * 3:].sum() / len(g.top_returns.iloc[-252 * 3:]) * 252
 
             interval_rets_df = pd.DataFrame([ret_dict])
             interval_rets_df['factor_type'] = self._factor_type
-            storage_engine.update_destdb('factor_integrated_sub', trade_date, factor_name, benchmark, interval_rets_df)
+            # storage_engine.update_destdb('factor_integrated_sub', trade_date, factor_name, benchmark, interval_rets_df)
             print(interval_rets_df.head())
 
     def get_last_trade_date_month(self, year, month):

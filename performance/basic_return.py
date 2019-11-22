@@ -83,7 +83,6 @@ class BasicReturn(object):
         if not industry:
             group_rets = group_df.groupby(['trade_date', 'group']).apply(lambda x: x['returns'].mean())
             group_rets = group_rets.unstack()
-            # group_rets = group_rets.shift(1).dropna()
             group_rets = group_rets.rename(columns={i:'q'+str(i) for i in range(1,6)})
             group_rets = group_rets.reset_index()
             group_rets['trade_date'] = group_rets['trade_date'].apply(lambda x : pd.Timestamp(x))
@@ -113,7 +112,6 @@ class BasicReturn(object):
             group_rets = group_weights.groupby(['trade_date', 'group']).apply(
                 lambda x: x.dropna()['returns'].dot(x.dropna()['weight']))
             group_rets = group_rets.unstack()
-            # group_rets = group_rets.shift(1).dropna()
             group_rets = group_rets.rename(columns={i:'q'+str(i) for i in range(1,6)})
 
             return group_rets
