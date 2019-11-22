@@ -45,7 +45,7 @@ class FactorReversal(object):
         :name: 钱德动量摆动指标
         :desc: 钱德动量摆动指标（Chande Momentum Osciliator）。由 Tushar Chande 发明，与其他动量指标摆动指标如相对强弱指标（RSI）和随机指标（KDJ）不同，钱德动量指标在计算公式的分子中采用上涨日和下跌日的数据。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _cmod(data):
@@ -59,7 +59,7 @@ class FactorReversal(object):
         :name: 梅斯线
         :desc: 梅斯线（Mass Index）。本指标是 Donald Dorsey 累积股价波幅宽度之后所设计的震荡曲线。其最主要的作用，在于寻找飙涨股或者极度弱势股的重要趋势反转点。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         expression1 = (data['highest_price'] - data['lowest_price']).fillna(method='ffill').fillna(0).T
         def _ema(data):
@@ -80,7 +80,7 @@ class FactorReversal(object):
         :name: 下轨线(布林线)指标
         :desc: 下轨线（布林线）指标（Lower Bollinger Bands），它是研判股价运动趋势的一种中长期技术分析工具。计算方法：中轨线为 N 日的移动平均线，上轨线为中轨线+两倍标准差。计算取 N=20
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _bbands(data):
@@ -95,7 +95,7 @@ class FactorReversal(object):
         :name: 相对强弱指标
         :desc: 相对强度 RS = MA(U, N) / MA(D, N) , 其中N取12
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         close_price = data['close_price'].copy().fillna(method='ffill').fillna(0).T
         def _rsi(data):
@@ -109,7 +109,7 @@ class FactorReversal(object):
         :name: 随机指标
         :desc: 随机指标 (K Stochastic Oscillator)。它综合了动量观念、强弱指标及移动平均线的优点，用来度量股价脱离价格正常范围的变异程度
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
@@ -156,7 +156,7 @@ class FactorReversal(object):
         :name: 14日资金流量指标
         :desc: 14日资金流量指标（Money Flow Index），该指标是通过反映股价变动的四个元素：上涨的天数、下跌的天数、成交量增加幅度、成交量减少幅度来研判量能的趋势，预测市场供求关系和买卖力道。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._MFIXD(data)
     
@@ -166,6 +166,6 @@ class FactorReversal(object):
         :name: 21日资金流量指标
         :desc: 21日资金流量指标（Money Flow Index），该指标是通过反映股价变动的四个元素：上涨的天数、下跌的天数、成交量增加幅度、成交量减少幅度来研判量能的趋势，预测市场供求关系和买卖力道。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._MFIXD(data)
