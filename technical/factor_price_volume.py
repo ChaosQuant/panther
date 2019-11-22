@@ -28,7 +28,7 @@ class FactorPriceVolume(object):
         :name: 价量趋势
         :desc: 价量趋势(Price and Volume Trend)指标。把能量变化与价格趋势有机地联系到了一起，从而构成了量价趋势指标。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PVTXD(data, 1).mean()
     
@@ -39,7 +39,7 @@ class FactorPriceVolume(object):
         :name: 因子 PVT 的 6 日均值。
         :desc: 因子 PVT 的 6 日均值 (6-day average price and volume trend)。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PVTXD(data, 6).mean()
     
@@ -50,7 +50,7 @@ class FactorPriceVolume(object):
         :name: 因子 PVT 的 12 日均值。
         :desc: 因子 PVT 的 12 日均值 (12-day average price and volume trend)。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._PVTXD(data, 12).mean()
     
@@ -69,7 +69,7 @@ class FactorPriceVolume(object):
         :name: 6日收集派发指标
         :desc: 6日收集派发指标
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._ACDXD(data)
     
@@ -79,7 +79,7 @@ class FactorPriceVolume(object):
         :name: 20日收集派发指标。
         :desc: 20日收集派发指标
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._ACDXD(data)
     
@@ -89,7 +89,7 @@ class FactorPriceVolume(object):
         :name: 威廉指标
         :desc: 表示是市场处于超买还是超卖状态。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         highest_price = data['highest_price']
         lowest_price = data['lowest_price']
@@ -127,7 +127,7 @@ class FactorPriceVolume(object):
         :name: 能量潮指标
         :desc: 以股市的成交量变化来衡量股市的推动力，从而研判股价的走势。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._OBVXD(data)
     
@@ -137,7 +137,7 @@ class FactorPriceVolume(object):
         :name: 6日能量潮指标
         :desc: 以股市的成交量变化来衡量股市的推动力，从而研判股价的走势。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._OBVXD(data)
     
@@ -148,6 +148,6 @@ class FactorPriceVolume(object):
         :name: 20日能量潮指标
         :desc: 以股市的成交量变化来衡量股市的推动力，从而研判股价的走势。
         :unit:
-        :view_dimension:0.01
+        :view_dimension:1
         '''
         return self._OBVXD(data)
