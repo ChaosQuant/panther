@@ -12,7 +12,7 @@ from valuation_estimation import factor_valuation_estimation
 
 from data.model import BalanceMRQ, BalanceReport
 from data.model import CashFlowMRQ, CashFlowTTM
-from data.model import IndicatorReport, IndicatorTTM
+# from data.model import IndicatorReport, IndicatorTTM
 from data.model import IncomeTTM
 
 from vision.db.signletion_engine import *

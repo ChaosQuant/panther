@@ -12,7 +12,7 @@ from basic_derivation import factor_basic_derivation
 
 from data.model import BalanceMRQ
 from data.model import CashFlowMRQ, CashFlowTTM
-from data.model import IndicatorMRQ, IndicatorTTM
+# from data.model import IndicatorMRQ, IndicatorTTM
 from data.model import IncomeMRQ, IncomeTTM
 
 from vision.db.signletion_engine import *
@@ -194,7 +194,7 @@ class CalcEngine(object):
         factor_derivation = derivation.TotalLib(tp_derivation, factor_derivation)
         factor_derivation = derivation.ShEquity(tp_derivation, factor_derivation)
         factor_derivation = derivation.CashAndCashEqu(tp_derivation, factor_derivation)
-        # factor_derivation = derivation.EBIAT(tp_derivation, factor_derivation)
+        factor_derivation = derivation.EBIAT(tp_derivation, factor_derivation)
         factor_derivation = derivation.SalesTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.TotalOptCostTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.OptIncTTM(ttm_derivation, factor_derivation)
@@ -207,17 +207,17 @@ class CalcEngine(object):
         factor_derivation = derivation.MinorInterestTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.AssetImpLossTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NetIncFromOptActTTM(ttm_derivation, factor_derivation)
-        # factor_derivation = derivation.NetIncFromValueChgTTM(ttm_derivation, factor_derivation)
+        factor_derivation = derivation.NetIncFromValueChgTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.OptProfitTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NetNonOptIncAndExpTTM(ttm_derivation, factor_derivation)
-        # factor_derivation = derivation.EBITTTM(ttm_derivation, factor_derivation)
+        factor_derivation = derivation.EBITTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.IncTaxTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.TotalProfTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NetIncTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NetProfToPSTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NetProfAfterNonRecGainsAndLossTTM(ttm_derivation, factor_derivation)
-        # factor_derivation = derivation.EBITFORPTTM(ttm_derivation, factor_derivation)
-        # factor_derivation = derivation.EBITDATTM(ttm_derivation, factor_derivation)
+        factor_derivation = derivation.EBITFORPTTM(ttm_derivation, factor_derivation)
+        factor_derivation = derivation.EBITDATTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.CashRecForSGAndPSTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NCFOTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NetCashFlowFromInvActTTM(ttm_derivation, factor_derivation)

@@ -86,23 +86,23 @@ class FactorValuationEstimation(object):
         historical_value = historical_value.drop(columns=dependencies, axis=1)
         factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
         return factor_historical_value
-
-    @staticmethod
-    def MrktCapToCorFreeCashFlow(valuation_sets, factor_historical_value, dependencies=['market_cap', 'enterprise_fcfps']):
-        """
-        :name: 市值/企业自由现金流
-        :desc: 总市值/企业自由现金流LYR 企业自由现金流取截止指定日最新年报
-        :unit:
-        :view_dimension: 0.01
-        """
-        historical_value = valuation_sets.loc[:, dependencies]
-        func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
-
-        historical_value['MrktCapToCorFreeCashFlow'] = historical_value[dependencies].apply(func, axis=1)
-
-        historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
-        return factor_historical_value
+    #
+    # @staticmethod
+    # def MrktCapToCorFreeCashFlow(valuation_sets, factor_historical_value, dependencies=['market_cap', 'enterprise_fcfps']):
+    #     """
+    #     :name: 市值/企业自由现金流
+    #     :desc: 总市值/企业自由现金流LYR 企业自由现金流取截止指定日最新年报
+    #     :unit:
+    #     :view_dimension: 0.01
+    #     """
+    #     historical_value = valuation_sets.loc[:, dependencies]
+    #     func = lambda x: x[0] / x[1] if x[1] is not None and x[1] != 0 else None
+    #
+    #     historical_value['MrktCapToCorFreeCashFlow'] = historical_value[dependencies].apply(func, axis=1)
+    #
+    #     historical_value = historical_value.drop(columns=dependencies, axis=1)
+    #     factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
+    #     return factor_historical_value
 
     @staticmethod
     def PBAvgOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['pb']):
@@ -452,24 +452,24 @@ class FactorValuationEstimation(object):
         # factor_historical_value['EPTTM'] = historical_value['EPTTM']
         return factor_historical_value
 
-    @staticmethod
-    def PECutTTM(valuation_sets, factor_historical_value, dependencies=['market_cap', 'net_profit_cut_pre']):
-        """
-        :name: 市盈率PE(TTM)（扣除）
-        :desc: "扣非后的市盈率（TTM）=总市值/前推12个月扣除非经常性损益后的净利润 注：扣除非经常性损益后的净利润（TTM根据报告期扣除非经常性损益后的净利润”计算"
-        :unit: 倍
-        :view_dimension: 1
-        """
-        historical_value = valuation_sets.loc[:, dependencies]
-
-        historical_value['PECutTTM'] = np.where(CalcTools.is_zero(historical_value['net_profit_cut_pre']), 0,
-                                                historical_value['market_cap'] /
-                                                historical_value['net_profit_cut_pre'])
-
-        # factor_historical_value['PECutTTM'] = historical_value['PECutTTM']
-        historical_value = historical_value.drop(columns=dependencies, axis=1)
-        factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
-        return factor_historical_value
+    # @staticmethod
+    # def PECutTTM(valuation_sets, factor_historical_value, dependencies=['market_cap', 'net_profit_cut_pre']):
+    #     """
+    #     :name: 市盈率PE(TTM)（扣除）
+    #     :desc: "扣非后的市盈率（TTM）=总市值/前推12个月扣除非经常性损益后的净利润 注：扣除非经常性损益后的净利润（TTM根据报告期扣除非经常性损益后的净利润”计算"
+    #     :unit: 倍
+    #     :view_dimension: 1
+    #     """
+    #     historical_value = valuation_sets.loc[:, dependencies]
+    #
+    #     historical_value['PECutTTM'] = np.where(CalcTools.is_zero(historical_value['net_profit_cut_pre']), 0,
+    #                                             historical_value['market_cap'] /
+    #                                             historical_value['net_profit_cut_pre'])
+    #
+    #     # factor_historical_value['PECutTTM'] = historical_value['PECutTTM']
+    #     historical_value = historical_value.drop(columns=dependencies, axis=1)
+    #     factor_historical_value = pd.merge(factor_historical_value, historical_value, how='outer', on="security_code")
+    #     return factor_historical_value
 
     @staticmethod
     def PEAvgOnSW1(valuation_sets, sw_industry, factor_historical_value, dependencies=['pe']):

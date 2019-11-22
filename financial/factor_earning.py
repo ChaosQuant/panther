@@ -201,22 +201,22 @@ class FactorEarning(object):
         factor_earning = pd.merge(factor_earning, earning, on="security_code")
         return factor_earning
 
-    @staticmethod
-    def NPCutToNP(tp_earning, factor_earning, dependencies=['adjusted_profit', 'net_profit']):
-        """
-        :name: 扣除非经常损益后的净利润/净利润
-        :desc: 扣除非经常损益后的净利润/净利润
-        :unit:
-        :view_dimension: 0.01
-        """
-        earning = tp_earning.loc[:, dependencies]
-        earning['NPCutToNP'] = np.where(
-            CalcTools.is_zero(earning.net_profit.values), 0,
-            earning.adjusted_profit.values
-            / earning.net_profit.values)
-        earning = earning.drop(dependencies, axis=1)
-        factor_earning = pd.merge(factor_earning, earning, on="security_code")
-        return factor_earning
+    # @staticmethod
+    # def NPCutToNP(tp_earning, factor_earning, dependencies=['adjusted_profit', 'net_profit']):
+    #     """
+    #     :name: 扣除非经常损益后的净利润/净利润
+    #     :desc: 扣除非经常损益后的净利润/净利润
+    #     :unit:
+    #     :view_dimension: 0.01
+    #     """
+    #     earning = tp_earning.loc[:, dependencies]
+    #     earning['NPCutToNP'] = np.where(
+    #         CalcTools.is_zero(earning.net_profit.values), 0,
+    #         earning.adjusted_profit.values
+    #         / earning.net_profit.values)
+    #     earning = earning.drop(dependencies, axis=1)
+    #     factor_earning = pd.merge(factor_earning, earning, on="security_code")
+    #     return factor_earning
 
     @staticmethod
     def ROE(tp_earning, factor_earning,

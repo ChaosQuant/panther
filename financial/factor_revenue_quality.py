@@ -126,17 +126,17 @@ class FactorRevenueQuality(object):
         revenue_quality = pd.merge(revenue_quality, cash_flow, how='outer', on="security_code")
         return revenue_quality
 
-    @staticmethod
-    def NVALCHGITOTP(ttm_revenue_quanlity, revenue_quality, dependencies=['NVALCHGITOTP']):
-        """
-        :name: 价值变动净收益/利润总额(TTM)
-        :desc: 价值变动净收益（TTM)/利润总额（TTM)
-        :unit:
-        :view_dimension: 0.01
-        """
-        historical_value = ttm_revenue_quanlity.loc[:, dependencies]
-        revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
-        return revenue_quality
+    # @staticmethod
+    # def NVALCHGITOTP(ttm_revenue_quanlity, revenue_quality, dependencies=['NVALCHGITOTP']):
+    #     """
+    #     :name: 价值变动净收益/利润总额(TTM)
+    #     :desc: 价值变动净收益（TTM)/利润总额（TTM)
+    #     :unit:
+    #     :view_dimension: 0.01
+    #     """
+    #     historical_value = ttm_revenue_quanlity.loc[:, dependencies]
+    #     revenue_quality = pd.merge(revenue_quality, historical_value, how='outer', on='security_code')
+    #     return revenue_quality
 
     @staticmethod
     def OPToTPTTM(ttm_revenue_quanlity, revenue_quality,

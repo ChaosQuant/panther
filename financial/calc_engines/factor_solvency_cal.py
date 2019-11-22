@@ -12,7 +12,7 @@ from financial import factor_solvency
 
 from data.model import BalanceMRQ, BalanceTTM
 from data.model import CashFlowMRQ, CashFlowTTM
-from data.model import IndicatorTTM
+# from data.model import IndicatorTTM
 from data.model import IncomeTTM
 from vision.table.valuation import Valuation
 from vision.db.signletion_engine import *

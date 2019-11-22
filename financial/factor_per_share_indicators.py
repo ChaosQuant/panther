@@ -80,55 +80,55 @@ class FactorPerShareIndicators(object):
     #     factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
     #     return factor_share_indicators
 
-    @staticmethod
-    def EPS(tp_share_indicators, factor_share_indicators, dependencies=['basic_eps']):
-        """
-        :name: 基本每股收益
-        :desc: 基本每股收益, 报表公布值
-        :unit: 元
-        :view_dimension: 1
-        """
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        # print(share_indicators.head())
-        share_indicators = share_indicators.rename(columns={'basic_eps': 'EPS'})
-        # share_indicators = share_indicators.drop(columns=dependencies, axis=1)
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators,  how='outer', on='security_code')
-        return factor_share_indicators
+    # @staticmethod
+    # def EPS(tp_share_indicators, factor_share_indicators, dependencies=['basic_eps']):
+    #     """
+    #     :name: 基本每股收益
+    #     :desc: 基本每股收益, 报表公布值
+    #     :unit: 元
+    #     :view_dimension: 1
+    #     """
+    #     share_indicators = tp_share_indicators.loc[:, dependencies]
+    #     # print(share_indicators.head())
+    #     share_indicators = share_indicators.rename(columns={'basic_eps': 'EPS'})
+    #     # share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+    #     factor_share_indicators = pd.merge(factor_share_indicators, share_indicators,  how='outer', on='security_code')
+    #     return factor_share_indicators
 
-    @staticmethod
-    def ShareholderFCFPS(tp_share_indicators, factor_share_indicators, dependencies=['shareholder_fcfps', 'capitalization']):
-        """
-        :name: 每股股东自由现金流量
-        :desc: 股东自由现金流量FCFE（MRQ）/当日总股本
-        :unit: 元
-        :view_dimension: 1
-        """
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['ShareholderFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
+    # @staticmethod
+    # def ShareholderFCFPS(tp_share_indicators, factor_share_indicators, dependencies=['shareholder_fcfps', 'capitalization']):
+    #     """
+    #     :name: 每股股东自由现金流量
+    #     :desc: 股东自由现金流量FCFE（MRQ）/当日总股本
+    #     :unit: 元
+    #     :view_dimension: 1
+    #     """
+    #     share_indicators = tp_share_indicators.loc[:, dependencies]
+    #     fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+    #     share_indicators['ShareholderFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
+    #
+    #     share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+    #     factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+    #     # factor_share_indicators['ShareholderFCFPS'] = share_indicators['ShareholderFCFPS']
+    #     return factor_share_indicators
 
-        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
-        # factor_share_indicators['ShareholderFCFPS'] = share_indicators['ShareholderFCFPS']
-        return factor_share_indicators
-
-    @staticmethod
-    def EnterpriseFCFPS(tp_share_indicators, factor_share_indicators, dependencies=['enterprise_fcfps', 'capitalization']):
-        """
-
-        :name: 每股企业自由现金流量
-        :desc: 企业自由现金流量（MRQ）/当日总股本
-        :unit: 元
-        :view_dimension: 1
-        """
-        share_indicators = tp_share_indicators.loc[:, dependencies]
-        fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
-        share_indicators['EnterpriseFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
-        share_indicators = share_indicators.drop(columns=dependencies, axis=1)
-        factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
-        # factor_share_indicators['EnterpriseFCFPS'] = share_indicators['EnterpriseFCFPS']
-
-        return factor_share_indicators
+    # @staticmethod
+    # def EnterpriseFCFPS(tp_share_indicators, factor_share_indicators, dependencies=['enterprise_fcfps', 'capitalization']):
+    #     """
+    #
+    #     :name: 每股企业自由现金流量
+    #     :desc: 企业自由现金流量（MRQ）/当日总股本
+    #     :unit: 元
+    #     :view_dimension: 1
+    #     """
+    #     share_indicators = tp_share_indicators.loc[:, dependencies]
+    #     fun = lambda x: (x[0] / x[1] if x[1] and x[1] != 0 else None)
+    #     share_indicators['EnterpriseFCFPS'] = share_indicators[dependencies].apply(fun, axis=1)
+    #     share_indicators = share_indicators.drop(columns=dependencies, axis=1)
+    #     factor_share_indicators = pd.merge(factor_share_indicators, share_indicators, how='outer', on='security_code')
+    #     # factor_share_indicators['EnterpriseFCFPS'] = share_indicators['EnterpriseFCFPS']
+    #
+    #     return factor_share_indicators
 
     @staticmethod
     def NetAssetPS(tp_share_indicators, factor_share_indicators, dependencies=['total_owner_equities', 'capitalization']):

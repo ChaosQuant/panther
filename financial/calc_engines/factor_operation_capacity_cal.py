@@ -12,7 +12,6 @@ from financial import factor_operation_capacity
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
-from data.model import IndicatorReport
 from data.model import IncomeReport, IncomeTTM
 
 from vision.db.signletion_engine import *
@@ -86,7 +85,7 @@ class CalcEngine(object):
                                                                        BalanceTTM.TOTASSET,
                                                                        BalanceTTM.ADVAPAYM,
                                                                        BalanceTTM.ACCOPAYA,
-                                                                       BalanceTTM.DERILIAB,
+                                                                       BalanceTTM.NOTESPAYA,
                                                                        BalanceTTM.RIGHAGGR,
                                                                        ], dates=[trade_date])
         for column in columns:
@@ -104,7 +103,7 @@ class CalcEngine(object):
             'TOTASSET': 'total_assets',  # 资产总计
             'ADVAPAYM': 'advance_peceipts',  # 预收款项
             'ACCOPAYA': 'accounts_payable',  # 应付账款
-            'DERILIAB': 'notes_payable',  # 应付票据
+            'NOTESPAYA': 'notes_payable',  # 应付票据
             'RIGHAGGR': 'total_owner_equities',
         })
 

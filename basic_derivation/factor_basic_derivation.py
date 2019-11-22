@@ -37,79 +37,79 @@ class FactorBasicDerivation(object):
         self.description = '基础衍生类因子'
 
 
-    @staticmethod
-    def FCFF(tp_derivation, factor_derivation, dependencies=['FCFF']):
-        """
-        :name: 企业自由现金流量(MRQ)
-        :desc: 息前税后利润+折旧与摊销-营运资本增加-资本支出 = 息税前利润(1-所得税率)+ 折旧与摊销-营运资本增加-构建固定无形和长期资产支付的现金
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def FCFF(tp_derivation, factor_derivation, dependencies=['FCFF']):
+    #     """
+    #     :name: 企业自由现金流量(MRQ)
+    #     :desc: 息前税后利润+折旧与摊销-营运资本增加-资本支出 = 息税前利润(1-所得税率)+ 折旧与摊销-营运资本增加-构建固定无形和长期资产支付的现金
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-    @staticmethod
-    def FCFE(tp_derivation, factor_derivation, dependencies=['FCFE']):
-        """
-        :name: 股东自由现金流量(MRQ)
-        :desc: 企业自由现金流量-偿还债务所支付的现金+取得借款收到的现金+发行债券所收到的现金（MRQ)
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <= 0:
-            return None
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def FCFE(tp_derivation, factor_derivation, dependencies=['FCFE']):
+    #     """
+    #     :name: 股东自由现金流量(MRQ)
+    #     :desc: 企业自由现金流量-偿还债务所支付的现金+取得借款收到的现金+发行债券所收到的现金（MRQ)
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <= 0:
+    #         return None
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-    @staticmethod
-    def NonRecGainLoss(tp_derivation, factor_derivation, dependencies=['NEGAL']):
-        """
-        :name: 非经常性损益(MRQ)
-        :desc: 非经常性损益(MRQ)
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <= 0:
-            return None
-        management = management.rename(columns={'NEGAL': 'NonRecGainLoss'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def NonRecGainLoss(tp_derivation, factor_derivation, dependencies=['NEGAL']):
+    #     """
+    #     :name: 非经常性损益(MRQ)
+    #     :desc: 非经常性损益(MRQ)
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <= 0:
+    #         return None
+    #     management = management.rename(columns={'NEGAL': 'NonRecGainLoss'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-    @staticmethod
-    def NetOptInc(tp_derivation, factor_derivation, dependencies=['NOPI']):
-        """
+    # @staticmethod
+    # def NetOptInc(tp_derivation, factor_derivation, dependencies=['NOPI']):
+    #     """
+    #
+    #     :name: 经营活动净收益(MRQ)
+    #     :desc: "旧准则：主营业务利润+其他业务利润-营业费用-管理费用-财务费用 新准则（一般企业）：营业总收入-营业总成本新准则（银行）：手续费及佣金净收入+利息净收入+其他业务净收益-营业支出新准则（证券）：手续费及佣金净收入+利息净收入+其他业务收入-营业支出新准则（保险）：营业收入-营业支出-（公允价值变动净收益+投资争收益+汇兑净收益）"
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'NOPI': 'NetOptInc'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-        :name: 经营活动净收益(MRQ)
-        :desc: "旧准则：主营业务利润+其他业务利润-营业费用-管理费用-财务费用 新准则（一般企业）：营业总收入-营业总成本新准则（银行）：手续费及佣金净收入+利息净收入+其他业务净收益-营业支出新准则（证券）：手续费及佣金净收入+利息净收入+其他业务收入-营业支出新准则（保险）：营业收入-营业支出-（公允价值变动净收益+投资争收益+汇兑净收益）"
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'NOPI': 'NetOptInc'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
-
-    @staticmethod
-    def WorkingCap(tp_derivation, factor_derivation, dependencies=['WORKCAP']):
-        """
-        :name:  运营资本(MRQ)
-        :desc:  流动资产（MRQ）-流动负债（MRQ）
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <= 0:
-            return None
-        management = management.rename(columns={'WORKCAP': 'WorkingCap'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def WorkingCap(tp_derivation, factor_derivation, dependencies=['WORKCAP']):
+    #     """
+    #     :name:  运营资本(MRQ)
+    #     :desc:  流动资产（MRQ）-流动负债（MRQ）
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <= 0:
+    #         return None
+    #     management = management.rename(columns={'WORKCAP': 'WorkingCap'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     # @staticmethod
     # def TangibleAssets(tp_derivation, factor_derivation, dependencies=['RIGHAGGR',
@@ -133,21 +133,21 @@ class FactorBasicDerivation(object):
     #     management = management.drop(dependencies, axis=1)
     #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
     #     return factor_derivation
-
-    @staticmethod
-    def RetainedEarnings(tp_derivation, factor_derivation, dependencies=['RETAINEDEAR']):
-        """
-        :name: 留存收益(MRQ)
-        :desc: 盈余公积+未分配利润（MRQ）
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'RETAINEDEAR': 'RetainedEarnings'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    #
+    # @staticmethod
+    # def RetainedEarnings(tp_derivation, factor_derivation, dependencies=['RETAINEDEAR']):
+    #     """
+    #     :name: 留存收益(MRQ)
+    #     :desc: 盈余公积+未分配利润（MRQ）
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'RETAINEDEAR': 'RetainedEarnings'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     @staticmethod
     def InterestBearingLiabilities(tp_derivation, factor_derivation, dependencies=['shortterm_loan',
@@ -171,50 +171,50 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def NetDebt(tp_derivation, factor_derivation, dependencies=['NDEBT']):
-        """
-        :name: 净债务(MRQ)
-        :desc: 带息债务-货币资金（MRQ）
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'NDEBT': 'NetDebt'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def NetDebt(tp_derivation, factor_derivation, dependencies=['NDEBT']):
+    #     """
+    #     :name: 净债务(MRQ)
+    #     :desc: 带息债务-货币资金（MRQ）
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'NDEBT': 'NetDebt'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-    @staticmethod
-    def InterestFreeCurLb(tp_derivation, factor_derivation, dependencies=['NONINTCURLIABS']):
-        """
-        :name: 无息流动负债(MRQ)
-        :desc: 应付帐款+预收款项+应付职工薪酬+应交税费+其他应付款+预提费用+递延收益.流动负债+其他流动负债
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'NONINTCURLIABS': 'InterestFreeCurLb'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def InterestFreeCurLb(tp_derivation, factor_derivation, dependencies=['NONINTCURLIABS']):
+    #     """
+    #     :name: 无息流动负债(MRQ)
+    #     :desc: 应付帐款+预收款项+应付职工薪酬+应交税费+其他应付款+预提费用+递延收益.流动负债+其他流动负债
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'NONINTCURLIABS': 'InterestFreeCurLb'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-    @staticmethod
-    def InterestFreeNonCurLb(tp_derivation, factor_derivation, dependencies=['NONINTNONCURLIAB']):
-        """
-        :name: 无息非流动负债(MRQ)
-        :desc: 旧准则：长期负债合计-长期借款-应付债券 新准则：非流动负债合计-长期借款-应付债券
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'NONINTNONCURLIAB': 'InterestFreeNonCurLb'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def InterestFreeNonCurLb(tp_derivation, factor_derivation, dependencies=['NONINTNONCURLIAB']):
+    #     """
+    #     :name: 无息非流动负债(MRQ)
+    #     :desc: 旧准则：长期负债合计-长期借款-应付债券 新准则：非流动负债合计-长期借款-应付债券
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'NONINTNONCURLIAB': 'InterestFreeNonCurLb'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     # @staticmethod
     # def DepAndAmo(tp_derivation, factor_derivation, dependencies=['CURDEPANDAMOR']):
@@ -245,20 +245,20 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def TotalInvestedCap(tp_derivation, factor_derivation, dependencies=['TOTIC']):
-        """
-        :name: 全部投入资本(MRQ)
-        :desc: 全部投入资本(MRQ)
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'TOTIC': 'TotalInvestedCap'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def TotalInvestedCap(tp_derivation, factor_derivation, dependencies=['TOTIC']):
+    #     """
+    #     :name: 全部投入资本(MRQ)
+    #     :desc: 全部投入资本(MRQ)
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'TOTIC': 'TotalInvestedCap'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     @staticmethod
     def TotalAssets(tp_derivation, factor_derivation, dependencies=['TOTASSET']):
@@ -335,23 +335,23 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def EBIAT(tp_derivation, factor_derivation, dependencies=['EBIT',
-                                                              'INCOTAXEXPE']):
-        """
-        :name: 息前税后利润(MRQ)
-        :desc: 息前税后利润 = 息税前利润－息税前利润所得税。 息税前利润所得税 = 全部所得税－利息净损益所得税 利润总额+财务费用
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        func = lambda x: x[0] - x[1] if x[0] is not None and x[1] is not None else None
-        management['EBIAT'] = management[dependencies].apply(func, axis=1)
-        management = management.drop(dependencies, axis=1)
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def EBIAT(tp_derivation, factor_derivation, dependencies=['EBIT',
+    #                                                           'INCOTAXEXPE']):
+    #     """
+    #     :name: 息前税后利润(MRQ)
+    #     :desc: 息前税后利润 = 息税前利润－息税前利润所得税。 息税前利润所得税 = 全部所得税－利息净损益所得税 利润总额+财务费用
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     func = lambda x: x[0] - x[1] if x[0] is not None and x[1] is not None else None
+    #     management['EBIAT'] = management[dependencies].apply(func, axis=1)
+    #     management = management.drop(dependencies, axis=1)
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     @staticmethod
     def SalesTTM(tp_derivation, factor_derivation, dependencies=['BIZTOTINCO']):
@@ -398,20 +398,20 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def GrossMarginTTM(tp_derivation, factor_derivation, dependencies=['OPGPMARGIN']):
-        """
-        :name: 毛利(TTM) 营业毛利润
-        :desc: 根据截止指定日已披露的最新报告期“毛利”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'OPGPMARGIN': 'GrossMarginTTM'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def GrossMarginTTM(tp_derivation, factor_derivation, dependencies=['OPGPMARGIN']):
+    #     """
+    #     :name: 毛利(TTM) 营业毛利润
+    #     :desc: 根据截止指定日已披露的最新报告期“毛利”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'OPGPMARGIN': 'GrossMarginTTM'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     @staticmethod
     def SalesExpensesTTM(tp_derivation, factor_derivation, dependencies=['SALESEXPE']):
@@ -537,20 +537,20 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def NetIncFromValueChgTTM(tp_derivation, factor_derivation, dependencies=['NVALCHGIT']):
-        """
-        :name: 价值变动净收益(TTM)
-        :desc: 根据截止指定日已披露的最新报告期“价值变动净收益”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <= 0:
-            return None
-        management = management.rename(columns={'NVALCHGIT': 'NetIncFromValueChgTTM'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def NetIncFromValueChgTTM(tp_derivation, factor_derivation, dependencies=['NVALCHGIT']):
+    #     """
+    #     :name: 价值变动净收益(TTM)
+    #     :desc: 根据截止指定日已披露的最新报告期“价值变动净收益”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <= 0:
+    #         return None
+    #     management = management.rename(columns={'NVALCHGIT': 'NetIncFromValueChgTTM'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     @staticmethod
     def OptProfitTTM(tp_derivation, factor_derivation, dependencies=['PERPROFIT']):
@@ -586,21 +586,21 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def EBITTTM(tp_derivation, factor_derivation, dependencies=['EBIT']):
-        """
-        :name: 息税前利润(TTM)
-        :desc: 根据截止指定日已披露的最新报告期“EBIT(反推法）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'EBIT': 'EBITTTM'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def EBITTTM(tp_derivation, factor_derivation, dependencies=['EBIT']):
+    #     """
+    #     :name: 息税前利润(TTM)
+    #     :desc: 根据截止指定日已披露的最新报告期“EBIT(反推法）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'EBIT': 'EBITTTM'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     @staticmethod
     def IncTaxTTM(tp_derivation, factor_derivation, dependencies=['INCOTAXEXPE']):
@@ -662,51 +662,52 @@ class FactorBasicDerivation(object):
         factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
         return factor_derivation
 
-    @staticmethod
-    def NetProfAfterNonRecGainsAndLossTTM(tp_derivation, factor_derivation, dependencies=['NPCUT']):
-        """
-        :name: 扣除非经常性损益后的净利润(TTM)
-        :desc: 根据截止指定日已披露的最新报告期“扣除非经常性损益后的净利润”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'NPCUT': 'NetProfAfterNonRecGainsAndLossTTM'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def NetProfAfterNonRecGainsAndLossTTM(tp_derivation, factor_derivation, dependencies=['NPCUT']):
+    #     """
+    #     :name: 扣除非经常性损益后的净利润(TTM)
+    #     :desc: 根据截止指定日已披露的最新报告期“扣除非经常性损益后的净利润”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'NPCUT': 'NetProfAfterNonRecGainsAndLossTTM'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-    def EBITFORPTTM(tp_derivation, factor_derivation, dependencies=['TOTPROFIT',
-                                                                    'FINEXPE']):
-        """
-        :name: EBIT(TTM)
-        :desc: EBIT=利润总额+财务费用, 根据截止指定日已披露的最新报告期“EBIT(正向）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        func = lambda x: x[0] + x[1] if x[0] is not None and x[1] is not None else None
-        management['EBITFORPTTM'] = management[dependencies].apply(func, axis=1)
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def EBITFORPTTM(tp_derivation, factor_derivation, dependencies=['TOTPROFIT',
+    #                                                                 'FINEXPE']):
+    #     """
+    #     :name: EBIT(TTM)
+    #     :desc: EBIT=利润总额+财务费用, 根据截止指定日已披露的最新报告期“EBIT(正向）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     func = lambda x: x[0] + x[1] if x[0] is not None and x[1] is not None else None
+    #     management['EBITFORPTTM'] = management[dependencies].apply(func, axis=1)
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
-    @staticmethod
-    def EBITDATTM(tp_derivation, factor_derivation, dependencies=['EBITDA']):
-        """
-        :name: EBITDA(TTM)
-        :desc: 根据截止指定日已披露的最新报告期“EBITDA(正向）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
-        :unit: 元
-        :view_dimension: 10000
-        """
-        management = tp_derivation.loc[:, dependencies]
-        if len(management) <=0:
-            return None
-        management = management.rename(columns={'EBITDA': 'EBITDATTM'})
-        factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
-        return factor_derivation
+    # @staticmethod
+    # def EBITDATTM(tp_derivation, factor_derivation, dependencies=['EBITDA']):
+    #     """
+    #     :name: EBITDA(TTM)
+    #     :desc: 根据截止指定日已披露的最新报告期“EBITDA(正向）”计算：（1）最新报告期是年报。则TTM=年报；（2）最新报告期不是年报，Q则TTM=本期+（上年年报-上年同期合并数），如果上年年报非空，本期、上年同期台并数存在空值，则返回上年年报。
+    #     :unit: 元
+    #     :view_dimension: 10000
+    #     """
+    #     management = tp_derivation.loc[:, dependencies]
+    #     if len(management) <=0:
+    #         return None
+    #     management = management.rename(columns={'EBITDA': 'EBITDATTM'})
+    #     factor_derivation = pd.merge(factor_derivation, management, how='outer', on="security_code")
+    #     return factor_derivation
 
     @staticmethod
     def CashRecForSGAndPSTTM(tp_derivation, factor_derivation, dependencies=['LABORGETCASH']):
