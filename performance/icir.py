@@ -38,6 +38,7 @@ class ICIR(object):
             #total_group_df = total_group_df.reset_index()[['trade_date','security_code','group']]
             #total_group_df['trade_date'] = total_group_df['trade_date'].apply(lambda x : x.date())
         else:
+            factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x: pd.Timestamp(x))
             total_group_df = factor_df.groupby(['trade_date']).apply(calc_grouped)
             
         return total_group_df.reset_index()[['trade_date','security_code','group']]

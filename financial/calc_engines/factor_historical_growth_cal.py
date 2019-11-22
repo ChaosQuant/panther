@@ -12,7 +12,7 @@ from financial import factor_historical_growth
 
 from data.model import BalanceMRQ, BalanceTTM, BalanceReport
 from data.model import CashFlowTTM, CashFlowReport
-from data.model import IndicatorReport, IndicatorMRQ, IndicatorTTM
+from data.model import IndicatorTTM
 from data.model import IncomeReport, IncomeTTM
 
 from vision.db.signletion_engine import *

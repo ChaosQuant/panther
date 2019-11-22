@@ -41,6 +41,8 @@ class FactorCapitalStructure(object):
         """
         :name: 非流动资产比率
         :desc: 非流动资产/总资产*100%（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -57,6 +59,8 @@ class FactorCapitalStructure(object):
         """
         :name: 长期负债与资产总计之比
         :desc: 非流动负债合计MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -73,6 +77,8 @@ class FactorCapitalStructure(object):
         """
         :name: 长期借款与资产总计之比
         :desc: 长期借款MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -83,28 +89,27 @@ class FactorCapitalStructure(object):
         factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
         return factor_management
 
-    @staticmethod
-    def IntangibleAssetRatio(tp_management, factor_management, dependencies=['intangible_assets',
-                                                                             'development_expenditure',
-                                                                             'good_will',
-                                                                             'total_assets']):
-        """
-        无形资产比率
-        无形资产比率 = （无形资产 + 研发支出 + 商誉）/ 总资产
-        :name: 无形资产比率
-        :desc:（无形资产MRQ+开发支出MRQ+商誉MRQ）/资产总计MRQ           分母为NAN的科目记为0
-        """
-
-        management = tp_management.loc[:, dependencies]
-        management["ia"] = (management.intangible_assets + management.development_expenditure + management.good_will)
-        management['IntangibleAssetRatio'] = np.where(
-            CalcTools.is_zero(management.total_assets.values), 0,
-            management.ia.values / management.total_assets.values)
-        dependencies = dependencies + ['ia']
-        management = management.drop(dependencies, axis=1)
-        factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
-        # factor_management['IntangibleAssetRatio'] = management['IntangibleAssetRatio']
-        return factor_management
+    # @staticmethod
+    # def IntangibleAssetRatio(tp_management, factor_management, dependencies=['intangible_assets',
+    #                                                                          'development_expenditure',
+    #                                                                          'good_will',
+    #                                                                          'total_assets']):
+    #     """
+    #     缺少开发支出
+    #     :name: 无形资产比率
+    #     :desc:（无形资产MRQ+开发支出MRQ+商誉MRQ）/资产总计MRQ           分母为NAN的科目记为0
+    #     """
+    #
+    #     management = tp_management.loc[:, dependencies]
+    #     management["ia"] = (management.intangible_assets + management.development_expenditure + management.good_will)
+    #     management['IntangibleAssetRatio'] = np.where(
+    #         CalcTools.is_zero(management.total_assets.values), 0,
+    #         management.ia.values / management.total_assets.values)
+    #     dependencies = dependencies + ['ia']
+    #     management = management.drop(dependencies, axis=1)
+    #     factor_management = pd.merge(factor_management, management, how='outer', on="security_code")
+    #     # factor_management['IntangibleAssetRatio'] = management['IntangibleAssetRatio']
+    #     return factor_management
 
     @staticmethod
     def FixAssetsRt(tp_management, factor_management, dependencies=['fixed_assets',
@@ -114,6 +119,8 @@ class FactorCapitalStructure(object):
         """
         :name: 固定资产比率
         :desc: (固定资产*MRQ+工程物资MRQ+在建工程MRQ）/资产总计MRQ；分母为NAN的科目记为0
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -132,6 +139,8 @@ class FactorCapitalStructure(object):
         """
         :name: 股东权益比率
         :desc: 股东权益MRQ/资产总计MRQ
+        :unit:
+        :view_dimension: 0.01
         """
 
         management = tp_management.loc[:, dependencies]
@@ -150,6 +159,8 @@ class FactorCapitalStructure(object):
         """
         :name: 股东权益与固定资产比率
         :desc: 股东权益MRQ/（固定资产MRQ+工程物资MRQ+在建工程MRQ）分子为NAN的科目记为0
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_management.loc[:, dependencies]
         management['EquityToFixedAsset'] = np.where(
@@ -170,6 +181,8 @@ class FactorCapitalStructure(object):
         """
         :name: 流动资产比率
         :desc: 流动资产/总资产*100%（MRQ）
+        :unit:
+        :view_dimension: 0.01
         """
         management = tp_management.loc[:, dependencies]
         management['CurAssetsR'] = np.where(

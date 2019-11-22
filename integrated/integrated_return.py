@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-import six,pdb,math
+import six, pdb, math
 from scipy import stats
 import numpy as np
 import pandas as pd
 from utilities.singleton import Singleton
 
+
 @six.add_metaclass(Singleton)
-class BasicReturn(object):
+class IntegratedReturn(object):
     def __init__(self):
-        __str__ = 'basic_return'
-        self.name = 'BasicReturn'
+        __str__ = 'integrated_return'
+        self.name = 'IntegratedReturn'
 
     def _se_group(self, se, n_bins):
         """
@@ -30,40 +31,18 @@ class BasicReturn(object):
             group_df['group'] = self._se_group(data[factor_name], n_bins)
             group_df['security_code'] = data['security_code'].values
             return group_df.set_index('security_code')
-        
+
         if industry:
-            factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x : pd.Timestamp(x))
-            #apply 时间类型只识别Timestamp
+            factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x: pd.Timestamp(x))
+            # apply 时间类型只识别Timestamp
             total_group_df = factor_df.groupby(['trade_date', 'industry_code']).apply(calc_grouped)
-            #total_group_df = total_group_df.reset_index()[['trade_date','security_code','group']]
-            #total_group_df['trade_date'] = total_group_df['trade_date'].apply(lambda x : x.date())
+            # total_group_df = total_group_df.reset_index()[['trade_date','security_code','group']]
+            # total_group_df['trade_date'] = total_group_df['trade_date'].apply(lambda x : x.date())
         else:
             factor_df['trade_date'] = factor_df['trade_date'].apply(lambda x: pd.Timestamp(x))
             total_group_df = factor_df.groupby(['trade_date']).apply(calc_grouped)
-            
-        return total_group_df.reset_index()[['trade_date','security_code','group']]
-        '''
-        if industry:
-            grouped = factor_df.groupby(['trade_date', 'industry'])
-        else:
-            grouped = factor_df.groupby(['trade_date'])
 
-        group_list = []
-        
-        
-        for k, g in grouped:
-            group_df = pd.DataFrame(columns=['trade_date', 'security_code', 'group'])
-            group_df['group'] = self._se_group(g[factor_name], n_bins)
-            group_df['security_code'] = g['security_code']
-            group_df['trade_date'] = g['trade_date']
-            group_list.append(group_df)
-        
-
-        total_group_df = pd.concat(group_list, axis=0)
-        
-        total_group_df.sort_values(['trade_date', 'security_code'], inplace=True)
-        total_group_df.reset_index(drop=True, inplace=True)
-        '''
+        return total_group_df.reset_index()[['trade_date', 'security_code', 'group']]
 
     def calc_group_rets(self, group_df, n_bins, benchmark_weights=None, industry=False):
         def calc_groupd(data):
@@ -71,25 +50,26 @@ class BasicReturn(object):
             industry_code = data.industry_code.iloc[0]
             group = data.group.iloc[0]
             industry_weight = benchmark_weights[trade_date_u.date()][industry_code] if (
-                                industry_code in benchmark_weights[trade_date_u.date()]) else 0
-            group_weight = pd.DataFrame(columns=['security_code','returns', 'weight'])
+                    industry_code in benchmark_weights[trade_date_u.date()]) else 0
+            group_weight = pd.DataFrame(columns=['security_code', 'returns', 'weight'])
             group_weight['returns'] = data['returns'].values
             group_weight['security_code'] = data['security_code'].values
             group_weight['weight'] = industry_weight / len(data) if len(data) > 0 else 0
-            group_weight['weight'] = group_weight['weight'].fillna(0)/100
+            group_weight['weight'] = group_weight['weight'].fillna(0) / 100
             return group_weight.set_index('returns')
-                
+
         # 中性化分组收益， 非中心化分组收益
         if not industry:
             group_rets = group_df.groupby(['trade_date', 'group']).apply(lambda x: x['returns'].mean())
             group_rets = group_rets.unstack()
-            group_rets = group_rets.rename(columns={i:'q'+str(i) for i in range(1,6)})
+            # group_rets = group_rets.shift(1).dropna()
+            group_rets = group_rets.rename(columns={i: 'q' + str(i) for i in range(1, 6)})
             group_rets = group_rets.reset_index()
-            group_rets['trade_date'] = group_rets['trade_date'].apply(lambda x : pd.Timestamp(x))
+            group_rets['trade_date'] = group_rets['trade_date'].apply(lambda x: pd.Timestamp(x))
             group_rets = group_rets.set_index('trade_date')
             return group_rets
         else:
-            group_df['trade_date'] = group_df['trade_date'].apply(lambda x : pd.Timestamp(x))
+            group_df['trade_date'] = group_df['trade_date'].apply(lambda x: pd.Timestamp(x))
             group_weights = group_df.groupby(['trade_date', 'industry_code', 'group'], axis=0).apply(calc_groupd)
             '''
             grouped = group_df.groupby(['trade_date', 'industry_code', 'group'])
@@ -104,7 +84,7 @@ class BasicReturn(object):
                 group_weight['weight'] = industry_weight / len(g) if len(g) > 0 else 0
                 group_weight['weight'] = group_weight['weight'].fillna(0)
                 total_list.append(group_weight)
-    
+
             group_weights = pd.concat(total_list, axis=0)
             '''
             group_weights = group_weights.reset_index()
@@ -112,7 +92,8 @@ class BasicReturn(object):
             group_rets = group_weights.groupby(['trade_date', 'group']).apply(
                 lambda x: x.dropna()['returns'].dot(x.dropna()['weight']))
             group_rets = group_rets.unstack()
-            group_rets = group_rets.rename(columns={i:'q'+str(i) for i in range(1,6)})
+            # group_rets = group_rets.shift(1).dropna()
+            group_rets = group_rets.rename(columns={i: 'q' + str(i) for i in range(1, 6)})
 
             return group_rets
 
@@ -120,46 +101,25 @@ class BasicReturn(object):
         rlt_rets = {}
         for col in group_rets_df.columns:
             rlt_rets[col] = group_rets_df[col] - benchmark_rets_se
-    
+
         relative_rets_df = pd.DataFrame(rlt_rets, index=group_rets_df.index)
-    
+
         return relative_rets_df
-    
-    def calc_group_hitratio(self, group_rets_df, benchmark_rets_se):
-        # 返回字典
-        group_hitratio = {}
-        group_rets_df = group_rets_df.copy(deep=True).replace([np.inf, -np.inf], np.nan).fillna(0)
-        for i in range(1,6):
-            se = group_rets_df['ret_q'+str(i)] - benchmark_rets_se
-            se = se.dropna()
-            group_hitratio['hr_q'+str(i)] = (sum(se>0) / len(se)) if len(se)!=0 else 0
-    
-        return group_hitratio
-    
-    def calc_cs_group_hitratio(self, stock_rets_df, benchmark_rets_se):
-        # pdb.set_trace()
-        stock_rets_df = stock_rets_df.copy(deep=True)
-        stock_rets_df = stock_rets_df.set_index('trade_date')
-        stock_rets_df['hit'] = stock_rets_df['returns'] - benchmark_rets_se
-        cs_hit = stock_rets_df.groupby(['trade_date', 'group']).apply(lambda x: sum(x['hit'] > 0) / len(x['hit']) * 100)
-        cs_hit = cs_hit.unstack()
-        cs_hit.rename(columns={col: 'ba_q' + str(col) for col in cs_hit.columns}, inplace=True)
-        group_cs_hitratio = cs_hit.mean().to_dict()
-        return group_cs_hitratio
-    
+
     # 非中性化 分组收益
     def group_rets_df_non_neu(self, total_data, factor_name, benchmark, universe):
         groups = self.calc_group(total_data, factor_name)
         total_data = pd.merge(total_data, groups, on=['trade_date', 'security_code'])
         group_rets_df_non_neu = self.calc_group_rets(total_data, 5)
-        group_rets_df_non_neu = group_rets_df_non_neu.rename(columns={'q'+str(i):'ret_q'+str(i) for i in range(1,6)})
-        group_rets_df_non_neu['spread'] = group_rets_df_non_neu['ret_q1'] - group_rets_df_non_neu['ret_q5']
+        group_rets_df_non_neu = group_rets_df_non_neu.rename(
+            columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
+        group_rets_df_non_neu['spread'] = group_rets_df_non_neu['ret_q5'] - group_rets_df_non_neu['ret_q1']
         group_rets_df_non_neu['benchmark'] = benchmark
         group_rets_df_non_neu['universe'] = universe
         group_rets_df_non_neu['factor_name'] = factor_name
         group_rets_df_non_neu['neutralization'] = 0
         return group_rets_df_non_neu
-    
+
     # 中性化 分组收益
     def group_rets_df_neu(self, total_data, benchmark_weights, factor_name, benchmark, universe):
         benchmark_weights_dict = benchmark_weights.T.to_dict()
@@ -169,10 +129,41 @@ class BasicReturn(object):
         groups = self.calc_group(total_data, factor_name, industry=True)
         total_data = pd.merge(total_data, groups, on=['trade_date', 'security_code'])
         group_rets_df_neu = self.calc_group_rets(total_data, 5, benchmark_weights=benchmark_weights_dict, industry=True)
-        group_rets_df_neu = group_rets_df_neu.rename(columns={'q'+str(i):'ret_q'+str(i) for i in range(1,6)})
-        group_rets_df_neu['spread'] = group_rets_df_neu['ret_q1'] - group_rets_df_neu['ret_q5']
+        group_rets_df_neu = group_rets_df_neu.rename(columns={'q' + str(i): 'ret_q' + str(i) for i in range(1, 6)})
+        group_rets_df_neu['spread'] = group_rets_df_neu['ret_q5'] - group_rets_df_neu['ret_q1']
         group_rets_df_neu['benchmark'] = benchmark
         group_rets_df_neu['universe'] = universe
         group_rets_df_neu['factor_name'] = factor_name
         group_rets_df_neu['neutralization'] = 1
         return group_rets_df_neu
+
+    def calc_top_rets(self, total_data, factor_name, factor_direction, benchmark):
+        """
+        计算投资域内因子排名前10%（如数量超过100则取前100）股票组合的收益。当因子方向为1取因子值最大的股票；
+        当因子方向为-1取因子值最小的股票。
+        :param total_data:
+        :param factor_name:
+        :param factor_direction:
+        :param benchmark:
+        :param universe:
+        :return:
+        """
+
+        grouped = total_data.groupby(['trade_date'])
+        res = []
+
+        for i, g in grouped:
+            group_dict = {}
+            group_dict['trade_date'] = i
+            group_dict['factor_name'] = factor_name
+            group_dict['factor_direction'] = factor_direction
+
+            g = g.sort_values([factor_name], ascending=factor_direction, na_position='first')
+            top = min(round(len(g)/10), 100)
+            group_dict['top_returns'] = g.iloc[-top:]['returns'].mean()
+
+            res.append(group_dict)
+
+        df = pd.DataFrame(res)
+
+        return df.loc[:, ['trade_date', 'factor_name', 'factor_direction', 'top_returns']]

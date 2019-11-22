@@ -28,6 +28,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期净利润(FY1)
         :desc: 一致预期净利润的未来第一年度的预测
+        :unit: 元
+        :view_dimension: 10000
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'net_profit_fy1': 'NPFY1'}, inplace=True)
@@ -39,6 +41,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期净利润(FY2)
         :desc: 一致预期净利润的未来第二年度的预测
+        :unit: 元
+        :view_dimension: 10000
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'net_profit_fy2': 'NPFY2'}, inplace=True)
@@ -50,6 +54,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期每股收益（FY1）
         :desc: 一致预期每股收益未来第一年度的预测均值
+        :unit: 元
+        :view_dimension: 1
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'eps_fy1': 'EPSFY1'}, inplace=True)
@@ -61,6 +67,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期每股收益（FY2）
         :desc: 一致预期每股收益未来第二年度的预测均值
+        :unit: 元
+        :view_dimension: 1
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'eps_fy2': 'EPSFY2'}, inplace=True)
@@ -72,6 +80,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期营业收入（FY1）
         :desc: 一致预期营业收入未来第一年度的预测均值
+        :unit: 元
+        :view_dimension: 10000
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'operating_revenue_fy1': 'OptIncFY1'}, inplace=True)
@@ -83,6 +93,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期营业收入（FY2）
         :desc: 一致预期营业收入未来第二年度的预测均值
+        :unit: 元
+        :view_dimension: 10000
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'operating_revenue_fy2': 'OptIncFY2'}, inplace=True)
@@ -94,6 +106,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期市盈率(PE)(FY1)
         :desc: 一致预期市盈率未来第一年度的预测均值
+        :unit: 倍
+        :view_dimension: 1
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pe_fy1': 'CEPEFY1'}, inplace=True)
@@ -105,6 +119,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期市盈率(PE)(FY2)
         :desc: 一致预期市盈率未来第二年度的预测均值
+        :unit: 倍
+        :view_dimension: 1
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pe_fy2': 'CEPEFY2'}, inplace=True)
@@ -116,6 +132,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期市净率(PB)(FY1)
         :desc: 一致预期市净率未来第一年度的预测均值
+        :unit: 倍
+        :view_dimension: 1
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pb_fy1': 'CEPBFY1'}, inplace=True)
@@ -127,6 +145,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预期市净率(PB)(FY2)
         :desc: 一致预期市净率未来第二年度的预测均值
+        :unit: 倍
+        :view_dimension: 1
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'pb_fy2': 'CEPBFY2'}, inplace=True)
@@ -138,6 +158,8 @@ class FactorEarningExpectation():
         """
         :name: 市盈率相对盈利增长比率(FY1)
         :desc: 未来第一年度市盈率相对盈利增长比率
+        :unit:
+        :view_dimension: 0.01
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'peg_fy1': 'CEPEGFY1'}, inplace=True)
@@ -149,6 +171,8 @@ class FactorEarningExpectation():
         """
         :name: 市盈率相对盈利增长比率(FY2)
         :desc: 未来第二年度市盈率相对盈利增长比率
+        :unit:
+        :view_dimension: 0.01
         """
         earning_expect = tp_earning[tp_earning['publish_date'] == trade_date].loc[:, dependencies]
         earning_expect.rename(columns={'peg_fy2': 'CEPEGFY2'}, inplace=True)
@@ -161,7 +185,7 @@ class FactorEarningExpectation():
         earning_expect_pre = tp_earning[tp_earning['publish_date'] == pre_trade_date].loc[:, colunm]
         earning_expect = pd.merge(earning_expect, earning_expect_pre, on='security_code', how='left')
         earning_expect[factor_name] = (earning_expect[colunm + '_x'] - earning_expect[colunm + '_y']) / \
-                                      earning_expect[colunm + '_y'] * 100
+                                      earning_expect[colunm + '_y']
         earning_expect.drop(columns=[colunm + '_x', colunm + '_y'], inplace=True)
         return earning_expect
 
@@ -179,6 +203,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化率_一周
         :desc: 未来第一年度一致预测净利润一周内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -193,6 +219,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化率_一月
         :desc: 未来第一年度一致预测净利润一月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -207,6 +235,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化率_三月
         :desc: 未来第一年度一致预测净利润三月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -221,6 +251,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化率_六月
         :desc: 未来第一年度一致预测净利润六月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -235,6 +267,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化_一周
         :desc: 未来第一年度一致预测每股收益一周内预测值变化
+        :unit: 元
+        :view_dimension: 1
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -249,6 +283,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化_一月
         :desc: 未来第一年度一致预测每股收益一月内预测值变化
+        :unit: 元
+        :view_dimension: 1
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -263,6 +299,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化_三月
         :desc: 未来第一年度一致预测每股收益三月内预测值变化
+        :unit: 元
+        :view_dimension: 1
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -277,6 +315,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化_六月
         :desc: 未来第一年度一致预测每股收益六月内预测值变化
+        :unit: 元
+        :view_dimension: 1
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -291,6 +331,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化率_一周
         :desc: 未来第一年度一致预测每股收益一周内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -305,6 +347,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化率_一月
         :desc: 未来第一年度一致预测每股收益一月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -319,6 +363,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化率_三月
         :desc: 未来第一年度一致预测每股收益三月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -333,6 +379,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY1)变化率_六月
         :desc: 未来第一年度一致预测每股收益六月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -347,6 +395,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化_一周
         :desc: 未来第一年度一致预测净利润一周内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -361,6 +411,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化_一月
         :desc: 未来第一年度一致预测净利润一月内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -375,6 +427,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化_三月
         :desc: 未来第一年度一致预测净利润三月内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -389,6 +443,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY1)变化_六月
         :desc: 未来第一年度一致预测净利润六月内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -403,6 +459,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测净利润(FY2)与一致预期净利润(FY1)的变化率
         :desc: 未来第二年度一致预测净利润与未来第一年度一致预测净利润变化率
+        :unit:
+        :view_dimension: 0.01
         """
         factor_earning_expect['ChgNPFY1FY2'] = factor_earning_expect['NPFY2'] - factor_earning_expect['NPFY1'] / abs(
             factor_earning_expect['NPFY1']) * 100
@@ -413,6 +471,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测每股收益(FY2)与一致预期每股收益(FY1)的变化率
         :desc: 未来第二年度一致预测每股收益与未来第一年度一致预测每股收益变化率
+        :unit:
+        :view_dimension: 0.01
         """
         factor_earning_expect['ChgEPSFY1FY2'] = factor_earning_expect['EPSFY2'] - factor_earning_expect['EPSFY1'] / abs(
             factor_earning_expect['EPSFY1']) * 100
@@ -423,6 +483,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化_一周
         :desc: 未来第一年度一致预测营业收入一周内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -437,6 +499,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化_一月
         :desc: 未来第一年度一致预测营业收入一月内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -451,6 +515,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化_三月
         :desc: 未来第一年度一致预测营业收入三月内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -465,6 +531,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化_六月
         :desc: 未来第一年度一致预测营业收入六月内预测值变化
+        :unit: 元
+        :view_dimension: 10000
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -479,6 +547,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化率_一周
         :desc: 未来第一年度一致预测营业收入一周内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -493,6 +563,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化率_一月
         :desc: 未来第一年度一致预测营业收入一月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -507,6 +579,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化率_三月
         :desc: 未来第一年度一致预测营业收入三月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -521,6 +595,8 @@ class FactorEarningExpectation():
         """
         :name: 一致预测营业收入(FY1)变化率_六月
         :desc: 未来第一年度一致预测营业收入六月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:
@@ -543,6 +619,8 @@ class FactorEarningExpectation():
         """
         :name: 一周评级变化率
         :desc: 研究机构买入评级一周内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 2:
@@ -557,6 +635,8 @@ class FactorEarningExpectation():
         """
         :name: 一月评级变化率
         :desc: 研究机构买入评级一月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 3:
@@ -571,6 +651,8 @@ class FactorEarningExpectation():
         """
         :name: 三月评级变化率
         :desc: 研究机构买入评级三月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 4:
@@ -585,6 +667,8 @@ class FactorEarningExpectation():
         """
         :name: 六月评级变化率
         :desc: 研究机构买入评级六月内预测值变化率
+        :unit:
+        :view_dimension: 0.01
         """
         trade_dates = sorted(set(tp_earning['publish_date']), reverse=True)
         if len(trade_dates) >= 5:

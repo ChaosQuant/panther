@@ -39,6 +39,8 @@ class FactorCashFlow(object):
         """
         :name: 经验活动产生的现金流量净额/营业收入
         :desc: 经营活动产生的现金流量净额/营业收入(MRQ)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = tp_cash_flow.loc[:, dependencies]
         cash_flow['CashOfSales'] = np.where(CalcTools.is_zero(cash_flow.operating_revenue.values),
@@ -54,6 +56,8 @@ class FactorCashFlow(object):
         """
         :name: 经营活动产生的现金流量净额/(营业总收入-营业总成本)
         :desc: 经营活动产生的现金流量净额/(营业总收入-营业总成本)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = tp_cash_flow.loc[:, dependencies]
         cash_flow['NOCFToOpt'] = np.where(
@@ -70,6 +74,8 @@ class FactorCashFlow(object):
         """
         :name: 销售商品和提供劳务收到的现金/营业收入
         :desc: 销售商品和提供劳务收到的现金/营业收入
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = tp_cash_flow.loc[:, dependencies]
         cash_flow['SalesServCashToOR'] = np.where(CalcTools.is_zero(cash_flow.operating_revenue.values),
@@ -85,6 +91,8 @@ class FactorCashFlow(object):
         """
         :name:(经营活动产生的金流量净额(TTM)-净利润(TTM)) /总资产(TTM)
         :desc:(经营活动产生的金流量净额(TTM) - 净利润(TTM)) /总资产(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptOnReToAssetTTM'] = np.where(CalcTools.is_zero(cash_flow.total_assets.values), 0,
@@ -100,6 +108,8 @@ class FactorCashFlow(object):
         """
         :name: 经营活动产生的现金流量净额(TTM)/归属于母公司所有者的净利润(TTM)
         :desc: 经营活动产生的现金流量净额(TTM)/归属于母公司所有者的净利润(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['NetProCashCoverTTM'] = np.where(
@@ -115,6 +125,8 @@ class FactorCashFlow(object):
         """
         :name: 经营活动产生的现金流量净额(TTM)/企业价值(TTM)
         :desc: 经营活动产生的现金流量净额(TTM)/(长期借款(TTM)+ 短期借款(TTM)+ 总市值 - 期末现金及现金等价物(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptToEnterpriseTTM'] = np.where(CalcTools.is_zero(
@@ -131,6 +143,8 @@ class FactorCashFlow(object):
         """
         :name: 经营活动产生的现金流量净额(TTM)/营业收入(TTM)
         :desc: 经营活动产生的现金流量净额(TTM)/营业收入(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptCFToRevTTM'] = np.where(
@@ -146,6 +160,8 @@ class FactorCashFlow(object):
         """
         :name: 经营活动产生的现金流量净额(TTM)/总资产(TTM)
         :desc: 经营活动产生的现金流量净额(TTM)/总资产(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['OptToAssertTTM'] = np.where(CalcTools.is_zero(cash_flow.total_assets.values),
@@ -161,7 +177,9 @@ class FactorCashFlow(object):
                                                                               'operating_revenue']):
         """
         :name: 销售商品和提供劳务收到的现金(TTM)/营业收入(TTM)
-        :desc: 销售商品提供劳务收到的现金(TTM)/营业收入(TTM)*100%
+        :desc: 销售商品提供劳务收到的现金(TTM)/营业收入(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
         cash_flow['SaleServCashToOptReTTM'] = np.where(
@@ -175,7 +193,9 @@ class FactorCashFlow(object):
     def NOCFTOOPftTTM(ttm_cash_flow, factor_cash_flow, dependencies=['net_operate_cash_flow', 'operating_profit']):
         """
         :name: 经营活动产生的现金流量净额/营业利润(TTM)
-        :desc: 经营活动产生的现金流量净额(TTM)/营业利润(TTM)*100%
+        :desc: 经营活动产生的现金流量净额(TTM)/营业利润(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
 
@@ -191,7 +211,9 @@ class FactorCashFlow(object):
                                                                     'total_operating_cost']):
         """
         :name: 经营活动产生的现金流量净额(TTM)/经营活动净收益(TTM)
-        :desc: 经营活动产生的现金流量净额(TTM)/经营活动净收益(TTM)*100%
+        :desc: 经营活动产生的现金流量净额(TTM)/经营活动净收益(TTM)
+        :unit:
+        :view_dimension: 0.01
         """
         cash_flow = ttm_cash_flow.loc[:, dependencies]
 
@@ -208,6 +230,8 @@ class FactorCashFlow(object):
         现金流市值比 = 每股派现 * 分红前总股本/总市值
         :name:
         :desc:
+        :unit:
+        :view_dimension: 0.01
         """
 
         historical_value = tp_historical_value.loc[:, dependencies]
@@ -226,6 +250,8 @@ class FactorCashFlow(object):
         5 年平均现金流市值比  = 近5年每股派现 * 分红前总股本/近5年总市值
         :name:
         :desc:
+        :unit:
+        :view_dimension: 0.01
         """
         historical_value = tp_historical_value.loc[:, dependencies]
 

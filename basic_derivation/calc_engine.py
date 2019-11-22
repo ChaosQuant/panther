@@ -12,7 +12,7 @@ from basic_derivation import factor_basic_derivation
 
 from data.model import BalanceMRQ
 from data.model import CashFlowMRQ, CashFlowTTM
-from data.model import IndicatorMRQ, IndicatorTTM
+# from data.model import IndicatorMRQ, IndicatorTTM
 from data.model import IncomeMRQ, IncomeTTM
 
 from vision.db.signletion_engine import *
@@ -62,13 +62,23 @@ class CalcEngine(object):
                                                                         BalanceMRQ.TOTASSET,
                                                                         BalanceMRQ.FIXEDASSECLEATOT,
                                                                         BalanceMRQ.TOTLIAB,
-                                                                        BalanceMRQ.RIGHAGGR,
+                                                                        BalanceMRQ.RIGHAGGR,  # 股东权益合计
                                                                         BalanceMRQ.INTAASSET,
-                                                                        BalanceMRQ.DEVEEXPE,
+                                                                        # BalanceMRQ.DEVEEXPE,
                                                                         BalanceMRQ.GOODWILL,
                                                                         BalanceMRQ.LOGPREPEXPE,
                                                                         BalanceMRQ.DEFETAXASSET,
                                                                         BalanceMRQ.MINYSHARRIGH,
+                                                                        BalanceMRQ.TOTCURRASSET,  # 流动资产合计
+                                                                        BalanceMRQ.TOTALCURRLIAB,  # 流动负债合计
+                                                                        BalanceMRQ.RESE,  # 盈余公积
+                                                                        BalanceMRQ.UNDIPROF,  # 未分配利润
+                                                                        BalanceMRQ.CURFDS,  # 货币资金
+                                                                        BalanceMRQ.ACCOPAYA,  # 应付帐款
+                                                                        BalanceMRQ.ADVAPAYM,  # 预收款项
+                                                                        BalanceMRQ.NOTESPAYA,  # 应付票据
+                                                                        BalanceMRQ.INTEPAYA,  # 应付利息
+                                                                        BalanceMRQ.TOTALNONCLIAB,  # 非流动负债合计
                                                                         ], dates=[trade_date])
         for col in columns:
             if col in list(balance_sets.keys()):
@@ -81,32 +91,35 @@ class CalcEngine(object):
             'INTEPAYA': 'interest_payable',  # 应付利息
         })
 
-        indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorMRQ,
-                                                                         [IndicatorMRQ.FCFF,
-                                                                          IndicatorMRQ.FCFE,
-                                                                          IndicatorMRQ.NEGAL,
-                                                                          IndicatorMRQ.NOPI,
-                                                                          IndicatorMRQ.WORKCAP,
-                                                                          IndicatorMRQ.RETAINEDEAR,
-                                                                          IndicatorMRQ.NDEBT,
-                                                                          IndicatorMRQ.NONINTCURLIABS,
-                                                                          IndicatorMRQ.NONINTNONCURLIAB,
-                                                                          IndicatorMRQ.CURDEPANDAMOR,
-                                                                          IndicatorMRQ.TOTIC,
-                                                                          IndicatorMRQ.EBIT,
-                                                                          ], dates=[trade_date])
-        for col in columns:
-            if col in list(indicator_sets.keys()):
-                indicator_sets = indicator_sets.drop(col, axis=1)
+        # indicator_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorMRQ,
+        #                                                                  [IndicatorMRQ.FCFF,
+        #                                                                   IndicatorMRQ.FCFE,
+        #                                                                   IndicatorMRQ.NEGAL,
+        #                                                                   IndicatorMRQ.NOPI,
+        #                                                                   IndicatorMRQ.WORKCAP,
+        #                                                                   IndicatorMRQ.RETAINEDEAR,
+        #                                                                   IndicatorMRQ.NDEBT,
+        #                                                                   IndicatorMRQ.NONINTCURLIABS,
+        #                                                                   IndicatorMRQ.NONINTNONCURLIAB,
+        #                                                                   # IndicatorMRQ.CURDEPANDAMOR,
+        #                                                                   IndicatorMRQ.TOTIC,
+        #                                                                   IndicatorMRQ.EBIT,
+        #                                                                   ], dates=[trade_date])
+        # for col in columns:
+        #     if col in list(indicator_sets.keys()):
+        #         indicator_sets = indicator_sets.drop(col, axis=1)
+
         income_sets = engine.fetch_fundamentals_pit_extend_company_id(IncomeMRQ,
                                                                       [IncomeMRQ.INCOTAXEXPE,
+                                                                       IncomeMRQ.BIZTOTCOST,  # 营业总成本
+                                                                       IncomeMRQ.BIZTOTINCO,  # 营业总收入
                                                                        ], dates=[trade_date])
         for col in columns:
             if col in list(income_sets.keys()):
                 income_sets = income_sets.drop(col, axis=1)
 
         tp_detivation = pd.merge(cash_flow_sets, balance_sets, how='outer', on='security_code')
-        tp_detivation = pd.merge(indicator_sets, tp_detivation, how='outer', on='security_code')
+        # tp_detivation = pd.merge(indicator_sets, tp_detivation, how='outer', on='security_code')
         tp_detivation = pd.merge(income_sets, tp_detivation, how='outer', on='security_code')
 
         # balance_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(BalanceTTM,
@@ -119,7 +132,7 @@ class CalcEngine(object):
                                                                            IncomeTTM.SALESEXPE,
                                                                            IncomeTTM.MANAEXPE,
                                                                            IncomeTTM.FINEXPE,
-                                                                           IncomeTTM.INTEEXPE,
+                                                                           # IncomeTTM.INTEEXPE,
                                                                            IncomeTTM.ASSEIMPALOSS,
                                                                            IncomeTTM.PERPROFIT,
                                                                            IncomeTTM.TOTPROFIT,
@@ -142,25 +155,26 @@ class CalcEngine(object):
                                                                               CashFlowTTM.INVNETCASHFLOW,
                                                                               CashFlowTTM.FINNETCFLOW,
                                                                               CashFlowTTM.CASHNETI,
+                                                                              # CashFlowTTM.INTEEXPE
                                                                               ], dates=[trade_date])
         for col in columns:
             if col in list(cash_flow_ttm_sets.keys()):
                 cash_flow_ttm_sets = cash_flow_ttm_sets.drop(col, axis=1)
 
-        indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
-                                                                             [IndicatorTTM.OPGPMARGIN,
-                                                                              IndicatorTTM.NPCUT,
-                                                                              IndicatorTTM.NVALCHGIT,
-                                                                              IndicatorTTM.EBITDA,
-                                                                              IndicatorTTM.EBIT,
-                                                                              IndicatorTTM.EBITFORP,
-                                                                              ], dates=[trade_date])
-        for col in columns:
-            if col in list(indicator_ttm_sets.keys()):
-                indicator_ttm_sets = indicator_ttm_sets.drop(col, axis=1)
+        # indicator_ttm_sets = engine.fetch_fundamentals_pit_extend_company_id(IndicatorTTM,
+        #                                                                      [IndicatorTTM.OPGPMARGIN,
+        #                                                                       IndicatorTTM.NPCUT,
+        #                                                                       IndicatorTTM.NVALCHGIT,
+        #                                                                       IndicatorTTM.EBITDA,
+        #                                                                       IndicatorTTM.EBIT,
+        #                                                                       IndicatorTTM.EBITFORP,
+        #                                                                       ], dates=[trade_date])
+        # for col in columns:
+        #     if col in list(indicator_ttm_sets.keys()):
+        #         indicator_ttm_sets = indicator_ttm_sets.drop(col, axis=1)
 
         ttm_derivation = pd.merge(income_ttm_sets, cash_flow_ttm_sets, how='outer', on='security_code')
-        ttm_derivation = pd.merge(indicator_ttm_sets, ttm_derivation, how='outer', on='security_code')
+        # ttm_derivation = pd.merge(indicator_ttm_sets, ttm_derivation, how='outer', on='security_code')
 
         return tp_detivation, ttm_derivation
 
@@ -180,13 +194,13 @@ class CalcEngine(object):
         factor_derivation = derivation.NonRecGainLoss(tp_derivation, factor_derivation)
         factor_derivation = derivation.NetOptInc(tp_derivation, factor_derivation)
         factor_derivation = derivation.WorkingCap(tp_derivation, factor_derivation)
-        factor_derivation = derivation.TangibleAssets(tp_derivation, factor_derivation)
+        # factor_derivation = derivation.TangibleAssets(tp_derivation, factor_derivation)
         factor_derivation = derivation.RetainedEarnings(tp_derivation, factor_derivation)
         factor_derivation = derivation.InterestBearingLiabilities(tp_derivation, factor_derivation)
         factor_derivation = derivation.NetDebt(tp_derivation, factor_derivation)
         factor_derivation = derivation.InterestFreeCurLb(tp_derivation, factor_derivation)
         factor_derivation = derivation.InterestFreeNonCurLb(tp_derivation, factor_derivation)
-        factor_derivation = derivation.DepAndAmo(tp_derivation, factor_derivation)
+        # factor_derivation = derivation.DepAndAmo(tp_derivation, factor_derivation)
         factor_derivation = derivation.EquityPC(tp_derivation, factor_derivation)
         factor_derivation = derivation.TotalInvestedCap(tp_derivation, factor_derivation)
         factor_derivation = derivation.TotalAssets(tp_derivation, factor_derivation)
@@ -203,7 +217,7 @@ class CalcEngine(object):
         factor_derivation = derivation.AdmFeeTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.FinFeeTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.PerFeeTTM(ttm_derivation, factor_derivation)
-        factor_derivation = derivation.InterestExpTTM(ttm_derivation, factor_derivation)
+        # factor_derivation = derivation.InterestExpTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.MinorInterestTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.AssetImpLossTTM(ttm_derivation, factor_derivation)
         factor_derivation = derivation.NetIncFromOptActTTM(ttm_derivation, factor_derivation)
